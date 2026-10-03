@@ -1,0 +1,13 @@
+revoke all on public.profiles,public.teams,public.team_members,public.worlds,public.progress,public.team_records,public.requests,public.request_comments from authenticated;
+revoke update(id,game_id,created_at,share_progress) on public.profiles from authenticated;
+revoke update(id,team_id,author_id,title,kind,body,updated_at) on public.team_records from authenticated;
+grant select on public.profiles,public.teams,public.team_members,public.worlds,public.requests,public.request_comments,public.team_records to authenticated;
+grant update(share_progress) on public.profiles to authenticated;
+grant select,insert,update,delete on public.progress to authenticated;
+grant insert on public.requests,public.request_comments,public.team_records to authenticated;
+grant update(title,body,updated_at) on public.team_records to authenticated;
+create unique index worlds_single_user on public.worlds(user_id);
+create index teams_owner on public.teams(owner_id);
+create index records_author on public.team_records(author_id);
+create index comments_author on public.request_comments(author_id);
+create index invites_team on private.invites(team_id);

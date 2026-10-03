@@ -1,0 +1,9 @@
+node_modules/
+.npm-cache/
+首次管理員啟用碼.txt
+test-results/
+*.log
+.env*
+data/equipment-shape.json
+data/languages.json
+data/recipes.json
