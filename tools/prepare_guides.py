@@ -42,7 +42,7 @@ Object.defineProperty(window,'localStorage',{value:store});
 function notify(){const data={};for(const k of Object.keys(real))if(k.startsWith(prefix))data[k.slice(prefix.length)]=real.getItem(k);parent.postMessage({type:'guide-progress',slug,data},location.origin)}
 addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)return;const d=e.data;if(d?.type==='guide-open'){
  if(slug==='equipment'&&typeof drawDetail==='function')drawDetail(d.id);
- else if(slug==='bosses'){const c=[...document.querySelectorAll('[data-id],[data-pet-id]')].find(c=>c.dataset.id===d.id||c.dataset.petId===d.id);if(c){c.closest('section')?.removeAttribute('hidden');c.scrollIntoView({block:'start'});}}
+ else if(slug==='bosses'){const c=[...document.querySelectorAll('[data-id],[data-pet-id]')].find(c=>c.dataset.id===d.id||c.dataset.petId===d.id);if(c){document.querySelector('[data-view='+ (c.dataset.petId?'pets':'boss') +']')?.click();c.hidden=false;c.closest('section')?.removeAttribute('hidden');c.scrollIntoView({block:'start'});}}
  else if(slug==='skills'){const q=document.getElementById('search');if(q){q.value=d.query||d.id;q.dispatchEvent(new Event('input',{bubbles:true}));}}
 }});addEventListener('load',()=>parent.postMessage({type:'guide-ready',slug},location.origin));})();
 </script>'''.replace('SLUG',json.dumps(slug))

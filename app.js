@@ -1,3 +1,4 @@
+import {tagName,stationName,heatName} from './recipe-labels.js';
 import {createClient} from '@supabase/supabase-js';
 import {readGuide,writeGuide} from './guide-progress.js';
 const $=s=>document.querySelector(s),h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),enc=encodeURIComponent;
@@ -42,14 +43,14 @@ function article(id){const a=articles.find(x=>x.id===id);if(!a){app.innerHTML=em
 }
 function itemRecipe(id){const d=recipes[id];let html='';if(d?.recipes?.length){html=d.recipes.map(r=>renderRecipe(r.raw)).join('')}else html=notice('沒有找到可直接展示的普通合成配方。此項目可能需要工作站、改造、召喚或其他取得方式；請以遊戲內配方與指南查詢。');modal(d?.name||nameOf(id),html)}
 function nameOf(id){return recipes[id]?.name||names[id]||collections.find(x=>x.id===id)?.title||id}
-function ingredient(v){if(!v)return '';if(typeof v==='string')return nameOf(v);if(Array.isArray(v))return v.map(ingredient).join(' 或 ');if(v.item)return nameOf(v.item)+(v.count?' × '+v.count:'');if(v.tag)return '符合材料分類：'+v.tag;return h(JSON.stringify(v))}
+function ingredient(v){if(!v)return '';if(typeof v==='string')return nameOf(v);if(Array.isArray(v))return v.map(ingredient).join(' 或 ');if(v.item)return nameOf(v.item)+(v.count?' × '+v.count:'');if(v.tag)return tagName(v.tag)+'（可用材料依遊戲配方選項）';if(v.fluid)return ({'minecraft:water':'水','minecraft:lava':'熔岩'}[v.fluid]||names[v.fluid]||'指定流體')+(v.amount?' '+v.amount+' mB':'');return '此工作站使用的特殊材料，請以遊戲內選項確認'}
 function renderRecipe(r){
  let body='';if(r.pattern){body=`<table><tbody>${r.pattern.map(row=>`<tr>${[...row].map(k=>`<td>${k===' '?'空格':h(ingredient(r.key?.[k]))}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
  else if(r.ingredients)body=`<ul>${r.ingredients.map(x=>`<li>${h(ingredient(x))}</li>`).join('')}</ul>`;
  else if(r.ingredient)body=`<p>${h(ingredient(r.ingredient))}</p>`;
- if(r.sequence)body+=`<ol>${r.sequence.map(s=>`<li>${h(s.type)}：${h(ingredient(s.ingredients))}</li>`).join('')}</ol>`;
+ if(r.sequence)body+=`<ol>${r.sequence.map(s=>`<li>${h(stationName(s.type))}：${h((s.ingredients||[]).map(ingredient).join('、'))}</li>`).join('')}</ol>`;
  const types={'minecraft:crafting_shaped':'合成台・依格位放置','minecraft:crafting_shapeless':'合成台・不限制格位','minecraft:smelting':'熔爐','minecraft:blasting':'高爐','minecraft:smoking':'煙燻爐','create:pressing':'機械壓製機','create:mixing':'機械攪拌器','create:sequenced_assembly':'序列組裝','create:mechanical_crafting':'機械合成器'};
- return `<section class="panel"><h3>${h(types[r.type]||'指定工作站配方')}</h3>${body}${r.heatRequirement?`<p>熱度：${h(r.heatRequirement)}</p>`:''}${r.loops?`<p>重複 ${r.loops} 次</p>`:''}<p>產物：${h(ingredient(r.result||r.results))}</p><small>本機配方資源；伺服器可能覆蓋。</small></section>`;
+ return `<section class="panel"><h3>${h(types[r.type]||'指定工作站配方')}</h3>${body}${r.heatRequirement?`<p>熱度：${h(heatName(r.heatRequirement))}</p>`:''}${r.loops?`<p>重複 ${r.loops} 次</p>`:''}<p>產物：${h(r.results?r.results.map(ingredient).join('、'):ingredient(r.result))}</p><small>本機配方資源；伺服器可能覆蓋。</small></section>`;
 }
 function catalog(){const {q}=route(),category=q.get('category')||'',query=q.get('q')||'',done=q.get('done')||'all';
  app.innerHTML=heading('冒險收藏圖鑑','先找到目標，再沿取得方式、配方與實戰教學完成收藏。')+`<div class="chips"><a class="btn ${!category?'active':''}" href="#collections">全部</a>${Object.entries(CATEGORIES).filter(([k])=>k!=='advancements').map(([k,v])=>`<a class="btn ${category===k?'active':''}" href="#collections?category=${k}">${v}</a>`).join('')}</div><form class="filters" id="catalog-filter"><input aria-label="搜尋收藏" name="q" placeholder="搜尋名稱、能力、取得途徑…" value="${h(query)}"><select name="done" aria-label="完成狀態"><option value="all">所有進度</option><option value="todo" ${done==='todo'?'selected':''}>尚未完成</option><option value="done" ${done==='done'?'selected':''}>已完成</option><option value="reference" ${done==='reference'?'selected':''}>參考項目</option></select><button class="primary">搜尋</button><input type="hidden" name="category" value="${h(category)}"></form><div id="catalog-results"></div>`;

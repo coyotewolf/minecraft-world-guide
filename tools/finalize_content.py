@@ -44,3 +44,7 @@ for e in S['errors']:
 (D/'summary.json').write_text(json.dumps(S,ensure_ascii=False,separators=(',',':')),encoding='utf8')
 assert all(m in S['modIds'] for a in A for m in a['mods'])
 print('Finalized',len(A),'player tutorials and',len(cards),'recipe cards.')
+
+V=json.loads((D/'advancements.json').read_text(encoding='utf8'));known={v['id'] for v in V}
+for v in V:v['missingParent']=bool(v['parent'] and v['parent'] not in known)
+(D/'advancements.json').write_text(json.dumps(V,ensure_ascii=False,separators=(',',':')),encoding='utf8')
