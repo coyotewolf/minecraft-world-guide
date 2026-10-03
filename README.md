@@ -33,6 +33,6 @@
 
 前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql` 順序套用；已建好的專案不需要重跑。
 
-本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
+本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
 
 免費方案有容量與用量上限；Supabase 低活動的免費專案可能在七天後暫停，可由擁有者於控制台恢復。沒有訂閱付費方案，也沒有以定時請求規避閒置規則。參考 [Supabase 免費方案](https://supabase.com/pricing)、[專案暫停說明](https://supabase.com/docs/guides/platform/free-project-pausing)、[GitHub Pages 使用限制](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)。
