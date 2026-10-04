@@ -34,6 +34,9 @@ if(slug){
     const title=document.querySelector('header.hero h1');
     const row=document.createElement('div');row.className='boss-heading-row';title.before(row);row.append(title);
     const controls=document.createElement('div');controls.className='boss-heading-controls';row.append(controls);
+    const hint=document.createElement('div');hint.id='atlas-control-hint';hint.setAttribute('role','tooltip');hint.hidden=true;document.body.append(hint);
+    let hintTimer;
+    const hideHint=()=>{clearTimeout(hintTimer);hint.hidden=true};
     const expand=find('expand'),collapse=find('collapse'),expandBoss=expand.onclick,collapseBoss=collapse.onclick;
     // Original handlers are initialized before this deferred adapter runs.
     expand.parentElement.hidden=true;find('pet-open').parentElement.hidden=true;
@@ -41,6 +44,14 @@ if(slug){
     for(const [button,label,plus] of [[expand,'全部展開',true],[collapse,'全部收合',false]]){
       button.type='button';button.title=label;button.setAttribute('aria-label',label);
       button.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14${plus?'M12 5v14':''}"/></svg>`;
+      button.setAttribute('aria-describedby',hint.id);
+      let holdTimer,held=false,origin;
+      button.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;hideHint();held=false;origin={x:e.clientX,y:e.clientY};holdTimer=setTimeout(()=>{held=true;hint.textContent=label;hint.hidden=false;const r=button.getBoundingClientRect();hint.style.left=Math.max(8,Math.min(innerWidth-hint.offsetWidth-8,r.left+r.width/2-hint.offsetWidth/2))+'px';hint.style.top=Math.min(innerHeight-hint.offsetHeight-8,r.bottom+8)+'px'},500)});
+      button.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin.x,e.clientY-origin.y)>10){clearTimeout(holdTimer);hideHint()}});
+      button.addEventListener('pointerup',()=>{clearTimeout(holdTimer);origin=null;if(held)hintTimer=setTimeout(hideHint,1800)});
+      button.addEventListener('pointercancel',()=>{clearTimeout(holdTimer);origin=null;held=false;hideHint()});
+      button.addEventListener('contextmenu',e=>e.preventDefault());
+      button.addEventListener('click',e=>{if(held){held=false;e.preventDefault();e.stopImmediatePropagation()}},true);
       controls.append(button);
     }
     const petsSelected=()=>!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');
