@@ -1,0 +1,32 @@
+/* Retain each source's reading hierarchy while sharing the journal's controls. */
+html[data-atlas] .world-guide-banner{display:none}
+html[data-atlas] body{padding-bottom:24px!important}
+html[data-atlas] .masthead,html[data-atlas] header.hero{margin-top:0;padding-top:18px;padding-bottom:16px}
+html[data-atlas] .masthead h1,html[data-atlas] header.hero h1{font-size:clamp(22px,5.5vw,34px)}
+html[data-atlas] input,html[data-atlas] select,html[data-atlas] textarea{font-size:16px;max-width:100%}
+html[data-atlas] img{image-rendering:pixelated}
+html[data-atlas] p,html[data-atlas] dd,html[data-atlas] td{overflow-wrap:anywhere}
+html[data-atlas=equipment] .navigation{position:sticky!important;top:0!important;bottom:auto!important;width:100%!important;max-width:none!important;left:auto!important;transform:none!important;margin:0 0 18px;z-index:15}
+html[data-atlas=equipment] .navigation button{min-height:48px}
+html[data-atlas=equipment] .hero .brand{font-size:13px}
+html[data-atlas=equipment] .shell{padding-bottom:20px}
+html[data-atlas=equipment] .groupcard{background:var(--card)!important}
+html[data-atlas=equipment] .hero{background:radial-gradient(ellipse at 90% 0%,var(--raised),transparent 68%)!important}
+html[data-atlas=equipment] .progress,html[data-atlas=equipment] .groupprogress{background:var(--line)!important}
+html[data-atlas=equipment] .sheetbar,html[data-atlas=equipment] .navigation,html[data-atlas=equipment] .viewmodes{background:var(--surface)!important;color:var(--ink)!important}
+html[data-atlas=equipment] .navigation .active,html[data-atlas=equipment] .viewmodes button.active,html[data-atlas=equipment] .detailnav button.active,html[data-atlas=equipment] .actions .selected,html[data-atlas=equipment] .collectbtn.selected{background:var(--raised)!important;color:var(--accent)!important}
+html[data-atlas=equipment] .collectbtn,html[data-atlas=equipment] .groupicons>span,html[data-atlas=equipment] .familystrip button,html[data-atlas=equipment] .tipstats>div{background:var(--surface)!important;color:var(--ink)!important}
+html[data-atlas=equipment] .tooltipbody,html[data-atlas=equipment] .notice,html[data-atlas=equipment] .restriction{background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+html[data-atlas=equipment] .sheet,html[data-atlas=equipment] .sheetbar,html[data-atlas=equipment] .recipebox,html[data-atlas=equipment] .groupcard,html[data-atlas=equipment] .viewmodes{border-radius:0!important}
+html[data-atlas] .toolbar{top:0!important}
+html[data-atlas] [hidden]{display:none!important}
+@media(max-width:600px){
+  html[data-atlas] main,html[data-atlas] .shell{padding-left:12px;padding-right:12px}
+  html[data-atlas=skills] .fields,html[data-atlas=skills] .fields tbody,html[data-atlas=skills] .fields tr,html[data-atlas=skills] .fields th,html[data-atlas=skills] .fields td{display:block;width:100%;white-space:normal}
+  html[data-atlas=skills] .fields th{padding:12px 10px 3px;border-bottom:0;position:static}
+  html[data-atlas=skills] .fields td{padding:5px 10px 14px}
+  html[data-atlas=skills] .fields .method{white-space:pre-wrap}
+  html[data-atlas=bosses] dl{display:block}
+  html[data-atlas=bosses] dt{margin-top:16px;font-weight:700}
+  html[data-atlas=bosses] dd{margin:6px 0 12px;line-height:1.8}
+}
