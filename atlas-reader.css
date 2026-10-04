@@ -21,11 +21,11 @@ html[data-atlas=equipment] .sheet,html[data-atlas=equipment] .sheetbar,html[data
 html[data-atlas] .toolbar{top:0!important}
 html[data-atlas] [hidden]{display:none!important}
 html[data-atlas=bosses] .boss-heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-html[data-atlas=bosses] .boss-heading-row h1{margin:0;min-width:0}
+html[data-atlas=bosses] header.hero .boss-heading-row h1{margin:0;padding-right:0;min-width:0;white-space:nowrap}
 html[data-atlas=bosses] .boss-heading-controls{display:flex;gap:6px;flex-shrink:0}
 html[data-atlas=bosses] .boss-heading-controls button{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}
 html[data-atlas=bosses] .boss-heading-controls button:hover{border-color:var(--accent)}
-@media(max-width:380px){html[data-atlas=bosses] .boss-heading-row{gap:6px}html[data-atlas=bosses] .boss-heading-row h1{font-size:19px}}
+@media(max-width:380px){html[data-atlas=bosses] .boss-heading-row{gap:6px}html[data-atlas=bosses] header.hero .boss-heading-row h1{font-size:19px}}
 @media(max-width:600px){
   html[data-atlas] main,html[data-atlas] .shell{padding-left:12px;padding-right:12px}
   html[data-atlas=skills] .fields,html[data-atlas=skills] .fields tbody,html[data-atlas=skills] .fields tr,html[data-atlas=skills] .fields th,html[data-atlas=skills] .fields td{display:block;width:100%;white-space:normal}
