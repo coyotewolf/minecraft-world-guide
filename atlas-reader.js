@@ -37,8 +37,8 @@ if(slug){
   if(slug==='bosses'){
     const title=document.querySelector('header.hero h1');
     const row=document.createElement('div');row.className='boss-heading-row';title.before(row);row.append(title);
-    const healthNote=find('organ-health-note');
-    if(healthNote){const info=document.createElement('details'),summary=document.createElement('summary');summary.textContent='生命值與改造';info.className='boss-health-info';info.append(summary,healthNote);document.querySelector('header.hero .numbers').after(info)}
+    document.querySelector('header.hero .numbers')?.remove();
+    find('organ-health-note')?.remove();
     const controls=document.createElement('div');controls.className='boss-heading-controls';row.append(controls);
     const hint=document.createElement('div');hint.id='atlas-control-hint';hint.setAttribute('role','tooltip');hint.hidden=true;document.body.append(hint);
     let hintTimer,hintKeepUntil=0;
