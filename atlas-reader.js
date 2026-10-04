@@ -31,7 +31,7 @@ function openTarget(d){
 if(slug){
   document.documentElement.dataset.atlas=slug;
   // Remove promotional reader introductions, preserving actual game instructions.
-  document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand').forEach(e=>e.remove());
+  document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand,.collection-source-note').forEach(e=>e.remove());
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
   if(slug==='scarlet')document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
   if(slug==='bosses'){

@@ -49,7 +49,7 @@ addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)
  style='''<style>html{scroll-behavior:smooth}body{margin:0!important}img{max-width:100%}header{position:relative!important}.world-guide-banner{font:14px/1.6 system-ui;padding:12px 16px;background:#273b32;color:#ecf5da;border-bottom:3px solid #8dcf64}input,button,textarea,select{font-size:max(16px,1em)}@media(max-width:480px){table{display:block;overflow:auto}body{min-width:0!important}}
 </style>'''
  html=html.replace('<head>','<head>'+bridge+style,1)
- if '../atlas-reader.js' not in html:html=html.replace('</head>','<link rel="stylesheet" href="../atlas-reader.css?v=20261004-clean2"><script src="../atlas-reader.js?v=20261004-clean2" defer></script></head>',1)
+ if '../atlas-reader.js' not in html:html=html.replace('</head>','<link rel="stylesheet" href="../atlas-reader.css?v=20261004-clean3"><script src="../atlas-reader.js?v=20261004-clean3" defer></script></head>',1)
  html=re.sub(r'(<body[^>]*>)',r'\1<div class="world-guide-banner">完整原攻略・紀錄與目前玩家分開保存。快捷鍵請以「世界攻略 → 操作」和個人控制設定為準；伺服器數值尚未查核。</div>',html,count=1)
  p.write_text(html,encoding='utf8')
 (D/'icons.json').write_text(json.dumps(icons,separators=(',',':')),encoding='utf8')
