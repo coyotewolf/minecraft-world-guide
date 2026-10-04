@@ -30,9 +30,15 @@ function openTarget(d){
 }
 if(slug){
   document.documentElement.dataset.atlas=slug;
+  // Remove promotional reader introductions, preserving actual game instructions.
+  document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand').forEach(e=>e.remove());
+  if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
+  if(slug==='scarlet')document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
   if(slug==='bosses'){
     const title=document.querySelector('header.hero h1');
     const row=document.createElement('div');row.className='boss-heading-row';title.before(row);row.append(title);
+    const healthNote=find('organ-health-note');
+    if(healthNote){const info=document.createElement('details'),summary=document.createElement('summary');summary.textContent='生命值與改造';info.className='boss-health-info';info.append(summary,healthNote);document.querySelector('header.hero .numbers').after(info)}
     const controls=document.createElement('div');controls.className='boss-heading-controls';row.append(controls);
     const hint=document.createElement('div');hint.id='atlas-control-hint';hint.setAttribute('role','tooltip');hint.hidden=true;document.body.append(hint);
     let hintTimer,hintKeepUntil=0;
