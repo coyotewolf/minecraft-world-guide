@@ -40,13 +40,21 @@ if(slug){
     for(const id of ['export','import','pet-export','pet-import'])find(id)?.remove();
     for(const [button,label,plus] of [[expand,'全部展開',true],[collapse,'全部收合',false]]){
       button.type='button';button.title=label;button.setAttribute('aria-label',label);
-      button.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/><path d="M8 12h8${plus?'M12 8v8':''}"/></svg>`;
+      button.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14${plus?'M12 5v14':''}"/></svg>`;
       controls.append(button);
     }
     const petsSelected=()=>!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');
     expand.onclick=e=>petsSelected()?find('pet-open').click():expandBoss.call(expand,e);
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
+  const topButton=document.createElement('button');
+  topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
+  topButton.title='回到最上面';topButton.setAttribute('aria-label','回到最上面');
+  topButton.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5h14M12 20V9M6 15l6-6 6 6"/></svg>';
+  document.body.append(topButton);
+  const updateTopButton=()=>{topButton.hidden=window.scrollY<280};
+  addEventListener('scroll',updateTopButton,{passive:true});updateTopButton();
+  topButton.onclick=()=>window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   const dock=slug==='equipment'?document.querySelector('.navigation'):null;
   if(dock)document.querySelector('.shell')?.prepend(dock);
   if(slug==='equipment')new MutationObserver(()=>{

@@ -23,8 +23,12 @@ html[data-atlas] [hidden]{display:none!important}
 html[data-atlas=bosses] .boss-heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 html[data-atlas=bosses] header.hero .boss-heading-row h1{margin:0;padding-right:0;min-width:0;white-space:nowrap}
 html[data-atlas=bosses] .boss-heading-controls{display:flex;gap:6px;flex-shrink:0}
-html[data-atlas=bosses] .boss-heading-controls button{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}
-html[data-atlas=bosses] .boss-heading-controls button:hover{border-color:var(--accent)}
+html[data-atlas=bosses] .boss-heading-controls button{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:var(--ink);border-radius:0;box-shadow:none}
+html[data-atlas=bosses] .boss-heading-controls button:hover{color:var(--accent)}
+html[data-atlas] #atlas-back-top{position:fixed;right:16px;bottom:20px;z-index:25;display:grid;place-items:center;width:48px;height:48px;padding:0;border:2px solid var(--line);border-radius:0;background:var(--surface);color:var(--ink);box-shadow:3px 3px var(--line)}
+html[data-atlas=bosses] #atlas-back-top{bottom:84px}
+html[data-atlas] #atlas-back-top:hover{color:var(--accent);border-color:var(--accent)}
+html[data-atlas=scarlet] .top{display:none}
 @media(max-width:380px){html[data-atlas=bosses] .boss-heading-row{gap:6px}html[data-atlas=bosses] header.hero .boss-heading-row h1{font-size:19px}}
 @media(max-width:600px){
   html[data-atlas] main,html[data-atlas] .shell{padding-left:12px;padding-right:12px}
