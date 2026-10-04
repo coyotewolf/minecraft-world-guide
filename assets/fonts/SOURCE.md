@@ -1,0 +1,1 @@
+Minecraft 1.20.1 default bitmap glyph providers and GNU Unifont 15.0.06 Unicode glyphs, converted to pixel outline web font. Unicode license: LICENSE-unifont.txt. Original glyphs retain their respective authorship. Local source: client resources and asset-index 5 unifont.zip. See https://unifoundry.com/unifont.html.
