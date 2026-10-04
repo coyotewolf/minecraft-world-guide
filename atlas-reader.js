@@ -35,6 +35,15 @@ if(slug){
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
   if(slug==='scarlet')document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
   if(slug==='bosses'){
+    document.querySelector('.collection-tabs')?.setAttribute('hidden','');
+    for(const card of document.querySelectorAll('.pet-card')){
+      const seen=new Set();
+      for(const label of card.querySelectorAll('.pet-capability')){const text=label.textContent.trim();if(seen.has(text))label.remove();else seen.add(text)}
+      for(const list of card.querySelectorAll('dl')){
+        const pairs=new Set();
+        for(const term of [...list.querySelectorAll('dt')]){const value=term.nextElementSibling;if(value?.tagName!=='DD')continue;const key=term.textContent.trim()+'\n'+value.textContent.trim();if(pairs.has(key)){term.remove();value.remove()}else pairs.add(key)}
+      }
+    }
     const title=document.querySelector('header.hero h1');
     const row=document.createElement('div');row.className='boss-heading-row';title.before(row);row.append(title);
     document.querySelector('header.hero .numbers')?.remove();

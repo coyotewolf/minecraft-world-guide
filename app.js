@@ -73,7 +73,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<iframe class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&reader=20261004-clean3" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<iframe class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&reader=20261004-clean4" allow="clipboard-write"></iframe>`;
 }
 function renderPage(rows,target,render){const size=30,last=Math.max(1,Math.ceil(rows.length/size));pageNumber=Math.min(pageNumber,last);$('#'+target).innerHTML=`<p class="result-count">${rows.length.toLocaleString()} 筆 · 第 ${pageNumber} / ${last} 頁</p><div class="grid cols3">${rows.slice((pageNumber-1)*size,pageNumber*size).map(render).join('')}</div>${rows.length?`<div class="pager"><button data-page="${pageNumber-1}" ${pageNumber===1?'disabled':''}>← 上頁</button><span>${pageNumber} / ${last}</span><button data-page="${pageNumber+1}" ${pageNumber===last?'disabled':''}>下頁 →</button></div>`:empty('沒有符合條件的項目，試試不同關鍵字。')}`}
 function record(key){const x=collections.find(x=>x.key===key);if(!x){app.innerHTML=empty('找不到收藏項目');return}
