@@ -46,11 +46,16 @@ if(slug){
       button.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14${plus?'M12 5v14':''}"/></svg>`;
       button.setAttribute('aria-describedby',hint.id);
       let holdTimer,held=false,origin;
-      button.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;hideHint();held=false;origin={x:e.clientX,y:e.clientY};holdTimer=setTimeout(()=>{held=true;hint.textContent=label;hint.hidden=false;const r=button.getBoundingClientRect();hint.style.left=Math.max(8,Math.min(innerWidth-hint.offsetWidth-8,r.left+r.width/2-hint.offsetWidth/2))+'px';hint.style.top=Math.min(innerHeight-hint.offsetHeight-8,r.bottom+8)+'px'},500)});
+      const showHint=()=>{clearTimeout(hintTimer);hint.textContent=label;hint.hidden=false;const r=button.getBoundingClientRect();hint.style.left=Math.max(8,Math.min(innerWidth-hint.offsetWidth-8,r.left+r.width/2-hint.offsetWidth/2))+'px';hint.style.top=Math.min(innerHeight-hint.offsetHeight-8,r.bottom+8)+'px'};
+      button.addEventListener('pointerdown',e=>{if(e.button!==0)return;hideHint();held=false;origin={x:e.clientX,y:e.clientY};holdTimer=setTimeout(()=>{held=true;showHint()},450)});
       button.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin.x,e.clientY-origin.y)>10){clearTimeout(holdTimer);hideHint()}});
-      button.addEventListener('pointerup',()=>{clearTimeout(holdTimer);origin=null;if(held)hintTimer=setTimeout(hideHint,1800)});
-      button.addEventListener('pointercancel',()=>{clearTimeout(holdTimer);origin=null;held=false;hideHint()});
-      button.addEventListener('contextmenu',e=>e.preventDefault());
+      button.addEventListener('pointerup',()=>{clearTimeout(holdTimer);origin=null;if(held)hintTimer=setTimeout(hideHint,3000)});
+      button.addEventListener('pointercancel',()=>{clearTimeout(holdTimer);origin=null;if(held)hintTimer=setTimeout(hideHint,3000);else hideHint()});
+      button.addEventListener('contextmenu',e=>{e.preventDefault();clearTimeout(holdTimer);held=true;showHint();hintTimer=setTimeout(hideHint,3000)});
+      button.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')showHint()});
+      button.addEventListener('pointerleave',()=>{clearTimeout(holdTimer);origin=null;if(!held)hideHint()});
+      button.addEventListener('focus',()=>{if(button.matches(':focus-visible'))showHint()});
+      button.addEventListener('blur',hideHint);
       button.addEventListener('click',e=>{if(held){held=false;e.preventDefault();e.stopImmediatePropagation()}},true);
       controls.append(button);
     }
