@@ -30,6 +30,23 @@ function openTarget(d){
 }
 if(slug){
   document.documentElement.dataset.atlas=slug;
+  if(slug==='bosses'){
+    const title=document.querySelector('header.hero h1');
+    const row=document.createElement('div');row.className='boss-heading-row';title.before(row);row.append(title);
+    const controls=document.createElement('div');controls.className='boss-heading-controls';row.append(controls);
+    const expand=find('expand'),collapse=find('collapse'),expandBoss=expand.onclick,collapseBoss=collapse.onclick;
+    // Original handlers are initialized before this deferred adapter runs.
+    expand.parentElement.hidden=true;find('pet-open').parentElement.hidden=true;
+    for(const id of ['export','import','pet-export','pet-import'])find(id)?.remove();
+    for(const [button,label,plus] of [[expand,'全部展開',true],[collapse,'全部收合',false]]){
+      button.type='button';button.title=label;button.setAttribute('aria-label',label);
+      button.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16"/><path d="M8 12h8${plus?'M12 8v8':''}"/></svg>`;
+      controls.append(button);
+    }
+    const petsSelected=()=>!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');
+    expand.onclick=e=>petsSelected()?find('pet-open').click():expandBoss.call(expand,e);
+    collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
+  }
   const dock=slug==='equipment'?document.querySelector('.navigation'):null;
   if(dock)document.querySelector('.shell')?.prepend(dock);
   if(slug==='equipment')new MutationObserver(()=>{
