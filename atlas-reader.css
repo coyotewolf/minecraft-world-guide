@@ -43,3 +43,4 @@ html[data-atlas=scarlet] .top{display:none}
   html[data-atlas=bosses] dt{margin-top:16px;font-weight:700}
   html[data-atlas=bosses] dd{margin:6px 0 12px;line-height:1.8}
 }
+.guide-inline-item{display:inline-flex;align-items:center;vertical-align:middle;gap:3px;min-height:0;padding:0 2px!important;border:0!important;box-shadow:none!important;background:transparent!important;color:inherit!important;font-size:inherit!important;line-height:inherit!important;max-width:100%;cursor:pointer}.guide-inline-item img{width:20px!important;height:20px!important;object-fit:contain;image-rendering:pixelated;flex-shrink:0}.guide-inline-item:hover{text-decoration:underline}
