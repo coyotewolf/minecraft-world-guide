@@ -101,3 +101,25 @@ html[data-atlas=bosses] .boss-heading-row{display:none!important}
 @media(max-width:600px){
   html[data-atlas] .atlas-quick-title{font-size:13px}
 }
+
+/* AOI atlas corrections 2026-10-06 b */
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn{right:2px!important;top:2px!important}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon{
+ position:absolute!important;right:46px!important;top:2px!important;z-index:2!important;
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+ padding:0!important;border:0!important;border-top:0!important;background:transparent!important;
+ color:var(--muted)!important;font-size:20px!important;line-height:1!important
+}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon.selected{color:var(--accent)!important;background:transparent!important}
+html[data-atlas-popup=true] body{padding-top:0!important}
+html[data-atlas-popup=true] #atlas-quickbar,
+html[data-atlas-popup=true] #atlas-back-top,
+html[data-atlas-popup=true] header.hero,
+html[data-atlas-popup=true] header.masthead{display:none!important}
+html[data-atlas-popup=true][data-atlas=bosses] main{padding-top:8px!important}
+html[data-atlas-popup=true][data-atlas=bosses] #boss-panel>.actions,
+html[data-atlas-popup=true][data-atlas=bosses] #boss-panel>.controls,
+html[data-atlas-popup=true][data-atlas=bosses] #taming-collection>.pet-searchbar,
+html[data-atlas-popup=true][data-atlas=bosses] #taming-collection>.actions,
+html[data-atlas-popup=true][data-atlas=bosses] #pet-status,
+html[data-atlas-popup=true][data-atlas=bosses] #speed-overview{display:none!important}
