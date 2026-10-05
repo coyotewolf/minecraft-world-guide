@@ -32,7 +32,7 @@
 
 ## 維護
 
-前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql` 順序套用；已建好的專案不需要重跑。
+前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql` 順序套用；已建好的專案不需要重跑。
 
 本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
 
@@ -41,3 +41,9 @@
 ## 原版風格素材與入口
 
 `vanilla.css` 統一原版灰色面板、立體按鈕與泥土／石材背景，並保留手機、深淺色與減少動畫。`assets/vanilla` 的材質由目前 1.20.1 客戶端擷取。`assets/world-panorama.png` 與 `world-portrait.png` 為 imagegen 以包內凜蝮龍、水輪和市政廳素材為參考生成的裝飾背景，並非實際遊戲截圖；配方與圖鑑仍使用原本的遊戲圖示與模型。設計提示與來源見 `design/world-art-prompts.md`。
+
+## 隊伍管理與收藏冊介面
+
+創隊者預設為隊伍管理員，可分享邀請碼、開放隊員查看、任命／撤除管理員及移出隊員。伺服器管理員可跨隊伍管理。退出保留個人收藏及筆記；仍有其他隊員時，最後一位隊伍管理員必須先交接。角色與邀請碼權限皆由資料庫驗證。`team-management.test.sql` 使用會回滾的測試資料驗證權限。
+
+`reader-polish.js` 保留完整攻略原有的篩選與保存事件，改用統一的篩選抽屜和進度條。緋紅手冊進度表示 15 個章節的實作完成紀錄，不是取得 15 件遊戲物品。無法取得的技能參考條目不列入玩家頁面。

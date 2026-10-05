@@ -154,11 +154,11 @@ for filename,slug in [('skills-spells-guide.html','skills'),('scarlet-hunter-gui
  elif slug=='bosses':
   for c in s.select('.card,.pet-card'):
    ident=c.get('data-id') or c.get('data-pet-id'); title=c.find(['h3','h4']);desc=c.get_text(' ',strip=True)
-   catalog.append({'key':('companion:' if c.get('data-pet-id') else 'boss:')+ident,'id':ident,'title':title.get_text(' ',strip=True) if title else ident,'subtitle':'','category':'companions' if c.get('data-pet-id') else 'bosses','description':desc,'route':'詳見原攻略的取得／召喚／馴服步驟','status':'原攻略收錄；伺服器數值待確認','collectible':True,'sourceGuide':slug,'anchor':c.get('id'),'details':{}})
+   catalog.append({'key':('companion:' if c.get('data-pet-id') else 'boss:')+ident,'id':ident,'title':title.get_text(' ',strip=True) if title else ident,'subtitle':'','category':'companions' if c.get('data-pet-id') else 'bosses','description':desc,'route':'詳見原攻略的取得／召喚／馴服步驟','status':'原攻略收錄；伺服器數值待確認','collectible':True,'sourceGuide':slug,'anchor':c.get('id'),'mount':c.get('data-pet-mount') in ['control','ride'],'details':{}})
  elif slug=='scarlet':
   for c in s.select('.chapter'):
    title=c.find(['h2','h3']);cid=c.get('id');
-   if title:catalog.append({'key':'scarlet:'+str(cid),'id':'nightfall_invade:scarlet_hunter','title':title.get_text(' ',strip=True),'subtitle':'緋紅獵人實戰','category':'strategy','description':c.get_text(' ',strip=True),'route':'','status':'原攻略收錄','collectible':False,'sourceGuide':slug,'anchor':cid,'details':{}})
+   if title:catalog.append({'key':'scarlet:'+str(cid),'id':'nightfall_invade:scarlet_hunter','title':title.get_text(' ',strip=True),'subtitle':'緋紅獵人實戰','category':'strategy','description':c.get_text(' ',strip=True),'route':'','status':'原攻略收錄','collectible':True,'sourceGuide':slug,'anchor':cid,'details':{}})
 summary={'jarCount':len(MODS),'modIds':sorted({m['id'] for j in MODS for m in j['mods'] if m.get('id')}),'advancementCount':len(records),'technicalAdvancementCount':len(technical),'recipeCount':len(RECIPES),'collectionCount':len(catalog),'resourcePacks':enabled,'scanDate':'2026-10-04','minecraft':'1.20.1','serverVerified':False,'scope':'目前客戶端 JAR、原版資源及本機全域資料包候選；未讀取伺服器或私人存檔','errors':ERRORS,'overrides':OVERRIDES}
 for name,data in [('inventory',MODS),('advancements',records),('technical-advancements',technical),('collections',catalog),('summary',summary),('originals',original),('keybindings',options),('recipes',RECIPES),('languages',LANG)]:
  (OUT/'data'/f'{name}.json').write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')),encoding='utf8')

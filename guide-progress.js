@@ -12,6 +12,7 @@ export function readGuide(slug,data){
  if(slug==='bosses')for(const [storage,prefix,field] of [['mc-boss-collection-v1','boss:','loot'],['mc-taming-collection-v1','companion:','tamed']]){
   for(const [id,p] of Object.entries(parse(data[storage],{}).progress||{}))out.set(prefix+id,{completed:!!p[field],...(typeof p.note==='string'?{notes:p.note.slice(0,8000)}:{})});
  }
+ if(slug==='scarlet')for(const id of parse(data['scarlet-chapter-progress-v1'],[]))out.set('scarlet:'+id,{completed:true});
  return out;
 }
 export function writeGuide(slug,data,records,collections){
@@ -27,5 +28,6 @@ export function writeGuide(slug,data,records,collections){
   for(const c of rows.filter(c=>c.key.startsWith(prefix))){const p=records.get(c.key);s.progress[c.id]={...s.progress[c.id],[field]:!!p?.completed};if(p&&'notes'in p)s.progress[c.id].note=p.notes}
   result[storage]=JSON.stringify(s);
  }
+ if(slug==='scarlet')result['scarlet-chapter-progress-v1']=JSON.stringify(rows.filter(c=>records.get(c.key)?.completed).map(c=>c.key.slice(8)));
  return result;
 }
