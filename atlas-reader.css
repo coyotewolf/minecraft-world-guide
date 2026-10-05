@@ -328,3 +328,126 @@ html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram 
 html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram figcaption{
  background:var(--surface)!important;color:var(--ink)!important
 }
+
+
+/* AOI corrections 2026-10-06 g */
+
+/* Equipment filter drawer mirrors the other collection books:
+   one control per row, actions on the last row. */
+html[data-atlas=equipment] #filters{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;
+}
+html[data-atlas=equipment] #filters>label,
+html[data-atlas=equipment] #filters>.atlas-filter-actions{
+ grid-column:1/-1!important;width:100%!important
+}
+html[data-atlas=equipment] #filters>label{display:grid!important;gap:6px!important}
+html[data-atlas=equipment] #filters select{width:100%!important}
+
+/* Equipment card controls: same 30x30 box, perfectly aligned. */
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn,
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon{
+ position:absolute!important;top:4px!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ padding:0!important;margin:0!important;box-sizing:border-box!important;
+ border:1px solid var(--line)!important;border-radius:4px!important;
+ display:grid!important;place-items:center!important;line-height:1!important;
+ background:var(--surface)!important;font-size:16px!important
+}
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn{right:4px!important}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon{right:38px!important;color:var(--muted)!important}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon.selected{
+ background:#2f8f4e!important;border-color:#2f8f4e!important;color:#fff!important
+}
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn.selected{
+ background:var(--surface)!important;color:var(--accent)!important
+}
+
+/* Compact state controls in equipment details / popup. */
+html[data-atlas=equipment] #detail .atlas-detail-state-row{
+ display:flex!important;justify-content:flex-end!important;gap:6px!important;flex-wrap:nowrap!important
+}
+html[data-atlas=equipment] #detail .atlas-detail-state{
+ flex:0 0 30px!important;min-width:30px!important;width:30px!important;height:30px!important;min-height:30px!important;
+ padding:0!important;margin:0!important;display:grid!important;place-items:center!important;
+ border:1px solid var(--line)!important;border-radius:4px!important;background:var(--surface)!important;
+ font-size:16px!important;line-height:1!important;color:var(--muted)!important
+}
+html[data-atlas=equipment] #detail .atlas-detail-wish.selected{color:var(--accent)!important}
+html[data-atlas=equipment] #detail .atlas-detail-done.selected{
+ background:#2f8f4e!important;border-color:#2f8f4e!important;color:#fff!important
+}
+
+/* Same two controls for bosses, companions, mounts, and skills. */
+html[data-atlas] .atlas-reader-state{
+ margin-left:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ gap:4px!important;flex:0 0 auto!important
+}
+html[data-atlas=bosses] .cardtop{grid-template-columns:minmax(0,1fr) auto auto!important}
+html[data-atlas=bosses] .cardtop .atlas-reader-state{grid-column:auto!important}
+html[data-atlas=bosses] .cardtop .atlas-wish-button,
+html[data-atlas=bosses] .pet-card .cardtop .atlas-wish-button{
+ margin:0!important;position:static!important
+}
+html[data-atlas=bosses] .checks.atlas-single-check{
+ position:static!important;display:contents!important
+}
+html[data-atlas=bosses] .atlas-single-collect,
+html[data-atlas=skills] .atlas-skill-done,
+html[data-atlas] .atlas-reader-state .atlas-wish-button{
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ padding:0!important;margin:0!important;box-sizing:border-box!important;
+ border:1px solid var(--line)!important;border-radius:4px!important;
+ background:var(--surface)!important;color:var(--muted)!important;
+ display:grid!important;place-items:center!important;font-size:16px!important;line-height:1!important;
+ cursor:pointer!important
+}
+html[data-atlas=bosses] .atlas-single-collect:has(input:checked),
+html[data-atlas=skills] .atlas-skill-done:has(input:checked){
+ background:#2f8f4e!important;border-color:#2f8f4e!important;color:#fff!important
+}
+html[data-atlas=skills] .atlas-skill-done input{
+ position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important
+}
+html[data-atlas=skills] .entry-title{
+ grid-template-columns:auto minmax(0,1fr) auto!important;align-items:start!important
+}
+html[data-atlas=skills] .entry-title>.check{display:none!important}
+
+/* Every Scarlet guide illustration has a dark-theme counterpart and a smaller reading size.
+   520px makes embedded diagram text visually close to the guide's 16px body copy. */
+html[data-atlas=scarlet] figure.theme-diagram{
+ width:min(100%,520px)!important;max-width:520px!important;margin-left:auto!important;margin-right:auto!important;
+}
+html[data-atlas=scarlet] figure.theme-diagram>img,
+html[data-atlas=scarlet] figure.theme-diagram>svg{
+ display:block!important;width:100%!important;max-width:520px!important;height:auto!important;margin:0 auto!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram{
+ background:#141916!important;border-color:var(--line)!important;color:var(--ink)!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram>img,
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram>svg{
+ background:#141916!important;filter:invert(.9) hue-rotate(180deg) brightness(.9) contrast(1.08)!important;
+ mix-blend-mode:normal!important;opacity:1!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram figcaption{
+ background:var(--surface)!important;color:var(--ink)!important
+}
+@media(max-width:600px){
+ html[data-atlas=scarlet] figure.theme-diagram{width:100%!important;max-width:100%!important}
+ html[data-atlas=scarlet] figure.theme-diagram>img,
+ html[data-atlas=scarlet] figure.theme-diagram>svg{max-width:100%!important}
+}
+
+/* Triple Stryke model: keep extra breathing room so the tail / lower edge is never clipped. */
+html[data-atlas=bosses] [data-pet-id="dragonsofberk:triple_stryke"] .boss-appearance{
+ overflow:visible!important;aspect-ratio:4/3!important;padding:10px 8px 24px!important;box-sizing:border-box!important
+}
+html[data-atlas=bosses] [data-pet-id="dragonsofberk:triple_stryke"] .boss-appearance img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ transform:scale(.94)!important;transform-origin:center center!important
+}
+html[data-atlas=bosses] [data-pet-id="dragonsofberk:triple_stryke"] .boss-appearance:hover img{
+ transform:scale(.94)!important
+}
