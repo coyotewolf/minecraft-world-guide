@@ -10,7 +10,7 @@
 2. 保存註冊時顯示的復原碼。密碼只供本網站使用，不是 Microsoft 或 Minecraft 密碼；遊戲 ID 不驗證遊戲帳號所有權。
 3. 玩家使用一個世界的紀錄。完成狀態預設分享給同隊，可於「我的」關閉；私人筆記與細部條件不分享。
 4. 隊長建立隊伍、產生邀請碼，隊友輸入邀請碼加入。隊伍內可共享據點、計畫、里程碑與逐項收藏比較。
-5. 需求與任務邀約只對同隊可見。接單者提交後，由發布者確認完成。網站開啟且連線時收到站內即時通知。
+5. 需求與任務邀約只對同隊可見。接單者提交後，由發布者確認完成；取消後只有發布者能查看申請及其留言。網站開啟且連線時收到站內即時通知。
 6. 忘記密碼可用復原碼；管理員可使舊登入失效並產生新復原碼，私下交還經確認身分的玩家。
 7. 圖鑑直接開啟完整裝備、技能、首領、夥伴／坐騎與緋紅獵人收藏冊。裝備保留系列瀏覽、想收集清單、可點擊追查的素材與配方；技能、首領與夥伴保留原分段說明及篩選。搜尋結果直接開啟對應詳情。各冊可匯入原 HTML 匯出的 JSON 備份，完成狀態仍接到隊伍比較，私人筆記與想收集清單不分享。
 
@@ -32,8 +32,12 @@
 
 ## 維護
 
-前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql` 順序套用；已建好的專案不需要重跑。
+前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql` 順序套用；已建好的專案不需要重跑。
 
 本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
 
 免費方案有容量與用量上限；Supabase 低活動的免費專案可能在七天後暫停，可由擁有者於控制台恢復。沒有訂閱付費方案，也沒有以定時請求規避閒置規則。參考 [Supabase 免費方案](https://supabase.com/pricing)、[專案暫停說明](https://supabase.com/docs/guides/platform/free-project-pausing)、[GitHub Pages 使用限制](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)。
+
+## 原版風格素材與入口
+
+`vanilla.css` 統一原版灰色面板、立體按鈕與泥土／石材背景，並保留手機、深淺色與減少動畫。`assets/vanilla` 的材質由目前 1.20.1 客戶端擷取。`assets/world-panorama.png` 與 `world-portrait.png` 為 imagegen 以包內凜蝮龍、水輪和市政廳素材為參考生成的裝飾背景，並非實際遊戲截圖；配方與圖鑑仍使用原本的遊戲圖示與模型。設計提示與來源見 `design/world-art-prompts.md`。
