@@ -1,6 +1,12 @@
 // Adapt the complete collection readers without flattening their source content.
 const params=new URLSearchParams(location.search);
 const slug=params.get('atlas');
+function adaptInventoryHints(){
+  for(const el of document.querySelectorAll('[data-tip]')){el.dataset.itemHint=el.dataset.tip;el.removeAttribute('data-tip');el.removeAttribute('title');}
+  for(const el of document.querySelectorAll('.station'))if(el.querySelector('img')&&!el.dataset.itemHint){el.dataset.itemHint=el.textContent.trim();el.tabIndex=0;el.setAttribute('aria-label',el.dataset.itemHint);for(const span of el.querySelectorAll('span'))span.classList.add('inventory-label');}
+  for(const el of document.querySelectorAll('.materialrow'))if(el.querySelector('img'))el.querySelector('.matname')?.classList.add('inventory-label');
+}
+adaptInventoryHints();let inventoryHintTimer;new MutationObserver(()=>{clearTimeout(inventoryHintTimer);inventoryHintTimer=setTimeout(adaptInventoryHints,20)}).observe(document.body,{childList:true,subtree:true});
 // Fill source-reader gaps with genuine inventory artwork from the installed pack.
 Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json').then(r=>{if(!r.ok)throw Error('Inventory assets unavailable');return r.json()}))).then(([inventory,names])=>{
   const paths=Object.fromEntries(Object.entries(inventory).map(([id,path])=>[id,'../'+path]));
@@ -66,29 +72,13 @@ if(slug){
     document.querySelector('header.hero .numbers')?.remove();
     find('organ-health-note')?.remove();
     const controls=document.createElement('div');controls.className='boss-heading-controls';row.append(controls);
-    const hint=document.createElement('div');hint.id='atlas-control-hint';hint.setAttribute('role','tooltip');hint.hidden=true;document.body.append(hint);
-    let hintTimer,hintKeepUntil=0;
-    const hideHint=(force=false)=>{if(force!==true&&Date.now()<hintKeepUntil)return;clearTimeout(hintTimer);hintKeepUntil=0;hint.hidden=true};
     const expand=find('expand'),collapse=find('collapse'),expandBoss=expand.onclick,collapseBoss=collapse.onclick;
     // Original handlers are initialized before this deferred adapter runs.
     expand.parentElement.hidden=true;find('pet-open').parentElement.hidden=true;
     for(const id of ['export','import','pet-export','pet-import'])find(id)?.remove();
     for(const [button,label,plus] of [[expand,'全部展開',true],[collapse,'全部收合',false]]){
-      button.type='button';button.title=label;button.setAttribute('aria-label',label);
+      button.type='button';button.removeAttribute('title');button.dataset.itemHint=label;button.setAttribute('aria-label',label);
       button.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14${plus?'M12 5v14':''}"/></svg>`;
-      button.setAttribute('aria-describedby',hint.id);
-      let holdTimer,held=false,origin;
-      const showHint=()=>{clearTimeout(hintTimer);if(held)hintKeepUntil=Date.now()+3000;hint.textContent=label;hint.hidden=false;const r=button.getBoundingClientRect();hint.style.left=Math.max(8,Math.min(innerWidth-hint.offsetWidth-8,r.left+r.width/2-hint.offsetWidth/2))+'px';hint.style.top=Math.min(innerHeight-hint.offsetHeight-8,r.bottom+8)+'px'};
-      button.addEventListener('pointerdown',e=>{if(e.button!==0)return;hideHint(true);held=false;origin={x:e.clientX,y:e.clientY};holdTimer=setTimeout(()=>{held=true;showHint()},450)});
-      button.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin.x,e.clientY-origin.y)>10){clearTimeout(holdTimer);hideHint()}});
-      button.addEventListener('pointerup',()=>{clearTimeout(holdTimer);origin=null;if(held){hintKeepUntil=Date.now()+3000;hintTimer=setTimeout(hideHint,3000)}});
-      button.addEventListener('pointercancel',()=>{clearTimeout(holdTimer);origin=null;if(held)hintTimer=setTimeout(hideHint,3000);else hideHint()});
-      button.addEventListener('contextmenu',e=>{e.preventDefault();clearTimeout(holdTimer);held=true;showHint();hintTimer=setTimeout(hideHint,3000)});
-      button.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')showHint()});
-      button.addEventListener('pointerleave',()=>{clearTimeout(holdTimer);origin=null;if(!held)hideHint()});
-      button.addEventListener('focus',()=>{if(button.matches(':focus-visible'))showHint()});
-      button.addEventListener('blur',hideHint);
-      button.addEventListener('click',e=>{if(held){held=false;e.preventDefault();e.stopImmediatePropagation()}},true);
       controls.append(button);
     }
     const petsSelected=()=>!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');
@@ -97,7 +87,7 @@ if(slug){
   }
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
-  topButton.title='回到最上面';topButton.setAttribute('aria-label','回到最上面');
+  topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
   topButton.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5h14M12 20V9M6 15l6-6 6 6"/></svg>';
   document.body.append(topButton);
   const updateTopButton=()=>{topButton.hidden=window.scrollY<280};
