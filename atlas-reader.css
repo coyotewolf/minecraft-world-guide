@@ -334,7 +334,7 @@ html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram 
 
 /* Equipment filter drawer mirrors the other collection books:
    one control per row, actions on the last row. */
-html[data-atlas=equipment] #filters{
+html[data-atlas=equipment] #filters:not([hidden]){
  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;
 }
 html[data-atlas=equipment] #filters>label,
