@@ -1,0 +1,5 @@
+Windows：先關閉 Minecraft，將「套用按鍵設定.cmd」放在模組包 options.txt 同一層，再雙擊執行。
+通常是 .minecraft 資料夾，檔名是 options.txt（有 s）。
+只更新已有的攻略按鍵，不新增缺少的模組按鍵；畫面、音效、語言、資源包與其他設定均保留。
+修改前會自動產生 options.backup-日期時間.txt。要還原時，關閉遊戲並將備份複製回 options.txt。
+重複執行不會重複修改。龍族技能請開啟 Num Lock。
