@@ -304,7 +304,7 @@ function advancementModal(id){
  const x=advancements.find(x=>x.id===id);if(!x)return;
  const key='advancement:'+id;
  const groups=x.requirements.map((g,i)=>`<section class="condition-group"><b>第 ${i+1} 組${g.length>1?' · 選一項':''}</b>${g.map(k=>{const q=x.criteria.find(c=>c.key===k);return `<div class="modal-condition">• ${h(q?.instruction||k)}</div>`}).join('')}</section>`).join('');
- modal(x.title,`<div class="atlas-modal-detail"><span class="tag">${h(groupFor(id.split(':')[0]))}${x.hidden?' · 隱藏成就':''}</span><p class="article-intro">${h(x.description)}</p><h3>如何完成</h3>${groups}${x.customTrigger?notice('這項成就包含模組自訂或程式觸發條件。'):''}${wishlistToggle(key,'想完成這個成就')}${completion(key,'我已在遊戲內取得此成就')}</div>`);
+ modal(x.title,`<div class="atlas-modal-detail"><div class="modal-atlas-state">${atlasStateButtons(key)}</div><span class="tag">${h(groupFor(id.split(':')[0]))}${x.hidden?' · 隱藏成就':''}</span><p class="article-intro">${h(x.description)}</p><h3>如何完成</h3>${groups}${x.customTrigger?notice('這項成就包含模組自訂或程式觸發條件。'):''}</div>`);
 }
 function collectionModal(key){
  const x=collections.find(x=>x.key===key);if(!x)return;
