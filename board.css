@@ -58,3 +58,18 @@ html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.ac
  .item-matrix td::before{flex:0 1 46%;min-width:0;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  .item-matrix td>*{min-width:0;max-width:52%;overflow-wrap:anywhere}
 }
+
+
+/* Cancel/recovery + notification UI 2026-10-06 */
+.request-board .board-note.cancelled-note{filter:grayscale(1);opacity:.52;order:999}
+.request-board .board-note.cancelled-note:hover{filter:grayscale(.9);opacity:.7}
+.notification-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.notification-head h2{margin:0}
+.request-notifications{display:grid;gap:10px}
+.request-notification{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid var(--line);background:var(--surface)}
+.request-notification.unread{border-inline-start:4px solid var(--accent);background:var(--raised)}
+.request-notification p{margin:5px 0}.request-notification small{color:var(--muted)}
+.wishlist-entry-compact{display:grid!important;grid-template-columns:64px minmax(0,1fr);grid-template-rows:auto auto;column-gap:12px;align-items:center;text-align:left}
+.wishlist-entry-compact .wishlist-entry-image{grid-row:1/3;width:56px;height:56px;object-fit:contain;image-rendering:pixelated}
+.wishlist-entry-compact .tag{align-self:end}.wishlist-entry-compact h3{align-self:start;margin:2px 0 0}
+@media(max-width:600px){.request-notification{align-items:stretch;flex-direction:column}.request-notification button{width:100%}}
