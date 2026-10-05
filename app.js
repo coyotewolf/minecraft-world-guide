@@ -125,10 +125,10 @@ function wishlistOverview(){
 function refreshAtlasReader(frame){
  try{
   const doc=frame?.contentDocument;if(!doc)return;
-  const hasCss=[...doc.querySelectorAll('link[rel="stylesheet"]')].some(link=>link.href.includes('atlas-reader.css')&&link.href.includes('20261006-aoi23'));
-  const hasJs=[...doc.scripts].some(script=>script.src.includes('atlas-reader.js')&&script.src.includes('20261006-aoi23'));
-  if(!hasCss){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi23';link.dataset.aoiReader='7';doc.head.append(link)}
-  if(!hasJs){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi23';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
+  const hasCss=[...doc.querySelectorAll('link[rel="stylesheet"]')].some(link=>link.href.includes('atlas-reader.css')&&link.href.includes('20261006-aoi24'));
+  const hasJs=[...doc.scripts].some(script=>script.src.includes('atlas-reader.js')&&script.src.includes('20261006-aoi24'));
+  if(!hasCss){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi24';link.dataset.aoiReader='7';doc.head.append(link)}
+  if(!hasJs){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi24';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
  }catch{}
 }
 function mountAtlas(atlas,options={}){
@@ -137,7 +137,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi23" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi24" allow="clipboard-write"></iframe>`;
  const frame=$('#guide-frame');
  const openPayload=()=>({type:'atlas-open',id:options.item,query:options.query,reference:options.reference,done:options.done,mode:options.mode||'all',view:category==='companions'?'pets':category==='mounts'?'mounts':'boss',wishes:collections.filter(c=>c.sourceGuide===slug&&wanted(c.key)).map(c=>c.id)});
  frame?.addEventListener('load',()=>{
@@ -323,7 +323,7 @@ function collectionModal(key){
  const uid=user?.id||'guest',saved=progress.get('guide:'+slug)?.checklist||{},data=active?writeGuide(slug,saved,progress,collections):saved;
  for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  popupContext={slug,category,item:x.category==='strategy'?x.key.replace('scarlet:',''):x.id,query:x.title,reference:!x.collectible,mode:'all'};
- modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi23"></iframe>`);
+ modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi24"></iframe>`);
  $('#modal').classList.add('boss-dialog');
  const modalFrame=$('#atlas-modal-frame');modalFrame?.addEventListener('load',()=>refreshAtlasReader(modalFrame),{once:true});
 }
