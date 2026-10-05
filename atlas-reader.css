@@ -170,3 +170,5 @@ html[data-atlas=scarlet] main input,
 html[data-atlas=scarlet] main select{font-size:16px!important;line-height:1.7!important}
 html[data-atlas=scarlet] main small,
 html[data-atlas=scarlet] main .muted{font-size:13px!important;line-height:1.6!important}
+
+html[data-atlas=bosses] .card[data-id],html[data-atlas=bosses] .pet-card[data-pet-id]{position:relative!important}
