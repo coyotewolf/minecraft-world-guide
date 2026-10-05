@@ -117,6 +117,22 @@ function pairFilterActions(box,done,reset){
  const row=document.createElement('div');row.className='atlas-filter-actions';
  if(reset){reset.textContent='清除';reset.before(row);row.append(reset,done)}else{row.append(done);box.append(row)}
 }
+function normalizeEquipmentSearchDock(){
+ if(slug!=='equipment')return;
+ const search=document.getElementById('search')||document.querySelector('input[type="search"],input[placeholder*="搜尋"]');
+ const toggle=document.getElementById('toggleFilters')||[...document.querySelectorAll('button')].find(b=>/篩選/.test(b.textContent.trim()));
+ const filters=document.getElementById('filters');
+ if(!search||search.closest('.atlas-equipment-search-dock'))return;
+ const dock=document.createElement('div');dock.className='atlas-equipment-search-dock';
+ const row=document.createElement('div');row.className='atlas-equipment-search-row';
+ const anchor=(search.closest('.searchbar,.controls,.toolbar,.filters')||search.parentElement||search);
+ anchor.parentElement?.insertBefore(dock,anchor);
+ row.append(search);
+ if(toggle)row.append(toggle);
+ dock.append(row);
+ if(filters)dock.append(filters);
+ if(anchor!==dock&&anchor!==document.body&&anchor.childElementCount===0)anchor.remove();
+}
 function installFilterCompletion(){
  const install=(box,close)=>{
   if(!box||box.querySelector('.atlas-filter-done'))return;
@@ -515,7 +531,7 @@ function polishEquipmentControls(){
  renameCollectedLabels(document);
 }
 let polishTimer;
-new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();unifyReaderStateControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},60)}).observe(document.body,{childList:true,subtree:true});
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();unifyReaderStateControls();installFilterCompletion();removeAtlasUtilityButtons();normalizeEquipmentSearchDock();updateAtlasModeEmpty()},60)}).observe(document.body,{childList:true,subtree:true});
 renameCollectedLabels(document);polishEquipmentControls();unifyReaderStateControls();
 
 const find=id=>document.getElementById(id);
@@ -598,7 +614,7 @@ if(slug){
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
   removeAtlasUtilityButtons();installFilterCompletion();
-  if(slug==='equipment'){installStableEquipmentToggle();polishEquipmentControls();}
+  if(slug==='equipment'){installStableEquipmentToggle();polishEquipmentControls();normalizeEquipmentSearchDock();}
   if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();polishPlayerFacingDetails();unifyBossCollectionChecks();unifyReaderStateControls();installSpeedSorting();installModelZoom();}
   if(slug==='skills')unifyReaderStateControls();
   if(slug==='scarlet'){polishScarletGuide();installScarletChapterScroll();}
