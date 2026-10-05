@@ -59,8 +59,17 @@ html[data-atlas=equipment] .navigation{top:50px!important}
 html[data-atlas=skills] .toolbar,html[data-atlas=scarlet] .toolbar{top:50px!important;z-index:40!important}
 html[data-atlas=bosses] .controls,html[data-atlas=bosses] .pet-searchbar{position:sticky!important;top:50px!important;z-index:40!important;background:var(--bg)!important}
 html[data-atlas] .atlas-wish-button{margin-left:auto!important;min-width:38px!important;min-height:38px!important;padding:4px 8px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--accent)!important;box-shadow:none!important}
-html[data-atlas=bosses] .boss-appearance,html[data-atlas=bosses] body.dark .boss-appearance{background:radial-gradient(ellipse at 50% 42%,#dce3ea 0%,#8795a8 78%)!important;border:1px solid #617083!important}
-html[data-atlas=bosses] .boss-appearance img{filter:none!important;opacity:1!important;mix-blend-mode:normal!important}
+html[data-atlas=bosses] .boss-appearance,html[data-atlas=bosses] body.dark .boss-appearance{background:transparent!important;border:0!important;box-shadow:none!important}
+html[data-atlas=bosses] .boss-appearance img{filter:none!important;opacity:1!important;mix-blend-mode:normal!important;background:transparent!important}
+html[data-atlas=bosses] .model-dialog img{background:transparent!important;border-radius:0!important;cursor:zoom-in;transition:transform .12s ease;will-change:transform}
+html[data-atlas=bosses] .model-dialog img.local-zoom-active{transform:scale(2)}
+html[data-atlas=bosses] .model-dialog{overflow:hidden}
+html[data-atlas=bosses] .speed-sort-tools{display:flex;justify-content:flex-end;margin:8px 0 4px}
+html[data-atlas=bosses] .speed-sort-clear{min-height:36px;padding:5px 9px;font-size:12px}
+html[data-atlas=bosses] .speed-sort-button{display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;width:100%;min-height:34px;padding:3px 5px;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;text-align:left;box-shadow:none}
+html[data-atlas=bosses] .speed-sort-button span{display:inline-grid;place-items:center;min-width:16px;height:16px;font-size:11px;line-height:1;border:1px solid currentColor}
+html[data-atlas=bosses] .speed-sort-button.active{color:var(--accent)}
+html[data-atlas] .atlas-menu-panel [data-atlas-mode].active{color:var(--accent)!important;text-decoration:underline;text-underline-offset:4px}
 @media(min-width:1100px){html[data-atlas] #atlas-quickbar{padding-left:22px;padding-right:22px}html[data-atlas=bosses] main{max-width:1460px!important}}
 
 /* AOI atlas hotfix 2026-10-06 */
