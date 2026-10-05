@@ -120,85 +120,94 @@ function pairFilterActions(box,done,reset){
 function normalizeEquipmentSearchDock(){
  if(slug!=='equipment')return;
 
- // Remove source-only top chrome. The shared atlas quickbar is the only collection header.
- document.querySelector('header.hero')?.setAttribute('hidden','');
+ const quickbar=document.getElementById('atlas-quickbar');
 
- // Remove only the source collection tabs (圖鑑 / 想收集 / 素材 / 已取得).
- // Do NOT remove the equipment browsing modes (依照模組 / 依照系列 / 全部裝備).
+ // Remove the source-only header and duplicate collection navigation.
+ document.querySelector('header.hero')?.setAttribute('hidden','');
  const sourceTabs=[...document.querySelectorAll('[data-tab]')].filter(el=>!el.closest('#atlas-quickbar'));
  sourceTabs.forEach(el=>el.setAttribute('hidden',''));
- for(const parent of new Set(sourceTabs.map(el=>el.parentElement).filter(Boolean))){
-  const visibleChildren=[...parent.children].filter(el=>!el.hasAttribute('hidden'));
-  if(!visibleChildren.length)parent.setAttribute('hidden','');
- }
 
+ // Build the equipment search/filter shell as a TOP-LEVEL sibling of the shared quickbar.
+ // This is intentional: placing it back inside the source .navigation/.toolbar can hide it
+ // when that legacy wrapper is removed.
  const search=document.getElementById('search')||document.querySelector('input[type="search"],input[placeholder*="搜尋"]');
  const filters=document.getElementById('filters');
  const oldToggle=document.getElementById('toggleFilters')||[...document.querySelectorAll('button')].find(b=>/篩選/.test(b.textContent.trim())&&!b.closest('#atlas-quickbar'));
- if(!search)return;
 
- let controls=document.querySelector('.atlas-equipment-controls');
- if(!controls){
-  const oldAnchor=search.closest('.searchbar,.controls,.toolbar,.filters,.navigation')||search.parentElement;
-  controls=document.createElement('div');
-  controls.className='controls atlas-equipment-controls';
+ if(search){
+  let controls=document.querySelector(':scope > .atlas-equipment-controls');
+  if(!controls){
+   controls=document.createElement('div');
+   controls.className='controls atlas-equipment-controls';
 
-  const searchbar=document.createElement('div');
-  searchbar.className='searchbar';
+   const searchbar=document.createElement('div');
+   searchbar.className='searchbar';
 
-  const drawer=document.createElement('details');
-  drawer.className='filter-drawer atlas-equipment-filter-drawer';
-  const summary=document.createElement('summary');
-  summary.textContent='篩選';
-  drawer.append(summary);
+   const drawer=document.createElement('details');
+   drawer.className='filter-drawer atlas-equipment-filter-drawer';
+   const summary=document.createElement('summary');
+   summary.textContent='篩選';
+   drawer.append(summary);
 
-  oldAnchor.parentElement?.insertBefore(controls,oldAnchor);
-  searchbar.append(search,drawer);
-  controls.append(searchbar);
+   searchbar.append(search,drawer);
+   controls.append(searchbar);
 
-  if(filters){
-   filters.removeAttribute('hidden');
-   drawer.append(filters);
+   if(filters){
+    filters.removeAttribute('hidden');
+    drawer.append(filters);
+   }
+
+   if(quickbar)quickbar.after(controls);
+   else document.body.prepend(controls);
+  }else{
+   const drawer=controls.querySelector('.atlas-equipment-filter-drawer');
+   if(search.parentElement!==controls.querySelector('.searchbar'))controls.querySelector('.searchbar')?.prepend(search);
+   if(filters&&drawer&&filters.parentElement!==drawer){
+    filters.removeAttribute('hidden');
+    drawer.append(filters);
+   }
   }
-
-  if(oldToggle&&oldToggle!==summary)oldToggle.setAttribute('hidden','');
-  if(oldAnchor!==controls&&oldAnchor!==document.body){
-   // Leave source containers in place only when they still contain meaningful controls.
-   const meaningful=[...oldAnchor.children].filter(el=>el!==search&&!el.hasAttribute('hidden'));
-   if(!meaningful.length)oldAnchor.setAttribute('hidden','');
-  }
- }else{
-  const drawer=controls.querySelector('.atlas-equipment-filter-drawer');
-  if(filters&&drawer&&filters.parentElement!==drawer){
-   filters.removeAttribute('hidden');
-   drawer.append(filters);
-  }
+  if(oldToggle)oldToggle.setAttribute('hidden','');
  }
 
- // Restore and preserve the three equipment browsing buttons no matter which source wrapper owns them.
- let modeButtons=[...document.querySelectorAll('button')].filter(b=>/^(依照模組|依照系列|全部裝備)$/.test(b.textContent.trim()));
- if(!modeButtons.length){
-  modeButtons=[...document.querySelectorAll('[data-view]')].filter(b=>!b.closest('#atlas-quickbar')&&/mod|module|series|family|all/i.test(b.dataset.view||''));
- }
- if(modeButtons.length){
-  let modes=document.querySelector('.atlas-equipment-viewmodes');
+ // Restore the three native equipment browsing buttons by taking them OUT of the
+ // legacy .viewmodes wrapper before that wrapper is hidden.
+ const nativeViewButtons=[...document.querySelectorAll('.viewmodes button')].filter(b=>!b.closest('#atlas-quickbar'));
+ let modes=document.querySelector(':scope > .atlas-equipment-viewmodes');
+ if(nativeViewButtons.length){
   if(!modes){
    modes=document.createElement('div');
    modes.className='atlas-equipment-viewmodes';
-   controls.after(modes);
+   const controls=document.querySelector(':scope > .atlas-equipment-controls');
+   (controls||quickbar)?.after(modes);
   }
-  for(const b of modeButtons){
+  for(const b of nativeViewButtons){
    b.removeAttribute('hidden');
-   b.parentElement?.removeAttribute('hidden');
-   if(b.parentElement!==modes)modes.append(b);
+   modes.append(b);
   }
  }
 
- // If a source navigation wrapper remains after extracting the useful mode buttons, hide it.
- for(const nav of document.querySelectorAll('.navigation,.viewmodes')){
-  if(nav.classList.contains('atlas-equipment-viewmodes'))continue;
-  const useful=[...nav.querySelectorAll('button')].filter(b=>/^(依照模組|依照系列|全部裝備)$/.test(b.textContent.trim()));
-  if(!useful.length)nav.setAttribute('hidden','');
+ // Fallback for source versions where those three buttons are not inside .viewmodes.
+ if(!modes||!modes.children.length){
+  const candidates=[...document.querySelectorAll('button[data-view]')].filter(b=>
+   !b.closest('#atlas-quickbar')&&!b.closest('#overlay')&&
+   /^(all|mod|mods|module|modules|family|families|series)$/i.test(b.dataset.view||'')
+  );
+  if(candidates.length){
+   if(!modes){
+    modes=document.createElement('div');modes.className='atlas-equipment-viewmodes';
+    const controls=document.querySelector(':scope > .atlas-equipment-controls');
+    (controls||quickbar)?.after(modes);
+   }
+   for(const b of candidates){b.removeAttribute('hidden');modes.append(b)}
+  }
+ }
+
+ // Hide now-empty legacy wrappers only AFTER extracting the controls we need.
+ for(const el of document.querySelectorAll('.navigation,.viewmodes,.atlas-equipment-shared-toolbar,.atlas-equipment-search-dock')){
+  if(el.classList.contains('atlas-equipment-viewmodes'))continue;
+  if(el.closest('.atlas-equipment-controls'))continue;
+  el.setAttribute('hidden','');
  }
 }
 
