@@ -451,3 +451,64 @@ html[data-atlas=bosses] [data-pet-id="dragonsofberk:triple_stryke"] .boss-appear
 html[data-atlas=bosses] [data-pet-id="dragonsofberk:triple_stryke"] .boss-appearance:hover img{
  transform:scale(.94)!important
 }
+
+
+/* AOI control alignment + mobile stacking 2026-10-06 h */
+/* All collection state buttons use the same square geometry and raised Minecraft-like face. */
+html[data-atlas] :is(.atlas-single-collect,.atlas-skill-done,.atlas-reader-state .atlas-wish-button),
+html[data-atlas=equipment] :is(.atlas-equipment-card .wishbtn,.atlas-equipment-card .atlas-done-icon,#detail .atlas-detail-state){
+ width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;max-width:32px!important;max-height:32px!important;
+ padding:0!important;margin:0!important;box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ border:2px solid var(--line)!important;border-radius:4px!important;
+ background:var(--surface)!important;color:var(--muted)!important;
+ box-shadow:inset 2px 2px 0 rgba(255,255,255,.18),inset -2px -2px 0 rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.25)!important;
+ font-size:17px!important;font-weight:700!important;line-height:1!important;text-align:center!important;
+ transform:none!important;vertical-align:middle!important;appearance:none!important;
+}
+html[data-atlas] :is(.atlas-single-collect,.atlas-skill-done,.atlas-reader-state .atlas-wish-button)>*,
+html[data-atlas=equipment] :is(.atlas-equipment-card .wishbtn,.atlas-equipment-card .atlas-done-icon,#detail .atlas-detail-state)>*{
+ align-self:center!important;justify-self:center!important;margin:0!important;
+}
+html[data-atlas=bosses] .atlas-reader-state,
+html[data-atlas=skills] .atlas-reader-state{
+ display:flex!important;align-items:flex-start!important;justify-content:flex-end!important;gap:6px!important;
+}
+html[data-atlas=bosses] .atlas-reader-state .atlas-single-collect,
+html[data-atlas=bosses] .atlas-reader-state .atlas-wish-button,
+html[data-atlas=skills] .atlas-reader-state .atlas-skill-done,
+html[data-atlas=skills] .atlas-reader-state .atlas-wish-button{
+ position:static!important;inset:auto!important;
+}
+html[data-atlas=bosses] .atlas-single-collect:has(input:checked),
+html[data-atlas=skills] .atlas-skill-done:has(input:checked),
+html[data-atlas=equipment] :is(.atlas-equipment-card .atlas-done-icon.selected,#detail .atlas-detail-done.selected){
+ background:#2f8f4e!important;border-color:#1f6f39!important;color:#fff!important;
+}
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn{right:6px!important;top:6px!important}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon{right:44px!important;top:6px!important}
+
+/* On phones, Skill & Spell cards stack Obtained above Wishlist to free title width. */
+@media(max-width:600px){
+ html[data-atlas=skills] .entry-title{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:start!important;
+ }
+ html[data-atlas=skills] .entry-title .atlas-reader-state{
+  flex-direction:column!important;gap:6px!important;align-items:stretch!important;
+ }
+}
+
+/* Scarlet guide: every visual gets an explicit dark rendering, not only chapter 9 figures. */
+html[data-atlas=scarlet][data-world-theme=dark] .scarlet-theme-visual{
+ background:#141916!important;
+ filter:invert(.90) hue-rotate(180deg) brightness(.90) contrast(1.08)!important;
+ mix-blend-mode:normal!important;opacity:1!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] svg.scarlet-theme-visual{
+ filter:none!important;background:#141916!important;color:var(--ink)!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] .guide-inline-item img,
+html[data-atlas=scarlet][data-world-theme=dark] [data-inventory-item] img{
+ filter:none!important;background:transparent!important;
+}
