@@ -20,3 +20,23 @@ html[data-theme=light] h1,html[data-theme=light] h2,html[data-theme=light] h3,ht
 .compare-short-label{display:none}@media(max-width:620px){.progress-matrix{min-width:0!important;width:100%}.progress-matrix th:first-child{width:64px}.progress-matrix th,.progress-matrix td{padding:8px 3px}.progress-matrix th{font-size:10px}.progress-matrix tbody th{font-size:11px}.progress-matrix b{font-size:10px}.progress-matrix small{display:none}.progress-matrix td>.muted{font-size:9px;line-height:1.6}.compare-full-label{display:none}.compare-short-label{display:inline}.progress-matrix .progressbar{height:4px}.progress-matrix td{min-width:0}.comparison-scroll:has(.progress-matrix){overflow:hidden}}
 @media(max-width:620px){.progress-matrix th,.progress-matrix td{padding:6px 3px}.progress-matrix .progressbar{margin:3px 0}}
 html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.active,html[data-atlas] .detailnav button.active,html[data-atlas] .preset-tabs button.active{background:transparent!important;border:0!important;box-shadow:none!important}html[data-theme=light][data-atlas] body :is(h1,h2,h3,h4,h5),html[data-theme=light][data-atlas] #detail :is(h1,h2,h3,h4,h5){color:var(--ink)!important;text-shadow:none!important}
+
+
+/* AOI board/mobile refinements 2026-10-06 */
+.board-note{padding:0!important;overflow:visible}
+.board-note-open{width:100%;min-height:190px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:26px 14px 18px!important;color:#352918!important;background:transparent!important;border:0!important;box-shadow:none!important;text-shadow:none!important;font-weight:400}
+.board-note-open:hover{border:0!important}
+.board-note-open small{margin-top:auto;font-size:10px;color:#544630}
+.request-claim{width:calc(100% - 24px);margin:0 12px 12px;min-height:42px;background:#5b4425!important;color:#fff1bd!important;border:2px solid #352918!important;box-shadow:0 3px #25190b88!important}
+.note-item[data-item-hint],.reward-stack[data-item-hint]{cursor:help}
+@media(min-width:650px){.board-note-open{min-height:210px}}
+@media(max-width:600px){
+ .comparison-scroll{overflow:visible;border:0;margin:14px 0 20px}
+ .item-matrix{display:block;min-width:0;width:100%}
+ .item-matrix thead{display:none}
+ .item-matrix tbody{display:grid;gap:12px}
+ .item-matrix tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);background:var(--surface);padding:10px}
+ .item-matrix tr>th:first-child{position:static!important;grid-column:1/-1;min-width:0;max-width:none;width:auto;padding:5px 6px 10px;background:transparent;box-shadow:none;border-bottom:1px solid var(--line);font-size:13px}
+ .item-matrix td{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right;padding:8px 6px;font-size:14px;border:0;min-width:0}
+ .item-matrix td::before{content:attr(data-player);font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+}
