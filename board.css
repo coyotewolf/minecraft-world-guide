@@ -86,3 +86,28 @@ html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.ac
 .collection-state-button .wishlist-symbol::after{content:'☆';font-size:18px}
 .collection-state-button:has(input[data-wish]:checked) .wishlist-symbol::after{content:'★';color:var(--accent)}
 .collection-done-button:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+
+
+/* Team notification bell 2026-10-06 */
+.team-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 22px}
+.team-heading h1{margin:0}
+.team-notification-bell{
+ position:relative;display:grid;place-items:center;width:44px;height:44px;min-width:44px;
+ border:2px solid var(--line);background:var(--surface);color:var(--ink);
+ text-decoration:none;font-size:20px;line-height:1;box-shadow:2px 2px 0 var(--shadow)
+}
+.team-notification-bell:hover{border-color:var(--gold);color:var(--gold)}
+.team-notification-bell i{
+ position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;
+ background:#e33b3b;border:2px solid var(--bg);box-sizing:content-box
+}
+.team-notification-bell.has-unread span{animation:team-bell-ring .75s ease-in-out infinite;transform-origin:50% 12%}
+@keyframes team-bell-ring{
+ 0%,100%{transform:rotate(0)}
+ 20%{transform:rotate(14deg)}
+ 40%{transform:rotate(-12deg)}
+ 60%{transform:rotate(9deg)}
+ 80%{transform:rotate(-6deg)}
+}
+@media(prefers-reduced-motion:reduce){.team-notification-bell.has-unread span{animation:none}}
+html[data-motion=off] .team-notification-bell.has-unread span{animation:none}
