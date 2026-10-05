@@ -7,6 +7,7 @@ export function readGuide(slug,data){
  if(slug==='equipment'){
   const s=parse(data[SPECS.equipment[0]],{});
   for(const id of s.done||[])out.set('equipment:'+id,{completed:true});
+  for(const id of s.wish||[])out.set('equipment:'+id,{...(out.get('equipment:'+id)||{completed:false}),wanted:true});
   for(const [id,notes] of Object.entries(s.notes||{}))out.set('equipment:'+id,{...(out.get('equipment:'+id)||{completed:false}),notes:String(notes).slice(0,8000)});
  }
  if(slug==='bosses')for(const [storage,prefix,field] of [['mc-boss-collection-v1','boss:','loot'],['mc-taming-collection-v1','companion:','tamed']]){
@@ -19,7 +20,7 @@ export function writeGuide(slug,data,records,collections){
  const result={...data},rows=collections.filter(c=>c.sourceGuide===slug&&c.collectible);
  if(slug==='skills')result[SPECS.skills[0]]=JSON.stringify(rows.filter(c=>records.get(c.key)?.completed).map(c=>c.id));
  if(slug==='equipment'){
-  const s=parse(data[SPECS.equipment[0]],{wish:[],notes:{}});s.done=rows.filter(c=>records.get(c.key)?.completed).map(c=>c.id);s.notes=s.notes||{};
+  const s=parse(data[SPECS.equipment[0]],{wish:[],notes:{}});s.done=rows.filter(c=>records.get(c.key)?.completed).map(c=>c.id);s.wish=rows.filter(c=>records.get(c.key)?.checklist?.wish).map(c=>c.id);s.notes=s.notes||{};
   for(const c of rows){const p=records.get(c.key);if(p&&'notes'in p)s.notes[c.id]=p.notes}
   result[SPECS.equipment[0]]=JSON.stringify(s);
  }
