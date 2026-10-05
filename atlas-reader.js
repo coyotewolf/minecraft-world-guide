@@ -52,6 +52,7 @@ function applyAtlasWishes(){
   if(b){b.textContent=atlasWishes.has(id)?'★':'☆';b.title=atlasWishes.has(id)?'從想收集移除':'加入想收集';b.setAttribute('aria-label',b.title)}
   if(atlasMode==='wish')row.hidden=!atlasWishes.has(id);
  }
+ queueMicrotask(updateAtlasModeEmpty);
 }
 function atlasCompleted(row){
  return !!row.querySelector('input[data-field="loot"]:checked,input[data-pet-field="tamed"]:checked');
@@ -70,7 +71,7 @@ function setAtlasMode(mode){
  for(const row of atlasRows()){
   row.hidden=mode==='wish'?!atlasWishes.has(atlasEntryId(row)):mode==='done'?!atlasCompleted(row):false;
  }
- applyAtlasWishes();
+ applyAtlasWishes();updateAtlasModeEmpty();
 }
 function atlasTitle(){
  const section=params.get('section');
@@ -100,6 +101,32 @@ function installAtlasQuickbar(){
 function textAfterTerm(root,label){
  const term=[...root.querySelectorAll('dt')].find(dt=>dt.textContent.trim()===label);
  return term?.nextElementSibling?.tagName==='DD'?term.nextElementSibling:null;
+}
+
+function installFilterCompletion(){
+ for(const d of document.querySelectorAll('.filter-drawer')){
+  const box=d.querySelector('.filter-options,.filters,.pet-controls');if(!box||box.querySelector('.atlas-filter-done'))continue;
+  const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>d.removeAttribute('open');
+  const reset=[...box.querySelectorAll('button')].find(b=>/清除|重設/.test(b.textContent));reset?.after(done);if(!reset)box.append(done);
+ }
+ const filters=document.getElementById('filters'),toggle=document.getElementById('toggleFilters');
+ if(filters&&toggle&&!filters.querySelector('.atlas-filter-done')){
+  const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>{filters.hidden=true;toggle.setAttribute('aria-expanded','false')};
+  const reset=document.getElementById('reset');reset?.after(done);if(!reset)filters.append(done);
+ }
+}
+function removeAtlasUtilityButtons(){
+ for(const id of ['export','import','csv'])document.getElementById(id)?.remove();
+ for(const b of document.querySelectorAll('button'))if(/^(匯出收集進度|匯入收集進度|匯出目前清單 CSV)$/.test(b.textContent.trim()))b.remove();
+}
+function updateAtlasModeEmpty(){
+ document.querySelector('.atlas-mode-empty')?.remove();
+ if(!['wish','done'].includes(atlasMode)||slug==='equipment')return;
+ const visible=atlasRows().filter(r=>!r.hidden);
+ if(visible.length)return;
+ const box=document.createElement('div');box.className='empty atlas-mode-empty';
+ box.textContent=atlasMode==='wish'?'目前沒有「想收集」項目。點條目上的 ☆ 星號，就能把它加入「我想收集」。':'目前沒有「已取得」項目。取得後點條目上的 ✓ 按鈕，即會出現在這裡。';
+ (document.querySelector('#list')||document.querySelector('#taming-collection .grid')||document.querySelector('#boss-panel .grid')||document.querySelector('main'))?.append(box);
 }
 
 const saintTaming={
@@ -148,6 +175,37 @@ const saintSpawn={
  'saintsdragons:varasuchus':'主世界・蜷鱷龍巢穴；海灘／沼澤類生態域，原版明確包含海灘、石岸、沼澤與紅樹林沼澤。',
  'saintsdragons:ivy_oleander':'主世界・常春藤小屋；森林類生態域，原版明確包含森林、樺木森林、原始樺木森林、黑森林、繁花森林、針葉林、原始松木針葉林、原始雲杉針葉林與雪地針葉林。'
 };
+const berkSpawn={
+ 'dragonsofberk:stinger':'主世界自然生成：向日葵平原、莽原、莽原高地（預設權重 5，每群 2–3）；惡地、疏林惡地、風蝕惡地（權重 1，每群 1–2）。',
+ 'dragonsofberk:terrible_terror':'主世界自然生成：石岸、河流、海灘（預設權重 1，每群 1–3）；叢林、竹林、黑森林（權重 2，每群 2–3）。',
+ 'dragonsofberk:deadly_nadder':'主世界自然生成：雪原、草甸（權重 1，每群 2–3）；風襲丘陵、風襲礫質丘陵、風襲森林（權重 2，每群 2–3）；稀疏叢林、莽原、莽原高地（權重 3，每群 2–3）；雪林、森林、繁花森林、樺木森林、原始樺木森林、風襲莽原（權重 4，每群 1–3）。',
+ 'dragonsofberk:gronckle':'主世界自然生成：雪原、沼澤、草甸（權重 1，每群 1–2）；原始樺木森林、莽原高地、風襲莽原（權重 2，每群 2–3）；平原、雪林、向日葵平原、莽原（權重 3，每群 1–2）。',
+ 'dragonsofberk:zippleback':'主世界自然生成：稀疏叢林（權重 3，每群 2–3）；冰刺之地、雪原、沼澤（權重 1，每群 1–2）。',
+ 'dragonsofberk:light_fury':'主世界自然生成：雪原、雪坡、雪地針葉林、雪林、冰封山峰、尖峭山峰、冰刺之地（權重 1，每群 1）。',
+ 'dragonsofberk:night_fury':'終界自然生成：終界、終界高地、終界中型島嶼（權重 1，每群 1）。',
+ 'dragonsofberk:monstrous_nightmare':'主世界自然生成：惡地、疏林惡地、風蝕惡地，以及風襲丘陵、風襲礫質丘陵、風襲森林（各組權重 1，每群 1–2）。',
+ 'dragonsofberk:skrill':'主世界自然生成：雪坡、尖峭山峰、冰封山峰、裸岩山峰（權重 2，每群 1–2）。',
+ 'dragonsofberk:triple_stryke':'主世界自然生成：疏林惡地、惡地（權重 1，每群 1–2）；雪地針葉林、針葉林、原始松木針葉林、原始雲杉針葉林（權重 2，每群 1–3）。',
+ 'dragonsofberk:speed_stinger':'主世界疾刺龍巢穴：石峰／尖峭山峰／草甸的洞穴巢、深海冰洋／冰封海洋／冰刺之地／雪原的冰巢、叢林／稀疏叢林／竹林的叢林巢、針葉林／原始松木針葉林／原始雲杉針葉林的針葉林巢。四種結構預設 spacing 25、separation 8；結構生成覆寫每群 1–4 隻疾刺龍。',
+ 'dragonsofberk:speed_stinger_leader':'主世界疾刺龍四種巢穴結構內：洞穴巢（石峰、尖峭山峰、草甸）、冰巢（深海冰洋、冰封海洋、冰刺之地、雪原）、叢林巢（叢林、稀疏叢林、竹林）、針葉林巢（針葉林、原始松木針葉林、原始雲杉針葉林）。巢穴 NBT 明確放置疾刺龍領袖；結構預設 spacing 25、separation 8。'
+};
+function enhanceBerkDragons(){
+ for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="dragonsofberk:"]')){
+  const id=pet.dataset.petId,spawn=berkSpawn[id]||'';
+  const acquire=[...pet.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent.includes('取得與材料'));if(!acquire)continue;
+  const where=textAfterTerm(acquire,'在哪裡取得');
+  if(where){
+    if(spawn){where.previousElementSibling.textContent='野生個體';where.textContent='⌖ '+spawn;}
+    else if(/物種巢穴|生成設定|龍蛋路線/.test(where.textContent)){where.previousElementSibling?.remove();where.remove();}
+  }
+  for(const dd of acquire.querySelectorAll('dd'))if(/物種巢穴／生成設定|亦有對應龍蛋路線/.test(dd.textContent)&&!spawn){dd.previousElementSibling?.remove();dd.remove();}
+  pet.dataset.petSearch=pet.textContent.replace(/\s+/g,' ').trim()+' '+id;
+ }
+ for(const card of document.querySelectorAll('.card[data-id^="dragonsofberk:"]')){
+  const spawn=berkSpawn[card.dataset.id]||'',loc=card.querySelector('.loc');
+  if(spawn&&loc)loc.textContent='⌖ '+spawn;
+ }
+}
 function enhanceSaintDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="saintsdragons:"]')){
   const id=pet.dataset.petId,name=pet.querySelector('h3')?.textContent.trim()||id,profile=saintTaming[id];
@@ -249,7 +307,7 @@ function polishEquipmentControls(){
  renameCollectedLabels(document);
 }
 let polishTimer;
-new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true});
 renameCollectedLabels(document);polishEquipmentControls();
 
 const find=id=>document.getElementById(id);
@@ -266,7 +324,7 @@ function openTarget(d){
   if(slug==='equipment'){
     if(d.done==='done')document.querySelector('[data-tab="done"]')?.click();
     if(d.query){document.querySelector('[data-view="all"]')?.click();input('search',d.query);}
-    if(d.id&&typeof drawDetail==='function')drawDetail(d.id);
+    if(d.id&&typeof drawDetail==='function'){drawDetail(d.id);if(atlasPopup){document.documentElement.dataset.popupFocus='true';document.body.style.overflow='auto';document.getElementById('overlay')?.classList.add('atlas-popup-flat');}}
   }else if(slug==='skills'){
     // Reference entries live in a separate source collection; select it before searching.
     if(d.reference||d.done==='reference')find('referenceView')?.click();
@@ -297,7 +355,7 @@ if(slug){
   // Remove promotional reader introductions, preserving actual game instructions.
   document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand,.collection-source-note').forEach(e=>e.remove());
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
-  if(slug==='scarlet')document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
+  if(slug==='scarlet'){document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';document.getElementById('chapter')?.setAttribute('hidden','');}
   if(slug==='bosses'){
     if(atlasPopup){document.querySelector('header.hero')?.setAttribute('hidden','');document.querySelector('#boss-panel > .actions')?.setAttribute('hidden','');document.querySelector('#boss-panel > .controls')?.setAttribute('hidden','');document.querySelector('#taming-collection .pet-searchbar')?.setAttribute('hidden','');document.querySelector('#taming-collection > .actions')?.setAttribute('hidden','');document.querySelector('#pet-status')?.setAttribute('hidden','');document.querySelector('#speed-overview')?.setAttribute('hidden','');}
     document.querySelector('.collection-tabs')?.setAttribute('hidden','');
@@ -327,7 +385,8 @@ if(slug){
     expand.onclick=e=>petsSelected()?find('pet-open').click():expandBoss.call(expand,e);
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
-  if(slug==='bosses'){enhanceSaintDragons();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
+  removeAtlasUtilityButtons();installFilterCompletion();
+  if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
