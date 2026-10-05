@@ -26,3 +26,22 @@ body.entry-open>.topbar{display:none}body.entry-open #main{min-height:100dvh;pad
 @media(max-width:600px){
   .intro-name-en{font-size:.52em;margin-top:6px}
 }
+
+
+/* Auth centering fix 2026-10-06 */
+body.entry-open{overflow-x:hidden}
+body.entry-open #main{
+ width:100vw!important;max-width:none!important;min-width:0!important;
+ margin:0!important;padding:0!important;
+}
+body.entry-open .entry-page{
+ width:100%!important;min-height:100dvh!important;
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ padding-left:max(20px,env(safe-area-inset-left))!important;
+ padding-right:max(20px,env(safe-area-inset-right))!important;
+}
+body.entry-open .auth-card{
+ justify-self:center!important;align-self:center!important;
+ margin:0 auto!important;box-sizing:border-box!important;
+}
