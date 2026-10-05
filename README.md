@@ -32,7 +32,7 @@
 
 ## 維護
 
-前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql`、`feedback-bounties.sql` 順序套用；已建好的專案不需要重跑。
+前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql`、`feedback-bounties.sql`、`avatars-item-rewards.sql` 順序套用；已建好的專案不需要重跑。
 
 本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
 
@@ -50,7 +50,15 @@
 
 ## 反饋、懸賞與首領連結
 
-反饋入口位於「我的」。玩家只能讀取自己的反饋；網站管理員可審閱全部、更新四種狀態與回覆。維護處理流程見 docs/feedback-workflow.md。隊伍留言板使用實際物品圖示、數量與報酬；新增標題上限 32 字，舊留言保留。收藏比較以玩家列與各收藏類別欄呈現，未分享進度的成員明確顯示未分享。
+反饋入口位於「我的」。玩家只能讀取自己的反饋；網站管理員可審閱全部、更新四種狀態與回覆。維護處理流程見 docs/feedback-workflow.md。隊伍留言板使用實際物品圖示、數量與報酬；新增標題上限 32 字，舊留言保留。收藏比較以各類別的競賽條呈現；玩家頭像沿進度向右移，長按或滑鼠停留顯示名稱與完成數量，未分享進度的成員明確顯示未分享。
 
 boss-links.js 只連結已收錄、名稱可明確對應的首領，以彈窗保留完整原攻略、掉落、召喚與收藏操作，不改變原頁面的網址。board.css 統一篩選、頁籤、標題留白及淺色對比。
 首次開啟預設暗色，手動選擇的主題仍會保存。reader-boot.js 配合 head 中的初始隱藏標記，等原攻略介面調整、初始條目及 Minecraft 字型準備完成才顯示。reading.css 移除原版導入過程與教學頁的樣式名稱碰撞，並整理段落、步驟與準備物品的留白。
+
+## 頭像與物品懸賞
+
+新帳號的預設頭像由資料庫從 12 種原版 Minecraft 頭像中隨機分配；舊玩家也會得到預設頭像。可在「我的」選擇其他頭像或上傳自己的 PNG、JPG、WebP 圖片，預覽後儲存。預設頭像直接保留原版紋理位元組，以 SVG 視窗呈現頭部正面，來源見 data/avatar-sources.json。
+
+上傳圖片在玩家瀏覽器中裁成正方形並轉成 256×256 PNG；Storage bucket 為私有。上傳與更新只能由本人執行；本人、同隊成員及網站管理員可讀取。圖片連結有效五分鐘，使用中會定期更新。資料庫拒絕跨玩家頭像路徑及他人上傳／覆寫，avatars-item-rewards.test.sql 使用回滾資料驗證權限。
+
+新懸賞以 reward_item_id 和 reward_quantity 保存獎勵，申請與獎勵的物品、數量各占同一排 2/3 與 1/3。既有文字型懸賞保留。物品清單由目前語系的 item/block 鍵與已有遊戲圖示交叉建立，見 tools/build_request_items.py，不將首領實體當成物品。

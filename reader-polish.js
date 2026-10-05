@@ -11,6 +11,7 @@
   d.append(summary,controls);controls.hidden=false;controls.classList.add('filter-options');
  }
  if(slug==='equipment'){
+  document.querySelectorAll('.searchbar>span[aria-hidden]').forEach(e=>e.remove());
   const title=document.querySelector('header.hero h1'),settings=document.getElementById('settings'),row=document.createElement('div');row.className='reader-heading-row';title.before(row);row.append(title,settings);document.querySelector('header.hero .topline')?.remove();
   drawer(document.querySelector('.searchbar'),document.getElementById('filters'),document.getElementById('toggleFilters'));
   const search=document.querySelector('.searchbar>input');if(search){const box=document.createElement('div');box.className='searchbox';box.innerHTML='<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path></svg>';search.before(box);box.append(search);}

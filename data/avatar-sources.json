@@ -1,0 +1,67 @@
+{
+  "minecraft": "1.20.1",
+  "source": "original client entity textures",
+  "rendering": "SVG viewport of the front face; source PNG bytes preserved",
+  "presets": [
+    {
+      "id": "steve",
+      "name": "史蒂夫",
+      "texture": "assets/minecraft/textures/entity/player/wide/steve.png"
+    },
+    {
+      "id": "alex",
+      "name": "艾莉克絲",
+      "texture": "assets/minecraft/textures/entity/player/slim/alex.png"
+    },
+    {
+      "id": "creeper",
+      "name": "苦力帕",
+      "texture": "assets/minecraft/textures/entity/creeper/creeper.png"
+    },
+    {
+      "id": "zombie",
+      "name": "殭屍",
+      "texture": "assets/minecraft/textures/entity/zombie/zombie.png"
+    },
+    {
+      "id": "skeleton",
+      "name": "骷髏",
+      "texture": "assets/minecraft/textures/entity/skeleton/skeleton.png"
+    },
+    {
+      "id": "enderman",
+      "name": "終界使者",
+      "texture": "assets/minecraft/textures/entity/enderman/enderman.png"
+    },
+    {
+      "id": "villager",
+      "name": "村民",
+      "texture": "assets/minecraft/textures/entity/villager/villager.png"
+    },
+    {
+      "id": "piglin",
+      "name": "豬布林",
+      "texture": "assets/minecraft/textures/entity/piglin/piglin.png"
+    },
+    {
+      "id": "wither_skeleton",
+      "name": "凋零骷髏",
+      "texture": "assets/minecraft/textures/entity/skeleton/wither_skeleton.png"
+    },
+    {
+      "id": "husk",
+      "name": "屍殼",
+      "texture": "assets/minecraft/textures/entity/zombie/husk.png"
+    },
+    {
+      "id": "drowned",
+      "name": "沉屍",
+      "texture": "assets/minecraft/textures/entity/zombie/drowned.png"
+    },
+    {
+      "id": "stray",
+      "name": "流髑",
+      "texture": "assets/minecraft/textures/entity/skeleton/stray.png"
+    }
+  ]
+}

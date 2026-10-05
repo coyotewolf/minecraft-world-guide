@@ -13,18 +13,18 @@ for p in (P/'guides').glob('*.html'):
  if 'id="world-reader-theme"' not in s:s=s.replace('</head>',style+'</head>',1);p.write_text(s,encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
- if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-reading1"></head>',1),encoding='utf8')
+ if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-race1"></head>',1),encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
- if '../polish.css' not in s:p.write_text(s.replace('</head>','<script src="../reader-polish.js?v=20261005-reading1" defer></script><link rel="stylesheet" href="../polish.css?v=20261005-reading1"></head>',1),encoding='utf8')
+ if '../polish.css' not in s:p.write_text(s.replace('</head>','<script src="../reader-polish.js?v=20261005-race1" defer></script><link rel="stylesheet" href="../polish.css?v=20261005-race1"></head>',1),encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
  if 'html[data-reader-loading]' not in s:
   critical='''<script>(()=>{const p=new URLSearchParams(location.search);if(!p.get('atlas'))return;const h=document.documentElement;h.dataset.atlas=p.get('atlas');h.dataset.readerLoading='true';try{h.dataset.theme=parent.document.documentElement.dataset.theme||'dark';h.dataset.worldTheme=h.dataset.theme}catch{h.dataset.theme='dark';h.dataset.worldTheme='dark'}})();</script><style>html[data-reader-loading] body{visibility:hidden!important}</style>'''
   s=s.replace('<head>','<head>'+critical,1)
- for asset in ['boss-links.js','board.css','reader-boot.js','reading.css']:
+ for asset in ['boss-links.js','board.css','reader-boot.js','reading.css','race.css']:
   if '../'+asset not in s:
-   tag=('<script src="../'+asset+'?v=20261005-reading1" defer></script>') if asset.endswith('.js') else ('<link rel="stylesheet" href="../'+asset+'?v=20261005-reading1">')
+   tag=('<script src="../'+asset+'?v=20261005-race1" defer></script>') if asset.endswith('.js') else ('<link rel="stylesheet" href="../'+asset+'?v=20261005-race1">')
    s=s.replace('</head>',tag+'</head>',1)
  p.write_text(s,encoding='utf8')
 print('Four complete readers share the journal palette, pixel controls and motion preference.')
