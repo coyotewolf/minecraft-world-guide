@@ -54,6 +54,7 @@ html[data-atlas] p,html[data-atlas] dd,html[data-atlas] td,html[data-atlas] li{f
 html[data-atlas] .entry summary,html[data-atlas] .chapter h2{font-size:17px!important;line-height:1.75!important}
 html[data-atlas=skills] main,html[data-atlas=scarlet] main{padding-left:18px!important;padding-right:18px!important}
 html[data-atlas=skills] .masthead,html[data-atlas=scarlet] .masthead{padding-left:18px!important;padding-right:18px!important}
+html[data-atlas=equipment] header.hero{padding-left:18px!important;padding-right:18px!important}
 .nav-icon{display:grid;place-items:center;width:28px;height:28px;line-height:1;flex-shrink:0}.pixel-nav-icon{display:block;width:28px;height:28px}.bottom-nav a{gap:3px}.sidebar .nav-icon{width:28px}
 .atlas-note-tools{flex-shrink:0;display:flex;justify-content:flex-end;padding:8px 16px;background:var(--surface)}
 html[data-atlas] header.hero,html[data-atlas] .masthead{background:transparent!important;border:0!important;box-shadow:none!important;padding:14px 0 20px!important;margin:0 0 18px!important}
