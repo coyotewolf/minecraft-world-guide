@@ -205,10 +205,11 @@ function polishEquipmentControls(){
    if(!wish||!done)continue;
    card.classList.add('atlas-equipment-card');
    done.classList.add('atlas-done-icon');
-   done.textContent='✓';
-   done.setAttribute('aria-label',(done.classList.contains('selected')?'取消已取得：':'標記為已取得：')+(card.querySelector('.item-open h3')?.textContent.trim()||'裝備'));
+   if(done.textContent!=='✓')done.textContent='✓';
+   const aria=(done.classList.contains('selected')?'取消已取得：':'標記為已取得：')+(card.querySelector('.item-open h3')?.textContent.trim()||'裝備');
+   if(done.getAttribute('aria-label')!==aria)done.setAttribute('aria-label',aria);
  }
- for(const b of document.querySelectorAll('#detail [data-done]'))b.textContent=b.classList.contains('selected')?'✓ 已取得':'✓ 標記為已取得';
+ for(const b of document.querySelectorAll('#detail [data-done]')){const text=b.classList.contains('selected')?'✓ 已取得':'✓ 標記為已取得';if(b.textContent!==text)b.textContent=text;}
  renameCollectedLabels(document);
 }
 let polishTimer;
