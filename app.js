@@ -136,7 +136,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi18" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi19" allow="clipboard-write"></iframe>`;
  const frame=$('#guide-frame');
  const openPayload=()=>({type:'atlas-open',id:options.item,query:options.query,reference:options.reference,done:options.done,mode:options.mode||'all',view:category==='companions'?'pets':category==='mounts'?'mounts':'boss',wishes:collections.filter(c=>c.sourceGuide===slug&&wanted(c.key)).map(c=>c.id)});
  frame?.addEventListener('load',()=>{
@@ -271,7 +271,7 @@ function installFilterDoneButtons(root=document){
 }
 async function render(){const sequence=++routeSequence,{path,q}=route();NAV.forEach(([id])=>{document.querySelectorAll(`[data-nav="${id}"]`).forEach(e=>e.classList.toggle('active',(path[0]===id||(id==='collections'&&['record','guide','advance','advancements'].includes(path[0])))))});app.classList.remove('route-enter');document.body.classList.remove('atlas-open');document.body.classList.toggle('entry-open',path[0]==='auth');document.body.classList.toggle('full-guide',path[0]==='guide'&&q.get('full')==='1');currentGuide=null;
  if(path[0]==='me'&&active&&needsKeySetup()){keyReturn='me';history.replaceState(null,'','#keys?onboard=1');return render()}
- try{switch(path[0]){case'keys':keysPage();break;case'auth':authPage(q.get('mode')||'login');break;case'home':home();break;case'journey':journey(path[1]);break;case'article':article(path[1]);break;case'collections':catalog();break;case'record':record(path.slice(1).join('/'));break;case'advancements':go('collections?category=advancements&'+q.toString());return;case'advance':advance(path.slice(1).join('/'));break;case'search':globalSearch(q.get('q')||'');break;case'me':me();break;case'team':await team();break;case'admin':await adminPage();break;case'feedback':await feedbackPage();break;case'guide':guide(path[1]);break;default:home()}if(sequence!==routeSequence)return;inventoryControls(app);normalizeCollectionFilter();installFilterDoneButtons(app);app.classList.add('route-enter');}catch(e){app.innerHTML=notice('無法讀取資料：'+e.message,true)+`<button data-refresh-page>再試一次</button>`;showError(e)}
+ try{switch(path[0]){case'keys':keysPage();break;case'auth':authPage(q.get('mode')||'login');break;case'home':home();break;case'journey':journey(path[1]);break;case'article':article(path[1]);break;case'collections':catalog();break;case'record':record(path.slice(1).join('/'));break;case'advancements':go('collections?category=advancements&'+q.toString());return;case'advance':advance(path.slice(1).join('/'));break;case'search':globalSearch(q.get('q')||'');break;case'me':me();break;case'team':await team();break;case'admin':await adminPage();break;case'feedback':await feedbackPage();break;case'guide':guide(path[1]);break;default:home()}if(sequence!==routeSequence)return;inventoryControls(app);normalizeCollectionFilter();installFilterDoneButtons(app);if(path[0]!=='team')app.classList.add('route-enter');}catch(e){app.innerHTML=notice('無法讀取資料：'+e.message,true)+`<button data-refresh-page>再試一次</button>`;showError(e)}
 }
 document.addEventListener('click',async e=>{const b=e.target.closest('button,a');if(!b)return;try{
  if(b.dataset.wishlistOpen){const key=b.dataset.wishlistOpen;if(key.startsWith('advancement:'))advancementModal(key.slice('advancement:'.length));else collectionModal(key)}
@@ -322,7 +322,7 @@ function collectionModal(key){
  const uid=user?.id||'guest',saved=progress.get('guide:'+slug)?.checklist||{},data=active?writeGuide(slug,saved,progress,collections):saved;
  for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  popupContext={slug,category,item:x.category==='strategy'?x.key.replace('scarlet:',''):x.id,query:x.title,reference:!x.collectible,mode:'all'};
- modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi18"></iframe>`);
+ modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi19"></iframe>`);
  $('#modal').classList.add('boss-dialog');
  const modalFrame=$('#atlas-modal-frame');modalFrame?.addEventListener('load',()=>refreshAtlasReader(modalFrame),{once:true});
 }
