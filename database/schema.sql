@@ -122,12 +122,19 @@ create policy records_insert on public.team_records for insert to authenticated 
 create policy records_edit on public.team_records for update to authenticated using(private.in_team(team_id) and (author_id=auth.uid() or private.is_owner(team_id))) with check(private.in_team(team_id) and (author_id=auth.uid() or private.is_owner(team_id)));
 create policy requests_read on public.requests for select to authenticated using(private.in_team(team_id));
 create policy requests_insert on public.requests for insert to authenticated with check(private.in_team(team_id) and author_id=auth.uid() and status='open' and assignee_id is null);
+create policy requests_author_update on public.requests for update to authenticated
+using(private.valid_session() and author_id=auth.uid() and status='open')
+with check(private.valid_session() and author_id=auth.uid() and status='open' and assignee_id is null);
+create policy requests_author_delete on public.requests for delete to authenticated
+using(private.valid_session() and author_id=auth.uid() and status in ('open','cancelled'));
 create policy comments_read on public.request_comments for select to authenticated using(exists(select 1 from public.requests r where r.id=request_id and private.in_team(r.team_id)));
 create policy comments_insert on public.request_comments for insert to authenticated with check(private.valid_session() and author_id=auth.uid() and exists(select 1 from public.requests r where r.id=request_id and private.in_team(r.team_id)));
 revoke all on public.profiles,public.teams,public.team_members,public.worlds,public.progress,public.team_records,public.requests,public.request_comments from anon;
 grant select on public.profiles,public.teams,public.team_members,public.requests,public.request_comments,public.team_records to authenticated;
 grant select,insert,update,delete on public.worlds,public.progress to authenticated;
 grant insert on public.requests,public.request_comments,public.team_records to authenticated;
+grant update(kind,title,body,item_id,quantity,reward,reward_item_id,reward_quantity,location,scheduled_at,updated_at) on public.requests to authenticated;
+grant delete on public.requests to authenticated;
 grant update(title,body,updated_at) on public.team_records to authenticated;
 
 -- Operations needing atomic writes live in the private schema, with guarded invoker wrappers.
