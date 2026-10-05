@@ -1,6 +1,8 @@
 // Adapt the complete collection readers without flattening their source content.
 const params=new URLSearchParams(location.search);
 const slug=params.get('atlas');
+const atlasPopup=params.get('popup')==='1'||params.has('bossPopup');
+if(atlasPopup)document.documentElement.dataset.atlasPopup='true';
 function adaptInventoryHints(){
   for(const el of document.querySelectorAll('[data-tip]')){el.dataset.itemHint=el.dataset.tip;el.removeAttribute('data-tip');el.removeAttribute('title');}
   for(const el of document.querySelectorAll('.station'))if(el.querySelector('img')&&!el.dataset.itemHint){el.dataset.itemHint=el.textContent.trim();el.tabIndex=0;el.setAttribute('aria-label',el.dataset.itemHint);for(const span of el.querySelectorAll('span'))span.classList.add('inventory-label');}
@@ -83,7 +85,7 @@ function atlasTitle(){
 function installAtlasQuickbar(){
  if(document.getElementById('atlas-quickbar'))return;
  const bar=document.createElement('div');bar.id='atlas-quickbar';
- const menu=slug==='scarlet'?'':'<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details>';
+ const menu=slug==='scarlet'?'':'<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已取得</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details>';
  bar.innerHTML=menu+'<strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
  document.body.prepend(bar);
  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);parent.postMessage({type:'atlas-mode-route',slug,mode:b.dataset.atlasMode},location.origin);bar.querySelector('details')?.removeAttribute('open')}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
@@ -95,52 +97,123 @@ function textAfterTerm(root,label){
  const term=[...root.querySelectorAll('dt')].find(dt=>dt.textContent.trim()===label);
  return term?.nextElementSibling?.tagName==='DD'?term.nextElementSibling:null;
 }
+
+const saintTaming={
+ 'saintsdragons:raevyx':{
+  conditions:'先把成年野生殷雷龍壓到 60 HP 以下進入馴服眩暈。普通有效食物每次 20%；生羊肉 20%；生豬肉 20%；豐盛龍食 33.33%。失敗後要重新創造可餵食的眩暈窗口。Legacy Taming 預設關閉。'
+ },
+ 'saintsdragons:ignivorus':{
+  conditions:'先把成年野生噬焰龍壓到 100 HP 以下進入馴服眩暈。一般有效食物每次 14.29%；生牛肉 20%；生羊肉 14.29%；生豬肉 14.29%；豐盛龍食 25%。失敗會結束當次眩暈，需要再次壓制。Legacy Taming 預設關閉。'
+ },
+ 'saintsdragons:atroxiia':{
+  conditions:'先把成年野生凜蝮龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 33.33%。Legacy Taming 固定為關閉。',
+  egg:true,
+  hatch:'雌性凜蝮龍死亡時有 12% 機率掉落凜蝮龍蛋。把蛋放置後開始孵化；預設孵化時間 24,000 tick，也就是約 20 分鐘。孵化完成會生成凜蝮龍幼體。'
+ },
+ 'saintsdragons:volitans':{
+  conditions:'先把成年野生蓑鮋龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 30%。Legacy Taming 預設關閉。'
+ },
+ 'saintsdragons:cindervane':{
+  conditions:'燼翎龍不需要先打殘，直接餵食即可。一般有效食物每次 25%；生雞肉 33.33%；豐盛龍食 50%。失敗後等餵食冷卻結束再嘗試。'
+ },
+ 'saintsdragons:varasuchus':{
+  conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率才是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。'
+ },
+ 'saintsdragons:stegonaut':{
+  conditions:'和平餵食馴服，不需要戰鬥壓制。一般有效食物與豐盛龍食的馴服率都為 100%，餵一次成功。'
+ },
+ 'saintsdragons:nulljaw':{
+  conditions:'使用歌萊果右鍵餵食；每次符合條件的餵食嘗試有 20% 機率成功。失敗後等餵食冷卻再繼續，不需要先打殘。'
+ }
+};
 function enhanceSaintDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="saintsdragons:"]')){
-  const id=pet.dataset.petId,name=pet.querySelector('h3')?.textContent.trim()||id;
+  const id=pet.dataset.petId,name=pet.querySelector('h3')?.textContent.trim()||id,profile=saintTaming[id];
+  if(!profile)continue;
   const source=[...document.querySelectorAll('.card[data-id]')].find(card=>card.dataset.id===id);
-  const hp=(pet.querySelector('.entity-meta')?.textContent.match(/生命\\s*([\\d.]+)\\s*HP/i)||[])[1];
+  const hp=(pet.querySelector('.entity-meta')?.textContent.match(/生命\s*([\d.]+)\s*HP/i)||[])[1];
   const mount=pet.querySelector('.mount-detail');
   if(mount){
    const healthTerms=[...mount.querySelectorAll('dt')].filter(dt=>dt.textContent.trim()==='生命值說明');
-   healthTerms.forEach((dt,i)=>{const dd=dt.nextElementSibling;if(i===0&&dd?.tagName==='DD')dd.textContent=hp?'本機 Saints Dragons 0.9.51 設定：'+name+'成年基礎生命值 '+hp+' HP。幼體成長階段、受傷／增益狀態或伺服器覆寫會讓實際生命值不同。':'此卡片未解析到成年生命值，請以遊戲內實體面板為準。';else{dd?.remove();dt.remove()}});
+   healthTerms.forEach((dt,i)=>{const dd=dt.nextElementSibling;if(i===0&&dd?.tagName==='DD')dd.textContent=hp?'本包 Saints Dragons 0.9.51：'+name+'成年基礎生命值 '+hp+' HP。':'此條目沒有可核實的成年基礎生命值。';else{dd?.remove();dt.remove()}});
   }
   const acquire=[...pet.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent.includes('取得與材料'));
   if(!acquire)continue;
+  const dl=acquire.querySelector('dl');
+  const tame=textAfterTerm(acquire,'如何取得／馴服');
+  if(tame){
+    const dt=tame.previousElementSibling;dt.textContent='馴服方法';
+    tame.textContent=profile.conditions;
+  }
   const where=textAfterTerm(acquire,'在哪裡取得');
-  if(!where||where.dataset.expandedDragon==='1')continue;
-  where.dataset.expandedDragon='1';
-  const wild=source?.querySelector('.loc')?.textContent.replace(/^⌖\\s*/,'').trim();
-  const loot=source?textAfterTerm(source,'主要掉落池')?.textContent.trim():'';
-  const advancement=source?textAfterTerm(source,'進度／成就')?.textContent.trim():'';
-  const tame=textAfterTerm(acquire,'如何取得／馴服')?.textContent.trim();
-  const conditions=textAfterTerm(acquire,'重要條件／用途')?.textContent.trim();
-  const dt=where.previousElementSibling;
-  const frag=document.createDocumentFragment();
-  const pairs=[
-   ['野生個體',wild||name+'依該物種的自然生成設定出現；若伺服器修改生成規則，以伺服器設定為準。'],
-   ['龍蛋取得',loot&&loot.includes('龍蛋')?loot:'目前這份本機資料沒有顯示「'+name+'龍蛋」為死亡掉落；請以該物種成就／互動路線取得，不把其他龍種的蛋混用。'],
-   ['孵化','取得「'+name+'」對應龍蛋後，使用 Saints Dragons 的該物種孵化流程孵化成'+name+'幼體；這一步與後續馴服狀態分開記錄。'],
-   ['馴服進度',[tame,conditions,advancement&&advancement!=='無此模組專屬擊殺進度。'?'相關進度：'+advancement:''].filter(Boolean).join(' ')]
-  ];
-  for(const pair of pairs){const ndt=document.createElement('dt'),ndd=document.createElement('dd');ndt.textContent=pair[0];ndd.textContent=pair[1];frag.append(ndt,ndd)}
-  dt?.replaceWith(frag);where.remove();
+  if(where){where.previousElementSibling?.remove();where.remove();}
+  const conditions=textAfterTerm(acquire,'重要條件／用途');
+  if(conditions){conditions.previousElementSibling.textContent='馴服條件與機率';conditions.textContent=profile.conditions;}
+  if(profile.egg&&source&&!acquire.dataset.eggAdded){
+    const loot=textAfterTerm(source,'主要掉落池')?.textContent.trim()||'';
+    if(loot.includes('龍蛋')){
+      acquire.dataset.eggAdded='1';
+      const eggDt=document.createElement('dt'),eggDd=document.createElement('dd'),hatchDt=document.createElement('dt'),hatchDd=document.createElement('dd');
+      eggDt.textContent='龍蛋取得';eggDd.textContent=loot;
+      hatchDt.textContent='孵化';hatchDd.textContent=profile.hatch;
+      dl.append(eggDt,eggDd,hatchDt,hatchDd);
+    }
+  }
+  pet.dataset.petSearch=pet.textContent.replace(/\s+/g,' ').trim()+' '+id;
  }
 }
 function installSpeedSorting(){
  const table=document.querySelector('#speed-overview .speed-table');if(!table||table.dataset.sortReady)return;
- table.dataset.sortReady='1';const body=table.tBodies[0],rows=[...body.rows];rows.forEach((r,i)=>r.dataset.originalOrder=i);
+ const body=table.tBodies[0];if(!body)return;
+ table.dataset.sortReady='1';
+ [...body.rows].forEach((row,index)=>{row.dataset.originalOrder=String(index);for(let col=1;col<=4;col++){const text=row.cells[col]?.textContent||'',m=text.replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);row.dataset['sort'+col]=m?String(Number(m[0])):''}});
  const labels=['地面跑速','地面衝刺／加速','水平飛行','飛行加速'];let state=null;
- const value=(row,col)=>{const m=row.cells[col]?.textContent.replace(/,/g,'').match(/-?\\d+(?:\\.\\d+)?/);return m?Number(m[0]):null};
- const render=()=>{const sorted=[...rows];if(state)sorted.sort((a,b)=>{const av=value(a,state.col),bv=value(b,state.col);if(av==null&&bv==null)return Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder);if(av==null)return 1;if(bv==null)return-1;return state.dir==='desc'?bv-av:av-bv});else sorted.sort((a,b)=>Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder));sorted.forEach(r=>body.append(r));table.querySelectorAll('.speed-sort-button').forEach(b=>{const active=state&&Number(b.dataset.col)===state.col;b.classList.toggle('active',!!active);b.querySelector('span').textContent=active?(state.dir==='desc'?'↓':'↑'):'↕'});};
- labels.forEach((label,i)=>{const th=table.tHead.rows[0].cells[i+1];if(!th)return;th.innerHTML='';const b=document.createElement('button');b.type='button';b.className='speed-sort-button';b.dataset.col=String(i+1);b.innerHTML=label+'<span aria-hidden="true">↕</span>';b.setAttribute('aria-label',label+'排序，第一次由大到小');b.onclick=()=>{const col=i+1;state=state?.col===col?{col,dir:state.dir==='desc'?'asc':'desc'}:{col,dir:'desc'};render()};th.append(b)});
- const tools=document.createElement('div');tools.className='speed-sort-tools';const clear=document.createElement('button');clear.type='button';clear.className='speed-sort-clear';clear.textContent='清除排序';clear.onclick=()=>{state=null;render()};tools.append(clear);table.closest('.table-scroll')?.before(tools);render();
+ const rows=()=>[...body.querySelectorAll('tr[data-speed-id]')];
+ const value=(row,col)=>{const raw=row.dataset['sort'+col];return raw===''||raw==null?null:Number(raw)};
+ const render=()=>{
+   const ordered=rows().sort((a,b)=>{
+     if(!state)return Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder);
+     const av=value(a,state.col),bv=value(b,state.col);
+     if(av==null&&bv==null)return Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder);
+     if(av==null)return 1;if(bv==null)return-1;
+     const diff=state.dir==='desc'?bv-av:av-bv;
+     return diff||Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder);
+   });
+   body.replaceChildren(...ordered);
+   table.querySelectorAll('.speed-sort-button').forEach(b=>{const active=!!state&&Number(b.dataset.col)===state.col;b.classList.toggle('active',active);b.setAttribute('aria-sort',active?(state.dir==='desc'?'descending':'ascending'):'none');b.querySelector('span').textContent=active?(state.dir==='desc'?'↓':'↑'):'↕'});
+ };
+ labels.forEach((label,i)=>{const col=i+1,th=table.tHead.rows[0].cells[col];if(!th)return;th.textContent='';const b=document.createElement('button');b.type='button';b.className='speed-sort-button';b.dataset.col=String(col);b.innerHTML=label+'<span aria-hidden="true">↕</span>';b.setAttribute('aria-label',label+'排序');b.onclick=e=>{e.preventDefault();e.stopPropagation();state=state?.col===col?{col,dir:state.dir==='desc'?'asc':'desc'}:{col,dir:'desc'};render()};th.append(b)});
+ const tools=document.createElement('div');tools.className='speed-sort-tools';const clear=document.createElement('button');clear.type='button';clear.className='speed-sort-clear';clear.textContent='清除排序';clear.onclick=e=>{e.preventDefault();state=null;render()};tools.append(clear);table.closest('.table-scroll')?.before(tools);render();
 }
 function installModelZoom(){
  const attach=img=>{if(img.dataset.localZoom)return;img.dataset.localZoom='1';img.addEventListener('pointermove',e=>{if(e.pointerType&&e.pointerType!=='mouse')return;const r=img.getBoundingClientRect(),x=((e.clientX-r.left)/r.width)*100,y=((e.clientY-r.top)/r.height)*100;img.style.transformOrigin=x+'% '+y+'%';img.classList.add('local-zoom-active')});img.addEventListener('pointerleave',()=>img.classList.remove('local-zoom-active'))};
  document.querySelectorAll('.model-dialog img').forEach(attach);
  new MutationObserver(()=>document.querySelectorAll('.model-dialog img').forEach(attach)).observe(document.body,{childList:true,subtree:true});
 }
+
+
+function renameCollectedLabels(root=document){
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];let n;
+ while(n=walker.nextNode())if(n.nodeValue.includes('已收藏'))nodes.push(n);
+ nodes.forEach(n=>n.nodeValue=n.nodeValue.replaceAll('已收藏','已取得'));
+ for(const el of root.querySelectorAll?.('[aria-label],[title]')||[]){for(const attr of ['aria-label','title'])if(el.hasAttribute(attr)&&el.getAttribute(attr).includes('已收藏'))el.setAttribute(attr,el.getAttribute(attr).replaceAll('已收藏','已取得'))}
+}
+function polishEquipmentControls(){
+ if(slug!=='equipment')return;
+ for(const card of document.querySelectorAll('.card')){
+   const wish=card.querySelector('.wishbtn'),done=card.querySelector('.collectbtn');
+   if(!wish||!done)continue;
+   card.classList.add('atlas-equipment-card');
+   done.classList.add('atlas-done-icon');
+   done.textContent='✓';
+   done.setAttribute('aria-label',(done.classList.contains('selected')?'取消已取得：':'標記為已取得：')+(card.querySelector('.item-open h3')?.textContent.trim()||'裝備'));
+ }
+ for(const b of document.querySelectorAll('#detail [data-done]'))b.textContent=b.classList.contains('selected')?'✓ 已取得':'✓ 標記為已取得';
+ renameCollectedLabels(document);
+}
+let polishTimer;
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+renameCollectedLabels(document);polishEquipmentControls();
 
 const find=id=>document.getElementById(id);
 const input=(id,value)=>{const e=find(id);if(e){e.value=value;e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));}};
@@ -171,7 +244,7 @@ function openTarget(d){
 }
 if(slug){
   document.documentElement.dataset.atlas=slug;
-  installAtlasQuickbar();
+  if(!atlasPopup)installAtlasQuickbar();
   for(const title of document.querySelectorAll('.modulehead h2')){
     const text=title.textContent.trim(),match=text.match(/^([^A-Za-z]+?)\s+([A-Za-z].*)$/);
     if(match){title.textContent='';const label=document.createElement('span'),alias=document.createElement('span');label.className='module-name';alias.className='module-alias';label.textContent=match[1];alias.textContent=match[2];title.append(label,alias);}
@@ -181,6 +254,7 @@ if(slug){
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
   if(slug==='scarlet')document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
   if(slug==='bosses'){
+    if(atlasPopup){document.querySelector('header.hero')?.setAttribute('hidden','');document.querySelector('#boss-panel > .actions')?.setAttribute('hidden','');document.querySelector('#boss-panel > .controls')?.setAttribute('hidden','');document.querySelector('#taming-collection .pet-searchbar')?.setAttribute('hidden','');document.querySelector('#taming-collection > .actions')?.setAttribute('hidden','');document.querySelector('#pet-status')?.setAttribute('hidden','');document.querySelector('#speed-overview')?.setAttribute('hidden','');}
     document.querySelector('.collection-tabs')?.setAttribute('hidden','');
     for(const card of document.querySelectorAll('.pet-card')){
       const seen=new Set();
@@ -213,9 +287,9 @@ if(slug){
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
   topButton.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5h14M12 20V9M6 15l6-6 6 6"/></svg>';
-  document.body.append(topButton);
+  if(!atlasPopup)document.body.append(topButton);
   const updateTopButton=()=>{topButton.hidden=window.scrollY<280};
-  addEventListener('scroll',updateTopButton,{passive:true});updateTopButton();
+  if(!atlasPopup){addEventListener('scroll',updateTopButton,{passive:true});updateTopButton();}
   topButton.onclick=()=>window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   const dock=slug==='equipment'?document.querySelector('.navigation'):null;
   if(dock)document.querySelector('.shell')?.prepend(dock);
