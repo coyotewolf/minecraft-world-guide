@@ -1020,3 +1020,200 @@ html[data-atlas=equipment] .atlas-equipment-viewmodes>button[aria-pressed="true"
   flex:0 0 auto!important;
  }
 }
+
+
+/* Equipment exact mount-atlas shell 2026-10-06 o */
+/* Final equipment layout: progress above the same one-row search/filter shell used by mounts. */
+html[data-atlas=equipment] .atlas-equipment-progress{
+ width:100%!important;
+ margin:0!important;
+ padding:10px 24px 8px!important;
+ box-sizing:border-box!important;
+ background:var(--bg)!important;
+ border:0!important;
+ color:var(--ink)!important;
+}
+html[data-atlas=equipment] .atlas-equipment-progress-head{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ margin:0 0 7px!important;
+ font-size:13px!important;
+ line-height:1.4!important;
+}
+html[data-atlas=equipment] .atlas-equipment-progress-head strong{
+ font-size:13px!important;
+ font-weight:700!important;
+ color:var(--ink)!important;
+}
+html[data-atlas=equipment] .atlas-equipment-progress-head span{
+ color:var(--muted)!important;
+ font-size:13px!important;
+}
+html[data-atlas=equipment] .atlas-equipment-progress>.progress{
+ display:block!important;
+ width:100%!important;
+ height:5px!important;
+ margin:0!important;
+ padding:0!important;
+ overflow:hidden!important;
+ background:var(--line)!important;
+ border:0!important;
+ border-radius:0!important;
+}
+html[data-atlas=equipment] .atlas-equipment-progress>.progress>i{
+ display:block!important;
+ height:100%!important;
+ width:0;
+ margin:0!important;
+ background:var(--accent)!important;
+}
+
+/* Search row is exactly one row: search field + compact Filter button. */
+html[data-atlas=equipment] .atlas-equipment-controls{
+ position:sticky!important;
+ top:58px!important;
+ z-index:55!important;
+ width:100%!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:10px 24px!important;
+ box-sizing:border-box!important;
+ background:var(--bg)!important;
+ border-top:0!important;
+ border-bottom:1px solid var(--line)!important;
+}
+html[data-atlas=equipment] .atlas-equipment-controls>.searchbar{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ gap:8px!important;
+ align-items:stretch!important;
+ width:100%!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:0!important;
+ position:relative!important;
+}
+html[data-atlas=equipment] .atlas-equipment-search-proxy{
+ display:block!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:46px!important;
+ min-height:46px!important;
+ margin:0!important;
+ padding:9px 12px!important;
+ box-sizing:border-box!important;
+ color:var(--ink)!important;
+ background:var(--input,var(--bg))!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ font:inherit!important;
+ font-size:16px!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer{
+ display:block!important;
+ width:auto!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ position:relative!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>summary{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:auto!important;
+ min-width:76px!important;
+ height:46px!important;
+ min-height:46px!important;
+ margin:0!important;
+ padding:9px 16px!important;
+ box-sizing:border-box!important;
+ white-space:nowrap!important;
+ list-style:none!important;
+ color:var(--ink)!important;
+ background:var(--input,var(--surface))!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ cursor:pointer!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>summary::-webkit-details-marker{display:none!important}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer[open]>summary{
+ color:var(--accent)!important;
+ border-color:var(--accent)!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>#filters{
+ position:absolute!important;
+ right:0!important;
+ top:54px!important;
+ z-index:90!important;
+ display:grid!important;
+ width:min(480px,calc(100vw - 48px))!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:14px!important;
+ box-sizing:border-box!important;
+ background:var(--card)!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ box-shadow:0 12px 35px #0004!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer:not([open])>#filters{display:none!important}
+
+/* There must be no old source search/search-icon/filter rows left visible. */
+html[data-atlas=equipment] :is(.atlas-equipment-shared-toolbar,.atlas-equipment-search-dock){display:none!important}
+html[data-atlas=equipment] [hidden]{display:none!important}
+
+/* Preserve the three equipment browsing modes below the search controls. */
+html[data-atlas=equipment] .atlas-equipment-viewmodes{
+ display:flex!important;
+ align-items:center!important;
+ flex-wrap:wrap!important;
+ gap:8px!important;
+ width:100%!important;
+ margin:12px 0!important;
+ padding:0 24px!important;
+ box-sizing:border-box!important;
+ background:transparent!important;
+}
+html[data-atlas=equipment] .atlas-equipment-viewmodes>button{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:auto!important;
+ min-width:0!important;
+ min-height:40px!important;
+ margin:0!important;
+ padding:7px 14px!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ background:var(--surface)!important;
+ color:var(--ink)!important;
+ box-shadow:none!important;
+}
+
+@media(max-width:760px){
+ html[data-atlas=equipment] .atlas-equipment-progress{
+  padding:8px 12px 6px!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-controls{
+  top:50px!important;
+  padding:10px 12px!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-filter-drawer>summary{
+  min-width:72px!important;
+  padding-inline:12px!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-filter-drawer>#filters{
+  width:min(480px,calc(100vw - 24px))!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-viewmodes{
+  padding-inline:12px!important;
+  overflow-x:auto!important;
+  flex-wrap:nowrap!important;
+ }
+}
