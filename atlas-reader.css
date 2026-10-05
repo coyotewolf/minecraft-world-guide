@@ -172,3 +172,69 @@ html[data-atlas=scarlet] main small,
 html[data-atlas=scarlet] main .muted{font-size:13px!important;line-height:1.6!important}
 
 html[data-atlas=bosses] .card[data-id],html[data-atlas=bosses] .pet-card[data-pet-id]{position:relative!important}
+
+
+/* AOI atlas corrections 2026-10-06 d */
+
+/* Filters always provide an explicit close action next to reset. */
+html[data-atlas] .atlas-filter-done,.filter-options .filter-done{
+ min-height:44px!important;border:2px solid var(--line)!important;background:var(--raised)!important;color:var(--ink)!important
+}
+html[data-atlas] #filters:has(.atlas-filter-done){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-atlas] #filters:has(.atlas-filter-done)>label{grid-column:1/-1}
+html[data-atlas] #filters #reset,html[data-atlas] #filters .atlas-filter-done{width:100%!important}
+
+/* Collection-state controls use the same compact star/check language as equipment. */
+html[data-atlas] .atlas-wish-button{
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+ color:var(--muted)!important;font-size:17px!important;line-height:1!important
+}
+html[data-atlas] .atlas-wish-button[aria-label^="從"]{color:var(--accent)!important}
+html[data-atlas=skills] .entry-title>.check{
+ appearance:none!important;-webkit-appearance:none!important;width:30px!important;height:30px!important;
+ min-width:30px!important;min-height:30px!important;margin:0 6px 0 0!important;border:0!important;
+ background:transparent!important;display:grid!important;place-items:center!important;cursor:pointer
+}
+html[data-atlas=skills] .entry-title>.check::after{content:'✓';font-size:17px;color:var(--muted)}
+html[data-atlas=skills] .entry-title>.check:checked::after{color:var(--accent)}
+html[data-atlas] .atlas-mode-empty{margin:24px 0!important;padding:28px 18px!important}
+
+/* Equipment popup: flatten the source reader's own sheet into the website dialog. */
+html[data-atlas-popup=true][data-atlas=equipment] body{overflow:auto!important}
+html[data-atlas-popup=true][data-atlas=equipment] main,
+html[data-atlas-popup=true][data-atlas=equipment] .navigation{display:none!important}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat{
+ position:static!important;inset:auto!important;display:block!important;width:100%!important;height:auto!important;
+ min-height:100dvh!important;padding:0!important;background:transparent!important;backdrop-filter:none!important
+}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat #drawer{
+ width:100%!important;max-width:none!important;max-height:none!important;min-height:100dvh!important;
+ overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:var(--bg)!important
+}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .sheetbar{display:none!important}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat #detail{padding:24px 28px 40px!important;max-width:1080px;margin:0 auto}
+
+/* Scarlet Hunter: search only; wider desktop chapter rail and full reader width. */
+html[data-atlas=scarlet] .chapter-select{display:none!important}
+html[data-atlas=scarlet] .masthead,
+html[data-atlas=scarlet] .toolbar-inner,
+html[data-atlas=scarlet] .layout{max-width:none!important;width:100%!important}
+html[data-atlas=scarlet] .layout{grid-template-columns:280px minmax(0,1fr)!important;gap:30px!important;padding:24px 30px 38px!important}
+html[data-atlas=scarlet] .sidebar a{font-size:14px!important;padding:9px 11px!important}
+html[data-atlas=scarlet] .sidebar .num{font-size:11px!important;min-width:24px!important}
+html[data-atlas=scarlet] main{max-width:none!important;width:100%!important}
+html[data-atlas=scarlet] .intro{max-width:900px!important}
+@media(max-width:760px){
+ html[data-atlas=scarlet] .layout{display:block!important;padding:18px 14px 34px!important}
+ html[data-atlas=scarlet] .sidebar{display:none!important}
+}
+
+/* The distance/range diagrams already contain their intended colors; do not invert them in dark mode. */
+html[data-atlas=scarlet][data-world-theme=dark] .figure img,
+html[data-atlas=scarlet][data-world-theme=dark] #art-large[data-diagram="true"]{
+ filter:none!important;background:#000!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] .figure{
+ background:#000!important;border-color:var(--line)!important
+}
