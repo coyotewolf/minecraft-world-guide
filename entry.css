@@ -9,3 +9,13 @@
 
 /* Full-screen arrival: the world opens beneath the departing splash. */
 body.entry-open>.topbar{display:none}body.entry-open #main{min-height:100dvh;padding:0!important;margin:0}.entry-open .entry-page{min-height:100dvh;padding:28px 20px calc(36px + env(safe-area-inset-bottom))}.entry-open #toasts{top:18px}.intro{transition:opacity 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}.intro-scene{animation-duration:8s}.intro-track span{animation-duration:4.4s}.intro-leaving{transform:scale(1.18);opacity:0}.auth-card{animation:gate-open 1.05s cubic-bezier(.16,1,.3,1) both}.booting .auth-card,.booting .entry-open main{animation-play-state:paused}.auth-theme{position:absolute;right:14px;top:12px;background:transparent;border:0;box-shadow:none;padding:8px;color:var(--gold)}.auth-crown{animation:crown-float 3.4s ease-in-out infinite}.entry-scene:after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,#efc97080 1px,transparent 2px);background-size:65px 65px;opacity:.2;animation:world-glow 6s ease-in-out infinite}.auth-card h1{padding:0 20px}.entry-open main.route-enter{animation:none}@keyframes gate-open{from{opacity:0;transform:translateY(65px) scale(.91)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes world-glow{0%,100%{opacity:.08;transform:translateY(0)}50%{opacity:.24;transform:translateY(-12px)}}@media(max-width:350px){.entry-open .entry-page{padding-left:12px;padding-right:12px}}@media(prefers-reduced-motion:reduce){.auth-card,.auth-crown,.entry-scene:after{animation:none!important;transform:none!important}}html[data-motion=off] .auth-card,html[data-motion=off] .auth-crown,html[data-motion=off] .entry-scene:after{animation:none!important;transform:none!important}
+
+/* AOI entry and responsive wordmark */
+.intro-skip{z-index:4;pointer-events:auto}
+.brand-mobile{display:inline;color:var(--gold)}
+.brand-desktop{display:none;color:var(--ink);font-weight:700}
+@media(min-width:700px){
+  .brand-mobile{display:none}
+  .brand-desktop{display:inline}
+  .brand-name{display:block;max-width:min(62vw,620px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
