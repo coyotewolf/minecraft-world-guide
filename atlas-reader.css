@@ -123,3 +123,50 @@ html[data-atlas-popup=true][data-atlas=bosses] #taming-collection>.pet-searchbar
 html[data-atlas-popup=true][data-atlas=bosses] #taming-collection>.actions,
 html[data-atlas-popup=true][data-atlas=bosses] #pet-status,
 html[data-atlas-popup=true][data-atlas=bosses] #speed-overview{display:none!important}
+
+
+/* AOI atlas corrections 2026-10-06 c */
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn{
+ right:2px!important;top:2px!important;width:30px!important;height:30px!important;
+ min-width:30px!important;min-height:30px!important;padding:0!important;font-size:16px!important;line-height:1!important
+}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon{
+ right:35px!important;top:2px!important;width:30px!important;height:30px!important;
+ min-width:30px!important;min-height:30px!important;font-size:16px!important
+}
+html[data-atlas=bosses] .checks.atlas-single-check{
+ position:absolute!important;right:10px!important;top:10px!important;z-index:5!important;
+ display:block!important;border:0!important;padding:0!important;margin:0!important
+}
+html[data-atlas=bosses] .atlas-single-collect{
+ display:grid!important;place-items:center!important;width:30px!important;height:30px!important;
+ min-width:30px!important;min-height:30px!important;padding:0!important;border:0!important;
+ background:transparent!important;color:var(--muted)!important;font-size:16px!important;line-height:1!important
+}
+html[data-atlas=bosses] .atlas-single-collect:has(input:checked){color:var(--accent)!important;background:transparent!important}
+html[data-atlas=bosses] .atlas-single-collect input{
+ position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important
+}
+html[data-atlas=bosses] .cardtop .atlas-wish-button,
+html[data-atlas=bosses] .pet-card .cardtop .atlas-wish-button{margin-right:34px!important}
+html[data-atlas-popup=true][data-atlas=bosses] .atlas-popup-target{
+ grid-column:1/-1!important;width:100%!important;max-width:none!important;margin:0!important;
+ border:0!important;box-shadow:none!important
+}
+html[data-atlas-popup=true][data-atlas=bosses] .grid:has(.atlas-popup-target){grid-template-columns:minmax(0,1fr)!important}
+html[data-atlas-popup=true][data-atlas=bosses] main{max-width:none!important;padding:0!important}
+html[data-atlas-popup=true][data-atlas=bosses] .module{margin:0!important}
+html[data-atlas-popup=true][data-atlas=bosses] .atlas-popup-target .boss-appearance{max-width:620px;margin-left:auto;margin-right:auto}
+html[data-atlas=scarlet] body{font-size:16px!important;line-height:1.7!important}
+html[data-atlas=scarlet] main p,
+html[data-atlas=scarlet] main li,
+html[data-atlas=scarlet] main td,
+html[data-atlas=scarlet] main th,
+html[data-atlas=scarlet] main dd,
+html[data-atlas=scarlet] main dt,
+html[data-atlas=scarlet] main label,
+html[data-atlas=scarlet] main button,
+html[data-atlas=scarlet] main input,
+html[data-atlas=scarlet] main select{font-size:16px!important;line-height:1.7!important}
+html[data-atlas=scarlet] main small,
+html[data-atlas=scarlet] main .muted{font-size:13px!important;line-height:1.6!important}
