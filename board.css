@@ -111,3 +111,11 @@ html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.ac
 }
 @media(prefers-reduced-motion:reduce){.team-notification-bell.has-unread span{animation:none}}
 html[data-motion=off] .team-notification-bell.has-unread span{animation:none}
+
+
+/* Modal collection-state controls 2026-10-06 */
+.modal-atlas-state{display:flex;justify-content:flex-end;margin:0 0 10px}
+.modal-atlas-state .atlas-card-state{position:static!important;display:flex!important;gap:4px!important}
+.modal-atlas-state .atlas-done-icon:has(input:checked){
+ background:#2f8f4e!important;border-color:#2f8f4e!important;color:#fff!important
+}
