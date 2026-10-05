@@ -105,33 +105,33 @@ function textAfterTerm(root,label){
 const saintTaming={
  'saintsdragons:raevyx':{
   conditions:'先把成年野生殷雷龍壓到 60 HP 以下進入馴服眩暈。普通有效食物每次 20%；生羊肉 20%；生豬肉 20%；豐盛龍食 33.33%。失敗後要重新創造可餵食的眩暈窗口。Legacy Taming 預設關閉。',
-  egg:'雌性殷雷龍死亡時有 12% 機率掉落殷雷龍蛋。'
+  egg:'雌性殷雷龍死亡時有 12% 機率掉落殷雷龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下殷雷龍蛋。'
  },
  'saintsdragons:ignivorus':{
   conditions:'先把成年野生噬焰龍壓到 100 HP 以下進入馴服眩暈。一般有效食物每次 14.29%；生牛肉 20%；生羊肉 14.29%；生豬肉 14.29%；豐盛龍食 25%。失敗會結束當次眩暈，需要再次壓制。Legacy Taming 預設關閉。',
-  egg:'雌性噬焰龍死亡時有 12% 機率掉落噬焰龍蛋。'
+  egg:'雌性噬焰龍死亡時有 12% 機率掉落噬焰龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下噬焰龍蛋。'
  },
  'saintsdragons:atroxiia':{
   conditions:'先把成年野生凜蝮龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 33.33%。Legacy Taming 固定為關閉。',
-  egg:'雌性凜蝮龍死亡時有 12% 機率掉落凜蝮龍蛋。',
+  egg:'雌性凜蝮龍死亡時有 12% 機率掉落凜蝮龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下凜蝮龍蛋。',
   hatch:'把凜蝮龍蛋放置後開始孵化；預設孵化時間 24,000 tick，也就是約 20 分鐘。孵化完成會生成凜蝮龍幼體。'
  },
  'saintsdragons:volitans':{
   conditions:'先把成年野生蓑鮋龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 30%。Legacy Taming 預設關閉。',
-  egg:'雌性蓑鮋龍死亡時有 12% 機率掉落蓑鮋龍蛋。',
+  egg:'雌性蓑鮋龍死亡時有 12% 機率掉落蓑鮋龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下蓑鮋龍蛋。',
   hatch:'把蓑鮋龍蛋放在水中或可含水位置孵化；預設孵化時間 18,000 tick，也就是約 15 分鐘。'
  },
  'saintsdragons:cindervane':{
   conditions:'燼翎龍不需要先打殘，直接餵食即可。一般有效食物每次 25%；生雞肉 33.33%；豐盛龍食 50%。失敗後等餵食冷卻結束再嘗試。',
-  egg:'雌性燼翎龍死亡時有 12% 機率掉落燼翎龍蛋。'
+  egg:'雌性燼翎龍死亡時有 12% 機率掉落燼翎龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下燼翎龍蛋。'
  },
  'saintsdragons:varasuchus':{
   conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率才是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。',
-  egg:'雌性蜷鱷龍死亡時有 12% 機率掉落蜷鱷龍蛋。'
+  egg:'雌性蜷鱷龍死亡時有 12% 機率掉落蜷鱷龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下蜷鱷龍蛋。'
  },
  'saintsdragons:stegonaut':{
   conditions:'和平餵食馴服，不需要戰鬥壓制。一般有效食物與豐盛龍食的馴服率都為 100%，餵一次成功。',
-  egg:'雌性堅甲龍死亡時有 12% 機率掉落堅甲龍蛋。'
+  egg:'雌性堅甲龍死亡時有 12% 機率掉落堅甲龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下堅甲龍蛋。'
  },
  'saintsdragons:nulljaw':{
   conditions:'使用歌萊果右鍵餵食；每次符合條件的餵食嘗試有 20% 機率成功。失敗後等餵食冷卻再繼續，不需要先打殘。'
@@ -145,7 +145,8 @@ const saintSpawn={
  'saintsdragons:volitans':'主世界・海洋類生態域水下；涵蓋所有原版海洋變體，0.9.51 預設自訂生成要求至少 3 格連續水柱。',
  'saintsdragons:nulljaw':'終界・終界荒地。',
  'saintsdragons:ignivorus':'主世界・噬焰龍巢穴；生成生態域包含荒地／火山類，以及平原、莽原、草甸、風襲丘陵、風襲礫質丘陵、風襲森林與沙漠等指定生態域。',
- 'saintsdragons:varasuchus':'主世界・蜷鱷龍巢穴；海灘／沼澤類生態域，原版明確包含海灘、石岸、沼澤與紅樹林沼澤。'
+ 'saintsdragons:varasuchus':'主世界・蜷鱷龍巢穴；海灘／沼澤類生態域，原版明確包含海灘、石岸、沼澤與紅樹林沼澤。',
+ 'saintsdragons:ivy_oleander':'主世界・常春藤小屋；森林類生態域，原版明確包含森林、樺木森林、原始樺木森林、黑森林、繁花森林、針葉林、原始松木針葉林、原始雲杉針葉林與雪地針葉林。'
 };
 function enhanceSaintDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="saintsdragons:"]')){
@@ -153,7 +154,11 @@ function enhanceSaintDragons(){
   if(!profile)continue;
   const source=[...document.querySelectorAll('.card[data-id]')].find(card=>card.dataset.id===id);
   const spawn=saintSpawn[id]||'';
-  if(source){const loc=source.querySelector('.loc');if(loc&&spawn)loc.textContent='⌖ '+spawn;if(loc&&!spawn&&/此版有野生|依物種生成設定|野生／孵化個體/.test(loc.textContent))loc.remove();source.dataset.search=source.textContent.replace(/\s+/g,' ').trim()+' '+id;}
+  if(source){
+    const loc=source.querySelector('.loc');if(loc&&spawn)loc.textContent='⌖ '+spawn;if(loc&&!spawn&&/此版有野生|依物種生成設定|野生／孵化個體/.test(loc.textContent))loc.remove();
+    if(profile.egg){const loot=textAfterTerm(source,'主要掉落池');if(loot&&!loot.textContent.includes('龍蛋'))loot.textContent=loot.textContent.replace(/[。；\s]*$/,'')+'；'+profile.egg.split('；')[0];}
+    source.dataset.search=source.textContent.replace(/\s+/g,' ').trim()+' '+id;
+  }
   const hp=(pet.querySelector('.entity-meta')?.textContent.match(/生命\s*([\d.]+)\s*HP/i)||[])[1];
   const mount=pet.querySelector('.mount-detail');
   if(mount){
