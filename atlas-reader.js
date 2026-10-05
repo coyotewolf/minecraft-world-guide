@@ -186,31 +186,40 @@ const saintSpawn={
  'saintsdragons:ivy_oleander':'主世界・常春藤小屋；森林類生態域，原版明確包含森林、樺木森林、原始樺木森林、黑森林、繁花森林、針葉林、原始松木針葉林、原始雲杉針葉林與雪地針葉林。'
 };
 const berkTaming={
- 'dragonsofberk:night_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200},
- 'dragonsofberk:light_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200},
- 'dragonsofberk:monstrous_nightmare':{food:'生羊肉、生豬肉',feeds:25,breed:'可疑的燉湯',hatch:2400},
- 'dragonsofberk:deadly_nadder':{food:'生雞肉',feeds:12,breed:'可疑的燉湯',hatch:600},
- 'dragonsofberk:gronckle':{food:'生牛肉',feeds:12,breed:'可疑的燉湯',hatch:600},
- 'dragonsofberk:zippleback':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'可疑的燉湯',hatch:2400},
+ 'dragonsofberk:night_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備夜視效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true},
+ 'dragonsofberk:light_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true},
+ 'dragonsofberk:night_light':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true,noWild:true},
+ 'dragonsofberk:monstrous_nightmare':{food:'生羊肉、生豬肉',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備抗火效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。'},
+ 'dragonsofberk:deadly_nadder':{food:'生雞肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
+ 'dragonsofberk:gronckle':{food:'生牛肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
+ 'dragonsofberk:zippleback':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備力量效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。'},
  'dragonsofberk:skrill':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:18,breed:'可疑的燉湯',hatch:1200},
- 'dragonsofberk:stinger':{food:'生羊肉',feeds:12,breed:'可疑的燉湯',hatch:1200},
- 'dragonsofberk:terrible_terror':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:12,breed:'河豚',hatch:300},
+ 'dragonsofberk:stinger':{food:'生羊肉',feeds:12,breed:'可疑的燉湯',hatch:1200,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
+ 'dragonsofberk:terrible_terror':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:12,breed:'河豚',hatch:300,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
  'dragonsofberk:triple_stryke':{food:'生牛肉',feeds:18,breed:'可疑的燉湯',hatch:1200},
  'dragonsofberk:speed_stinger':{food:'生兔肉',feeds:25,breed:'可疑的燉湯',hatch:300,cold:true},
  'dragonsofberk:speed_stinger_leader':{untameable:true}
 };
 function berkTameText(p){
- if(p.untameable)return '此實體在 1.0.5 程式碼中明確拒絕所有馴服食物（isItemStackForTaming 永遠回傳 false），不能像一般疾刺龍直接餵食馴服。';
- return '對野生個體餵 '+p.food+' 累積馴服進度。基礎需要 '+p.feeds+' 次有效餵食；皮膚／變體越稀有會再增加 0–5 次（權重 ≥75：+0、35–74：+2、15–34：+3、4–14：+4、1–3：+5），所以實際總數依遇到的變體而定。';
+ if(p.untameable)return '此實體在 1.0.5 程式碼中明確拒絕所有馴服食物（isItemStackForTaming 永遠回傳 false），不能像一般疾刺龍直接馴服。';
+ const gate=p.gate?' '+p.gate:'';
+ return '第一階段使用 '+p.food+' 推進馴服條。基礎需要 '+p.feeds+' 次有效餵食；皮膚／變體越稀有會再增加 0–5 次（權重 ≥75：+0、35–74：+2、15–34：+3、4–14：+4、1–3：+5）。'+gate+' 第一階段完成仍未正式馴服：所有 ADragonBase 都註冊 DragonRideTilTamed，需騎上野生龍持續嘗試；每次實際馴服判定有 30% 成功率，失敗會把玩家甩下並使龍發怒，之後再重試。';
 }
-function berkBreedText(p){
+function berkFuryBreedText(id){
+ if(id==='dragonsofberk:night_fury')return '蜂巢進入繁殖。夜煞不能和另一隻純夜煞配對；可與光煞／夜光龍配對。夜煞×光煞或夜煞×夜光龍：每次抽 0–99；1–3 產光煞蛋，4–99 產夜光龍蛋；抽到 0 時，若雙親的 FuryRareBredCount 都仍低於 10，產夜煞蛋，否則改產夜光龍蛋。';
+ if(id==='dragonsofberk:light_fury')return '蜂巢進入繁殖。光煞可與 Fury 系配對；光煞×光煞沿用自身結果產光煞蛋。光煞×夜煞的機率為：3% 光煞、通常 96% 夜光龍、1% 稀有夜煞（僅雙親 FuryRareBredCount 都低於 10 時；否則該 1% 也改夜光龍）。光煞×夜光龍時，抽到 0 且稀有計數未滿才產光煞，其他情況產夜光龍。';
+ if(id==='dragonsofberk:night_light')return '蜂巢進入繁殖。夜光龍不是自然生成表中的物種；主要由 Fury 系繁殖取得。夜光龍×夜光龍沿用自身結果產夜光龍蛋；與夜煞／光煞配對時依 Fury 特殊分支決定蛋種，其中夜煞×夜光龍與夜煞×光煞使用相同的 0–99 分布。';
+ return '';
+}
+function berkBreedText(id,p){
  if(!p||p.untameable||!p.breed)return '';
- return '已馴服成龍使用 '+p.breed+' 進入繁殖；模組會產生對應物種龍蛋。';
+ if(p.fury)return berkFuryBreedText(id);
+ return '已馴服成龍使用 '+p.breed+' 進入繁殖；此物種的 getBreedEggResult 會建立對應物種龍蛋。';
 }
 function berkHatchText(p){
  if(!p||!p.hatch)return '';
  const mins=Math.round(p.hatch/60*100)/100;
- return '龍蛋的 1.0.5 預設孵化時間為 '+p.hatch+' 秒（約 '+mins+' 分鐘，可由伺服器設定調整）。'+(p.cold?'此蛋類別標記為冷孵化。':'一般蛋使用模組的溫度／孵化機制。')+'孵化出的幼龍仍需儘快完成馴服。';
+ return '龍蛋的 1.0.5 預設孵化時間為 '+p.hatch+' 秒（約 '+mins+' 分鐘，可由伺服器設定調整）。'+(p.cold?'SpeedStingerEgg 明確覆寫為冷孵化。':'使用該蛋類別的正常孵化流程。')+'孵化出的幼龍仍應儘快完成馴服。';
 }
 
 const berkSpawn={
@@ -242,7 +251,7 @@ function enhanceBerkDragons(){
   for(const dd of [...acquire.querySelectorAll('dd')])if(/物種巢穴／生成設定|亦有對應龍蛋路線|依物種設定|一般與豐盛|機率由物種/.test(dd.textContent)){dd.previousElementSibling?.remove();dd.remove()}
   if(profile&&dl&&!acquire.dataset.berkExact){
     acquire.dataset.berkExact='1';
-    const breed=berkBreedText(profile);if(breed){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='繁殖／龍蛋取得';dd.textContent=breed;dl.append(dt,dd)}
+    const breed=berkBreedText(id,profile);if(breed){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='繁殖／龍蛋取得';dd.textContent=breed;dl.append(dt,dd)}
     const hatch=berkHatchText(profile);if(hatch){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='孵化';dd.textContent=hatch;dl.append(dt,dd)}
   }
   pet.dataset.petSearch=pet.textContent.replace(/\s+/g,' ').trim()+' '+id;
@@ -250,7 +259,7 @@ function enhanceBerkDragons(){
  for(const card of document.querySelectorAll('.card[data-id^="dragonsofberk:"]')){
   const id=card.dataset.id,spawn=berkSpawn[id]||'',profile=berkTaming[id],loc=card.querySelector('.loc');
   if(spawn&&loc)loc.textContent='⌖ '+spawn;
-  if(profile)card.dataset.search=(card.dataset.search||card.textContent.replace(/\s+/g,' ').trim())+' '+berkTameText(profile)+' '+berkBreedText(profile)+' '+berkHatchText(profile);
+  if(profile)card.dataset.search=(card.dataset.search||card.textContent.replace(/\s+/g,' ').trim())+' '+berkTameText(profile)+' '+berkBreedText(id,profile)+' '+berkHatchText(profile);
  }
 }
 function enhanceSaintDragons(){
