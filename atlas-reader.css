@@ -233,8 +233,8 @@ html[data-atlas=scarlet] .intro{max-width:900px!important}
 /* The distance/range diagrams already contain their intended colors; do not invert them in dark mode. */
 html[data-atlas=scarlet][data-world-theme=dark] .figure img,
 html[data-atlas=scarlet][data-world-theme=dark] #art-large[data-diagram="true"]{
- filter:none!important;background:#000!important
+ filter:none!important;background:#fff!important
 }
 html[data-atlas=scarlet][data-world-theme=dark] .figure{
- background:#000!important;border-color:var(--line)!important
+ background:#fff!important;border-color:var(--line)!important
 }
