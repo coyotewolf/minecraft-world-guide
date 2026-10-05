@@ -141,14 +141,14 @@ function enhanceSaintDragons(){
   if(!acquire)continue;
   const dl=acquire.querySelector('dl');
   const tame=textAfterTerm(acquire,'如何取得／馴服');
+  const materials=textAfterTerm(acquire,'材料')?.textContent.trim();
   if(tame){
     const dt=tame.previousElementSibling;dt.textContent='馴服方法';
-    tame.textContent=profile.conditions;
+    tame.textContent=profile.conditions+(materials?' 可用材料：'+materials+'。':'');
   }
-  const where=textAfterTerm(acquire,'在哪裡取得');
-  if(where){where.previousElementSibling?.remove();where.remove();}
-  const conditions=textAfterTerm(acquire,'重要條件／用途');
-  if(conditions){conditions.previousElementSibling.textContent='馴服條件與機率';conditions.textContent=profile.conditions;}
+  for(const label of ['材料','在哪裡取得','重要條件／用途']){
+    const dd=textAfterTerm(acquire,label);if(dd){dd.previousElementSibling?.remove();dd.remove();}
+  }
   if(profile.egg&&source&&!acquire.dataset.eggAdded){
     const loot=textAfterTerm(source,'主要掉落池')?.textContent.trim()||'';
     if(loot.includes('龍蛋')){
