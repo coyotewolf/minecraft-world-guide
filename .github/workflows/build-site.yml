@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'app.js'
+      - 'atlas-reader.js'
+      - 'atlas-reader.css'
       - 'avatar.js'
       - 'recipe-view.js'
       - 'recipe-labels.js'
@@ -26,6 +28,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm run check
       - run: npm run build
       - name: Commit generated bundle
         run: |
