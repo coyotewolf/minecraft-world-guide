@@ -53,20 +53,23 @@ function applyAtlasWishes(){
   if(atlasMode==='wish')row.hidden=!atlasWishes.has(id);
  }
 }
+function atlasCompleted(row){
+ return !!row.querySelector('input[data-field="loot"]:checked,input[data-pet-field="tamed"]:checked');
+}
 function setAtlasMode(mode){
  atlasMode=['all','wish','done','materials'].includes(mode)?mode:'all';
  document.querySelectorAll('[data-atlas-mode]').forEach(b=>b.classList.toggle('active',b.dataset.atlasMode===atlasMode));
  if(slug==='equipment'){
   const map={all:'all',wish:'wish',done:'done',materials:'materials'};document.querySelector('[data-tab="'+map[atlasMode]+'"]')?.click();return;
  }
- if(mode==='done'){
-  if(slug==='skills')input('state','done');
-  else if(slug==='bosses'){const pet=!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');input(pet?'pet-state':'state',pet?'tamed':'won')}
- }else if(mode==='all'){
-  if(slug==='skills')input('state','');
-  else if(slug==='bosses'){input('state','');input('pet-state','')}
+ if(slug==='skills'){
+  if(mode==='done')input('state','done');else if(mode==='all')input('state','');
+ }else if(slug==='bosses'){
+  input('state','');input('pet-state','');
  }
- for(const row of atlasRows())row.hidden=mode==='wish'?!atlasWishes.has(atlasEntryId(row)):false;
+ for(const row of atlasRows()){
+  row.hidden=mode==='wish'?!atlasWishes.has(atlasEntryId(row)):mode==='done'?!atlasCompleted(row):false;
+ }
  applyAtlasWishes();
 }
 function atlasTitle(){
@@ -89,6 +92,7 @@ function installAtlasQuickbar(){
  bar.innerHTML=menu+'<strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
  document.body.prepend(bar);
  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);parent.postMessage({type:'atlas-mode-route',slug,mode:b.dataset.atlasMode},location.origin);bar.querySelector('details')?.removeAttribute('open')}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
+ document.addEventListener('pointerdown',e=>{const menu=bar.querySelector('.atlas-menu[open]');if(menu&&!menu.contains(e.target))menu.removeAttribute('open')});
  applyAtlasWishes();
 }
 
@@ -100,42 +104,61 @@ function textAfterTerm(root,label){
 
 const saintTaming={
  'saintsdragons:raevyx':{
-  conditions:'先把成年野生殷雷龍壓到 60 HP 以下進入馴服眩暈。普通有效食物每次 20%；生羊肉 20%；生豬肉 20%；豐盛龍食 33.33%。失敗後要重新創造可餵食的眩暈窗口。Legacy Taming 預設關閉。'
+  conditions:'先把成年野生殷雷龍壓到 60 HP 以下進入馴服眩暈。普通有效食物每次 20%；生羊肉 20%；生豬肉 20%；豐盛龍食 33.33%。失敗後要重新創造可餵食的眩暈窗口。Legacy Taming 預設關閉。',
+  egg:'雌性殷雷龍死亡時有 12% 機率掉落殷雷龍蛋。'
  },
  'saintsdragons:ignivorus':{
-  conditions:'先把成年野生噬焰龍壓到 100 HP 以下進入馴服眩暈。一般有效食物每次 14.29%；生牛肉 20%；生羊肉 14.29%；生豬肉 14.29%；豐盛龍食 25%。失敗會結束當次眩暈，需要再次壓制。Legacy Taming 預設關閉。'
+  conditions:'先把成年野生噬焰龍壓到 100 HP 以下進入馴服眩暈。一般有效食物每次 14.29%；生牛肉 20%；生羊肉 14.29%；生豬肉 14.29%；豐盛龍食 25%。失敗會結束當次眩暈，需要再次壓制。Legacy Taming 預設關閉。',
+  egg:'雌性噬焰龍死亡時有 12% 機率掉落噬焰龍蛋。'
  },
  'saintsdragons:atroxiia':{
   conditions:'先把成年野生凜蝮龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 33.33%。Legacy Taming 固定為關閉。',
-  egg:true,
-  hatch:'雌性凜蝮龍死亡時有 12% 機率掉落凜蝮龍蛋。把蛋放置後開始孵化；預設孵化時間 24,000 tick，也就是約 20 分鐘。孵化完成會生成凜蝮龍幼體。'
+  egg:'雌性凜蝮龍死亡時有 12% 機率掉落凜蝮龍蛋。',
+  hatch:'把凜蝮龍蛋放置後開始孵化；預設孵化時間 24,000 tick，也就是約 20 分鐘。孵化完成會生成凜蝮龍幼體。'
  },
  'saintsdragons:volitans':{
-  conditions:'先把成年野生蓑鮋龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 30%。Legacy Taming 預設關閉。'
+  conditions:'先把成年野生蓑鮋龍壓到 60 HP 以下進入馴服眩暈。一般有效食物每次 20%；豐盛龍食 30%。Legacy Taming 預設關閉。',
+  egg:'雌性蓑鮋龍死亡時有 12% 機率掉落蓑鮋龍蛋。',
+  hatch:'把蓑鮋龍蛋放在水中或可含水位置孵化；預設孵化時間 18,000 tick，也就是約 15 分鐘。'
  },
  'saintsdragons:cindervane':{
-  conditions:'燼翎龍不需要先打殘，直接餵食即可。一般有效食物每次 25%；生雞肉 33.33%；豐盛龍食 50%。失敗後等餵食冷卻結束再嘗試。'
+  conditions:'燼翎龍不需要先打殘，直接餵食即可。一般有效食物每次 25%；生雞肉 33.33%；豐盛龍食 50%。失敗後等餵食冷卻結束再嘗試。',
+  egg:'雌性燼翎龍死亡時有 12% 機率掉落燼翎龍蛋。'
  },
  'saintsdragons:varasuchus':{
-  conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率才是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。'
+  conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率才是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。',
+  egg:'雌性蜷鱷龍死亡時有 12% 機率掉落蜷鱷龍蛋。'
  },
  'saintsdragons:stegonaut':{
-  conditions:'和平餵食馴服，不需要戰鬥壓制。一般有效食物與豐盛龍食的馴服率都為 100%，餵一次成功。'
+  conditions:'和平餵食馴服，不需要戰鬥壓制。一般有效食物與豐盛龍食的馴服率都為 100%，餵一次成功。',
+  egg:'雌性堅甲龍死亡時有 12% 機率掉落堅甲龍蛋。'
  },
  'saintsdragons:nulljaw':{
   conditions:'使用歌萊果右鍵餵食；每次符合條件的餵食嘗試有 20% 機率成功。失敗後等餵食冷卻再繼續，不需要先打殘。'
  }
+};
+const saintSpawn={
+ 'saintsdragons:raevyx':'主世界・草甸、風襲丘陵、櫻花樹林、風襲森林、雪林、雪原、莽原高地等指定生態域；0.9.51 預設自訂生成只在雷暴且可見天空時出現。',
+ 'saintsdragons:stegonaut':'主世界・繁茂洞穴；0.9.51 預設自訂生成只在地下、不可見天空的位置出現。',
+ 'saintsdragons:cindervane':'主世界・山地／丘陵／惡地／沙漠類生態域；原版明確包含裸岩山峰、尖峭山峰、冰封山峰、雪林、櫻花樹林、草甸與沙漠。',
+ 'saintsdragons:atroxiia':'主世界・寒冷生態域；原版明確包含雪原與冰刺之地。',
+ 'saintsdragons:volitans':'主世界・海洋類生態域水下；涵蓋所有原版海洋變體，0.9.51 預設自訂生成要求至少 3 格連續水柱。',
+ 'saintsdragons:nulljaw':'終界・終界荒地。',
+ 'saintsdragons:ignivorus':'主世界・噬焰龍巢穴；生成生態域包含荒地／火山類，以及平原、莽原、草甸、風襲丘陵、風襲礫質丘陵、風襲森林與沙漠等指定生態域。',
+ 'saintsdragons:varasuchus':'主世界・蜷鱷龍巢穴；海灘／沼澤類生態域，原版明確包含海灘、石岸、沼澤與紅樹林沼澤。'
 };
 function enhanceSaintDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="saintsdragons:"]')){
   const id=pet.dataset.petId,name=pet.querySelector('h3')?.textContent.trim()||id,profile=saintTaming[id];
   if(!profile)continue;
   const source=[...document.querySelectorAll('.card[data-id]')].find(card=>card.dataset.id===id);
+  const spawn=saintSpawn[id]||'';
+  if(source){const loc=source.querySelector('.loc');if(loc&&spawn)loc.textContent='⌖ '+spawn;if(loc&&!spawn&&/此版有野生|依物種生成設定|野生／孵化個體/.test(loc.textContent))loc.remove();source.dataset.search=source.textContent.replace(/\s+/g,' ').trim()+' '+id;}
   const hp=(pet.querySelector('.entity-meta')?.textContent.match(/生命\s*([\d.]+)\s*HP/i)||[])[1];
   const mount=pet.querySelector('.mount-detail');
   if(mount){
    const healthTerms=[...mount.querySelectorAll('dt')].filter(dt=>dt.textContent.trim()==='生命值說明');
-   healthTerms.forEach((dt,i)=>{const dd=dt.nextElementSibling;if(i===0&&dd?.tagName==='DD')dd.textContent=hp?'本包 Saints Dragons 0.9.51：'+name+'成年基礎生命值 '+hp+' HP。':'此條目沒有可核實的成年基礎生命值。';else{dd?.remove();dt.remove()}});
+   healthTerms.forEach((dt,i)=>{const dd=dt.nextElementSibling;if(i===0&&dd?.tagName==='DD'){if(hp)dd.textContent='成年基礎生命值 '+hp+' HP。';else{dd.remove();dt.remove();}}else{dd?.remove();dt.remove()}});
   }
   const acquire=[...pet.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent.includes('取得與材料'));
   if(!acquire)continue;
@@ -146,20 +169,28 @@ function enhanceSaintDragons(){
     const dt=tame.previousElementSibling;dt.textContent='馴服方法';
     tame.textContent=profile.conditions+(materials?' 可用材料：'+materials+'。':'');
   }
-  for(const label of ['材料','在哪裡取得','重要條件／用途']){
-    const dd=textAfterTerm(acquire,label);if(dd){dd.previousElementSibling?.remove();dd.remove();}
-  }
-  if(profile.egg&&source&&!acquire.dataset.eggAdded){
-    const loot=textAfterTerm(source,'主要掉落池')?.textContent.trim()||'';
-    if(loot.includes('龍蛋')){
-      acquire.dataset.eggAdded='1';
-      const eggDt=document.createElement('dt'),eggDd=document.createElement('dd'),hatchDt=document.createElement('dt'),hatchDd=document.createElement('dd');
-      eggDt.textContent='龍蛋取得';eggDd.textContent=loot;
-      hatchDt.textContent='孵化';hatchDd.textContent=profile.hatch;
-      dl.append(eggDt,eggDd,hatchDt,hatchDd);
-    }
+  const where=textAfterTerm(acquire,'在哪裡取得');
+  if(where){if(spawn){where.previousElementSibling.textContent='野生個體';where.textContent='⌖ '+spawn;}else{where.previousElementSibling?.remove();where.remove();}}
+  else if(spawn&&dl){const wildDt=document.createElement('dt'),wildDd=document.createElement('dd');wildDt.textContent='野生個體';wildDd.textContent='⌖ '+spawn;dl.prepend(wildDt,wildDd);}
+  for(const label of ['材料','重要條件／用途']){const dd=textAfterTerm(acquire,label);if(dd){dd.previousElementSibling?.remove();dd.remove();}}
+  if(profile.egg&&dl&&!acquire.dataset.eggAdded){
+    acquire.dataset.eggAdded='1';
+    const eggDt=document.createElement('dt'),eggDd=document.createElement('dd');eggDt.textContent='龍蛋取得';eggDd.textContent=profile.egg;dl.append(eggDt,eggDd);
+    if(profile.hatch){const hatchDt=document.createElement('dt'),hatchDd=document.createElement('dd');hatchDt.textContent='孵化';hatchDd.textContent=profile.hatch;dl.append(hatchDt,hatchDd);}
   }
   pet.dataset.petSearch=pet.textContent.replace(/\s+/g,' ').trim()+' '+id;
+ }
+ document.querySelectorAll('.loc').forEach(loc=>{if(/此版有野生|依物種生成設定|野生／孵化個體/.test(loc.textContent))loc.remove()});
+}
+function unifyBossCollectionChecks(){
+ for(const card of document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')){
+  const checks=card.querySelector('.checks');if(!checks)continue;
+  const input=card.dataset.petId?checks.querySelector('input[data-pet-field="tamed"]'):checks.querySelector('input[data-field="loot"]');
+  if(!input){checks.remove();continue;}
+  const label=document.createElement('label');label.className='atlas-single-collect';
+  const updateLabel=()=>{label.title=input.checked?'取消已取得':'標記為已取得';label.setAttribute('aria-label',label.title)};
+  updateLabel();input.addEventListener('change',()=>{updateLabel();if(atlasMode==='done')card.hidden=!input.checked});
+  checks.replaceChildren(label);label.append(input,document.createTextNode('✓'));checks.classList.add('atlas-single-check');
  }
 }
 function installSpeedSorting(){
@@ -218,6 +249,14 @@ renameCollectedLabels(document);polishEquipmentControls();
 
 const find=id=>document.getElementById(id);
 const input=(id,value)=>{const e=find(id);if(e){e.value=value;e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));}};
+function focusPopupTarget(row){
+ if(!atlasPopup||!row)return;
+ document.documentElement.dataset.popupFocus='true';
+ for(const other of atlasRows())other.hidden=other!==row;
+ row.classList.add('atlas-popup-target');
+ if(row.parentElement)row.parentElement.style.gridTemplateColumns='minmax(0,1fr)';
+ const module=row.closest('.module');if(module){document.querySelectorAll('.module').forEach(m=>m.hidden=m!==module);module.querySelector('.modulehead')?.setAttribute('hidden','');}
+}
 function openTarget(d){
   if(slug==='equipment'){
     if(d.done==='done')document.querySelector('[data-tab="done"]')?.click();
@@ -236,7 +275,7 @@ function openTarget(d){
     if(d.query)input(pet?'pet-search':'search',d.query);
     if(d.id){
       const c=[...document.querySelectorAll('[data-id],[data-pet-id]')].find(c=>c.dataset.id===d.id||c.dataset.petId===d.id);
-      if(c){const isPet=!!c.dataset.petId;document.querySelector(`[data-view="${isPet?'pets':'boss'}"]`)?.click();input(isPet?'pet-search':'search',d.id);c.querySelectorAll('details').forEach(e=>e.open=true);c.scrollIntoView({block:'start',behavior:'instant'});}
+      if(c){const isPet=!!c.dataset.petId;document.querySelector(`[data-view="${isPet?'pets':'boss'}"]`)?.click();input(isPet?'pet-search':'search',d.id);c.querySelectorAll('details').forEach(e=>e.open=true);focusPopupTarget(c);c.scrollIntoView({block:'start',behavior:'instant'});}
     }
   }else if(slug==='scarlet'){
     if(d.id&&find(d.id)){location.hash=d.id;window.dispatchEvent(new HashChangeEvent('hashchange'));}
@@ -283,7 +322,7 @@ if(slug){
     expand.onclick=e=>petsSelected()?find('pet-open').click():expandBoss.call(expand,e);
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
-  if(slug==='bosses'){enhanceSaintDragons();installSpeedSorting();installModelZoom();}
+  if(slug==='bosses'){enhanceSaintDragons();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
