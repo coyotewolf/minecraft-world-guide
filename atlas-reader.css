@@ -666,3 +666,77 @@ html[data-atlas=skills] .entry :is(p,li,dd,dt,td,th,label,button,input,select){
  font-size:17px!important;line-height:1.68!important;
 }
 html[data-atlas=skills] .entry :is(small,.muted){font-size:14px!important;line-height:1.58!important}
+
+
+/* AOI atlas equipment/search + active tab refinements 2026-10-06 k */
+/* Equipment uses only the shared atlas command bar; remove its source-only duplicate nav/view rows. */
+html[data-atlas=equipment] .navigation,
+html[data-atlas=equipment] .viewmodes{
+ display:none!important;
+}
+
+/* Equipment search/filter row now mirrors the other atlas readers and stays pinned below the shared top bar. */
+html[data-atlas=equipment] .atlas-equipment-search-dock{
+ position:sticky!important;top:58px!important;z-index:45!important;
+ width:100%!important;max-width:none!important;
+ margin:0!important;padding:10px 14px!important;
+ background:var(--bg)!important;border-bottom:1px solid var(--line)!important;
+ box-sizing:border-box!important;
+}
+html[data-atlas=equipment] .atlas-equipment-search-row{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ gap:8px!important;align-items:stretch!important;
+ width:100%!important;max-width:none!important;margin:0 auto!important;
+}
+html[data-atlas=equipment] .atlas-equipment-search-row>input{
+ width:100%!important;min-width:0!important;max-width:none!important;
+ min-height:44px!important;margin:0!important;
+}
+html[data-atlas=equipment] .atlas-equipment-search-row>button{
+ width:auto!important;min-width:92px!important;min-height:44px!important;margin:0!important;
+}
+html[data-atlas=equipment] .atlas-equipment-search-dock>#filters{
+ width:100%!important;max-width:none!important;margin:8px 0 0!important;
+}
+@media(max-width:760px){
+ html[data-atlas=equipment] .atlas-equipment-search-dock{top:50px!important;padding:8px 10px!important}
+ html[data-atlas=equipment] .atlas-equipment-search-row{grid-template-columns:minmax(0,1fr) auto!important}
+ html[data-atlas=equipment] .atlas-equipment-search-row>button{min-width:76px!important;padding-inline:10px!important}
+}
+
+/* Current atlas mode is a filled green button in both desktop and hamburger menus. */
+html[data-atlas] [data-atlas-mode].active,
+html[data-atlas] .atlas-menu-panel [data-atlas-mode].active{
+ background:#5f7f4b!important;
+ border-color:#73995c!important;
+ color:#fff!important;
+ text-decoration:none!important;
+ box-shadow:inset 2px 2px 0 rgba(255,255,255,.16),inset -2px -2px 0 rgba(0,0,0,.24),0 2px 0 rgba(0,0,0,.22)!important;
+}
+
+/* Skills & spells: slightly larger again and noticeably wider on desktop. */
+html[data-atlas=skills] body,
+html[data-atlas=skills] main,
+html[data-atlas=skills] .entry,
+html[data-atlas=skills] .entry :is(p,li,dd,dt,td,th,label,button,input,select){
+ font-size:18px!important;line-height:1.7!important;
+}
+html[data-atlas=skills] .entry :is(small,.muted){
+ font-size:15px!important;line-height:1.6!important;
+}
+@media(min-width:900px){
+ html[data-atlas=skills] main,
+ html[data-atlas=skills] .shell,
+ html[data-atlas=skills] .toolbar-inner,
+ html[data-atlas=skills] .content{
+  width:100%!important;max-width:none!important;
+ }
+ html[data-atlas=skills] main,
+ html[data-atlas=skills] .shell{
+  padding-left:24px!important;padding-right:24px!important;
+ }
+ html[data-atlas=skills] .toolbar-inner,
+ html[data-atlas=skills] .content{
+  padding-left:0!important;padding-right:0!important;
+ }
+}
