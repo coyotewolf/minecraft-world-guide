@@ -40,3 +40,21 @@ html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.ac
  .item-matrix td{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right;padding:8px 6px;font-size:14px;border:0;min-width:0}
  .item-matrix td::before{content:attr(data-player);font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 }
+
+
+/* AOI board/mobile corrections 2026-10-06 */
+.filter-action-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;grid-column:1/-1}
+.filter-action-row>button{width:100%;margin:0}
+.note-item[data-item-hint],.reward-stack[data-item-hint]{touch-action:manipulation}
+.note-item[data-item-hint]:focus-visible,.reward-stack[data-item-hint]:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+@media(max-width:600px){
+ .comparison-scroll{max-width:100%;width:100%;overflow-x:hidden!important}
+ .item-matrix{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important}
+ .item-matrix tbody{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;min-width:0!important}
+ .item-matrix tr{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;min-width:0!important;max-width:100%!important}
+ .item-matrix tr>th:first-child{grid-column:1!important;min-width:0!important;overflow-wrap:anywhere}
+ .item-matrix td{width:100%!important;min-width:0!important;max-width:100%!important;gap:10px!important;overflow:hidden}
+ .item-matrix td::before{flex:0 1 46%;min-width:0;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .item-matrix td>*{min-width:0;max-width:52%;overflow-wrap:anywhere}
+}
