@@ -97,8 +97,10 @@ function atlasTitle(){
 function installAtlasQuickbar(){
  if(document.getElementById('atlas-quickbar'))return;
  const bar=document.createElement('div');bar.id='atlas-quickbar';
- const menu=slug==='scarlet'?'':'<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已取得</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details>';
- bar.innerHTML=menu+'<strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
+ const modeButtons=slug==='scarlet'?'':'<button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已取得</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'');
+ const menu=slug==='scarlet'?'':'<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel">'+modeButtons+'</div></details>';
+ const desktopModes=slug==='scarlet'?'':'<nav class="atlas-desktop-modes" aria-label="收藏冊檢視">'+modeButtons+'</nav>';
+ bar.innerHTML=menu+'<strong class="atlas-quick-title">'+atlasTitle()+'</strong>'+desktopModes+'<span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
  document.body.prepend(bar);
  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);parent.postMessage({type:'atlas-mode-route',slug,mode:b.dataset.atlasMode},location.origin);bar.querySelector('details')?.removeAttribute('open')}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
  document.addEventListener('pointerdown',e=>{const menu=bar.querySelector('.atlas-menu[open]');if(menu&&!menu.contains(e.target))menu.removeAttribute('open')});
@@ -343,6 +345,16 @@ function polishPlayerFacingDetails(){
   else if(card.dataset.id)card.dataset.search=card.textContent.replace(/\s+/g,' ').trim()+' '+card.dataset.id;
  }
 }
+function installScarletChapterScroll(){
+ if(slug!=='scarlet')return;
+ const sidebar=document.querySelector('.sidebar');if(!sidebar||sidebar.dataset.chapterWheel)return;
+ sidebar.dataset.chapterWheel='1';
+ sidebar.addEventListener('wheel',e=>{
+  if(matchMedia('(max-width:760px)').matches)return;
+  e.preventDefault();e.stopPropagation();
+  sidebar.scrollTop+=e.deltaY;
+ },{passive:false});
+}
 function polishScarletGuide(){
  if(slug!=='scarlet')return;
  document.querySelectorAll('figure').forEach(f=>f.classList.add('theme-diagram'));
@@ -582,7 +594,7 @@ if(slug){
   if(slug==='equipment'){installStableEquipmentToggle();polishEquipmentControls();}
   if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();polishPlayerFacingDetails();unifyBossCollectionChecks();unifyReaderStateControls();installSpeedSorting();installModelZoom();}
   if(slug==='skills')unifyReaderStateControls();
-  if(slug==='scarlet')polishScarletGuide();
+  if(slug==='scarlet'){polishScarletGuide();installScarletChapterScroll();}
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
