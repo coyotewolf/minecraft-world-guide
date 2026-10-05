@@ -283,3 +283,48 @@ html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat #det
  html[data-atlas=scarlet] .sidebar{width:320px!important;max-width:320px!important}
  html[data-atlas=scarlet] .sidebar a{font-size:15px!important;padding:10px 12px!important}
 }
+
+
+/* AOI corrections 2026-10-06 f */
+html[data-atlas] .atlas-filter-done{
+ background:#2f8f4e!important;color:#fff!important;border-color:#267542!important;font-weight:800
+}
+html[data-atlas] .atlas-filter-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;align-items:stretch!important}
+html[data-atlas] .atlas-filter-actions>button{width:100%!important;min-width:0!important}
+
+/* Match equipment-book controls everywhere: outlined star, square check, filled selected state. */
+html[data-atlas] .atlas-wish-button,
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn,
+html[data-atlas=bosses] .atlas-single-collect,
+html[data-atlas=skills] .entry-title>.check{
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ border:1px solid var(--line)!important;border-radius:4px!important;background:var(--surface)!important;
+ box-shadow:none!important;display:inline-grid!important;place-items:center!important
+}
+html[data-atlas] .atlas-wish-button[aria-label^="從"],
+html[data-atlas=equipment] .atlas-equipment-card .wishbtn.selected{color:var(--accent)!important}
+html[data-atlas=equipment] .atlas-equipment-card .atlas-done-icon.selected,
+html[data-atlas=bosses] .atlas-single-collect:has(input:checked){
+ background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important
+}
+html[data-atlas=skills] .entry-title>.check:checked{
+ background:var(--accent)!important;border-color:var(--accent)!important
+}
+html[data-atlas=skills] .entry-title>.check:checked::after{color:#fff!important}
+
+/* Scarlet "施放範圍與碰撞" illustrations follow the dark theme while retaining linework. */
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram{
+ background:#141916!important;border-color:var(--line)!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram img{
+ background:#141916!important;filter:invert(.88) hue-rotate(180deg) brightness(.92) contrast(1.08)!important;
+ mix-blend-mode:normal!important;opacity:1!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram svg{
+ background:#141916!important;filter:none!important;opacity:1!important
+}
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram svg rect:first-child{fill:#141916!important}
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram svg text{fill:#edf3ef!important}
+html[data-atlas=scarlet][data-world-theme=dark] #chapter-9 figure.theme-diagram figcaption{
+ background:var(--surface)!important;color:var(--ink)!important
+}
