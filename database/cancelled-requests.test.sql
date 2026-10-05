@@ -7,7 +7,7 @@ insert into private.accounts(user_id,game_key,recovery_hash,approved) select id,
 insert into auth.sessions(id,user_id) select sa,author from fixture union all select sb,teammate from fixture union all select sc,stranger from fixture;
 insert into public.teams(id,owner_id,name) select team,teammate,'Privacy fixture' from fixture;
 insert into public.team_members(team_id,user_id) select team,author from fixture union all select team,teammate from fixture;
-insert into public.requests(id,team_id,author_id,title,kind) select item,team,author,'Cancelled item','item' from fixture union all select mission,team,author,'Cancelled mission','mission' from fixture;
+insert into public.requests(id,team_id,author_id,title,kind,quantity) select item,team,author,'Cancelled item','item',1 from fixture union all select mission,team,author,'Cancelled mission','mission',null from fixture;
 insert into public.request_comments(request_id,author_id,body) select item,teammate,'Private after cancellation' from fixture union all select mission,author,'Private invitation' from fixture;
 grant select on fixture to authenticated,anon;
 select set_config('request.jwt.claims',json_build_object('sub',teammate,'session_id',sb)::text,true) from fixture;

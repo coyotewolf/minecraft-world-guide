@@ -32,7 +32,7 @@
 
 ## 維護
 
-前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql` 順序套用；已建好的專案不需要重跑。
+前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql`、`feedback-bounties.sql` 順序套用；已建好的專案不需要重跑。
 
 本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。
 
@@ -47,3 +47,9 @@
 創隊者預設為隊伍管理員，可分享邀請碼、開放隊員查看、任命／撤除管理員及移出隊員。伺服器管理員可跨隊伍管理。退出保留個人收藏及筆記；仍有其他隊員時，最後一位隊伍管理員必須先交接。角色與邀請碼權限皆由資料庫驗證。`team-management.test.sql` 使用會回滾的測試資料驗證權限。
 
 `reader-polish.js` 保留完整攻略原有的篩選與保存事件，改用統一的篩選抽屜和進度條。緋紅手冊進度表示 15 個章節的實作完成紀錄，不是取得 15 件遊戲物品。無法取得的技能參考條目不列入玩家頁面。
+
+## 反饋、懸賞與首領連結
+
+反饋入口位於「我的」。玩家只能讀取自己的反饋；網站管理員可審閱全部、更新四種狀態與回覆。維護處理流程見 docs/feedback-workflow.md。隊伍留言板使用實際物品圖示、數量與報酬；新增標題上限 32 字，舊留言保留。收藏比較以玩家列與各收藏類別欄呈現，未分享進度的成員明確顯示未分享。
+
+boss-links.js 只連結已收錄、名稱可明確對應的首領，以彈窗保留完整原攻略、掉落、召喚與收藏操作，不改變原頁面的網址。board.css 統一篩選、頁籤、標題留白及淺色對比。

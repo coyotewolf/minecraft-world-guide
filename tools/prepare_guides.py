@@ -53,4 +53,14 @@ addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)
  html=re.sub(r'(<body[^>]*>)',r'\1<div class="world-guide-banner">完整原攻略・紀錄與目前玩家分開保存。快捷鍵請以「世界攻略 → 操作」和個人控制設定為準；伺服器數值尚未查核。</div>',html,count=1)
  p.write_text(html,encoding='utf8')
 (D/'icons.json').write_text(json.dumps(icons,separators=(',',':')),encoding='utf8')
+boss_soup=BeautifulSoup((P/'guides'/'bosses.html').read_text(encoding='utf8'),'html.parser')
+boss_aliases={};ambiguous=set()
+for card in boss_soup.select('.card[data-id]'):
+ ident=card['data-id'];title=card.find('h3').get_text(' ',strip=True);meta=card.select_one('.entity-meta');en=meta.get_text(' ',strip=True).split(' · ')[0] if meta else ''
+ for label in [title,en,ident]:
+  if len(label)<2:continue
+  if label in boss_aliases and boss_aliases[label]!=ident:ambiguous.add(label)
+  boss_aliases[label]=ident
+for label in ambiguous:boss_aliases.pop(label,None)
+(D/'boss-links.json').write_text(json.dumps(boss_aliases,ensure_ascii=False,separators=(',',':')),encoding='utf8')
 print('unique embedded art assets',count,'catalog icons',len(icons))

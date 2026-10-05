@@ -2,6 +2,8 @@
 (()=>{
  const slug=document.documentElement.dataset.atlas;
  if(!slug)return;
+ const popupId=new URLSearchParams(location.search).get('bossPopup');
+ if(slug==='bosses'&&popupId){document.documentElement.dataset.bossPopup='true';const card=[...document.querySelectorAll('.card[data-id]')].find(c=>c.dataset.id===popupId);if(card){card.dataset.popupSelected='true';card.querySelectorAll('details').forEach(d=>d.open=true)}document.getElementById('back-to-top')?.remove();}
  function drawer(host,controls,oldButton){
   if(!host||!controls)return;
   const d=document.createElement('details'),summary=document.createElement('summary');d.className='filter-drawer unified-filter';summary.textContent='篩選';

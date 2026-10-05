@@ -13,8 +13,15 @@ for p in (P/'guides').glob('*.html'):
  if 'id="world-reader-theme"' not in s:s=s.replace('</head>',style+'</head>',1);p.write_text(s,encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
- if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-polish1"></head>',1),encoding='utf8')
+ if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-board1"></head>',1),encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
- if '../polish.css' not in s:p.write_text(s.replace('</head>','<script src="../reader-polish.js?v=20261005-polish1" defer></script><link rel="stylesheet" href="../polish.css?v=20261005-polish1"></head>',1),encoding='utf8')
+ if '../polish.css' not in s:p.write_text(s.replace('</head>','<script src="../reader-polish.js?v=20261005-board1" defer></script><link rel="stylesheet" href="../polish.css?v=20261005-board1"></head>',1),encoding='utf8')
+for p in (P/'guides').glob('*.html'):
+ s=p.read_text(encoding='utf8')
+ for asset in ['boss-links.js','board.css']:
+  if '../'+asset not in s:
+   tag=('<script src="../'+asset+'?v=20261005-board1" defer></script>') if asset.endswith('.js') else ('<link rel="stylesheet" href="../'+asset+'?v=20261005-board1">')
+   s=s.replace('</head>',tag+'</head>',1)
+ p.write_text(s,encoding='utf8')
 print('Four complete readers share the journal palette, pixel controls and motion preference.')
