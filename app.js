@@ -45,6 +45,10 @@ function image(id,cls=''){return icons[id]?`<img class="${cls}" src="${h(icons[i
 function heading(title){return `<div class="page-heading"><h1>${h(title)}</h1></div>`}
 function breadcrumb(title){return `<div class="breadcrumb"><a href="#home">世界</a> / ${h(title)}</div>`}
 function finished(key){return !!progress.get(key)?.completed}
+function wanted(key){return !!progress.get(key)?.checklist?.wish}
+function wishlistToggle(key,label='加入想收集'){return `<label class="complete-check wishlist-check"><input type="checkbox" data-wish="${h(key)}" ${wanted(key)?'checked':''}>☆ ${h(label)}</label>`}
+const JOURNEY_ORDER=['start','land','colony-start','factory','combat','expedition'];
+function nextJourneyArticle(){return JOURNEY_ORDER.find(id=>!finished('article:'+id))||JOURNEY_ORDER[JOURNEY_ORDER.length-1]}
 function completion(key,label='已完成收藏'){return `<label class="complete-check"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}>${h(label)}</label>`}
 function needAccount(){if(active&&user&&world)return true;toast(user?'帳號仍待管理員核准':'請登入已核准的帳號來保存紀錄');openAuth();return false}
 function groupFor(ns){if(['minecolonies','supplementaries','webdisplaystogether'].includes(ns))return '定居';if(['create','ae2','vintage','tetra','butchercraft','create_enchantment_industry','createmetallurgy','create_connected','farmersdelight','kaleidoscope_cookery'].includes(ns))return '生產';if(['northstar','railways','createrailwaysnavigator'].includes(ns))return '旅行';if(['irons_spellbooks','efn','slu','bonfires','onekick'].includes(ns))return '戰鬥';if(['alexsmobs','adorablehamsterpets','saintsdragons','dragonsofberk'].includes(ns))return '夥伴';return ns==='minecraft'?'原版':'探索'}
@@ -91,6 +95,7 @@ const ATLASES=[
 const COVER_ITEMS={equipment:'minecraft:diamond_sword',skills:'minecraft:enchanted_book',bosses:'minecraft:nether_star',companions:'minecraft:bone',mounts:'minecraft:saddle',strategy:'minecraft:totem_of_undying',advancements:'minecraft:book'};
 function atlasNav(category,noteKey){return noteKey?`<div class="atlas-note-tools"><button data-atlas-note="${h(noteKey)}">私人筆記</button></div>`:''}
 function catalog(){const {q}=route(),category=q.get('category')||'',query=q.get('q')||'';
+ if(q.get('wishlist')==='1'){wishlistOverview();return}
  if(category==='advancements'){advanceList();return}
  const atlas=ATLASES.find(a=>a[0]===category);
  if(atlas){mountAtlas(atlas,{query,done:q.get('done')||'all'});return}
