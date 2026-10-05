@@ -63,6 +63,7 @@ function wishlistToggle(key,label='加入想收集'){return `<label class="compl
 const JOURNEY_ORDER=['start','land','colony-start','factory','combat','expedition'];
 function nextJourneyArticle(){return JOURNEY_ORDER.find(id=>!finished('article:'+id))||JOURNEY_ORDER[JOURNEY_ORDER.length-1]}
 function completion(key,label='已完成收藏'){return `<label class="complete-check"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}>${h(label)}</label>`}
+function atlasStateButtons(key){return `<div class="atlas-card-state"><label class="atlas-state-icon atlas-wish-icon" title="${wanted(key)?'從我想收集移除':'加入我想收集'}"><input type="checkbox" data-wish="${h(key)}" ${wanted(key)?'checked':''}><span aria-hidden="true">${wanted(key)?'★':'☆'}</span></label><label class="atlas-state-icon atlas-done-icon" title="${finished(key)?'取消已取得':'標記為已取得'}"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}><span aria-hidden="true">✓</span></label></div>`}
 function needAccount(){if(active&&user&&world)return true;toast(user?'帳號仍待管理員核准':'請登入已核准的帳號來保存紀錄');openAuth();return false}
 function groupFor(ns){if(['minecolonies','supplementaries','webdisplaystogether'].includes(ns))return '定居';if(['create','ae2','vintage','tetra','butchercraft','create_enchantment_industry','createmetallurgy','create_connected','farmersdelight','kaleidoscope_cookery'].includes(ns))return '生產';if(['northstar','railways','createrailwaysnavigator'].includes(ns))return '旅行';if(['irons_spellbooks','efn','slu','bonfires','onekick'].includes(ns))return '戰鬥';if(['alexsmobs','adorablehamsterpets','saintsdragons','dragonsofberk'].includes(ns))return '夥伴';return ns==='minecraft'?'原版':'探索'}
 const GROUP_ICONS={'起步':'minecraft:compass','定居':'minecolonies:blockhuttownhall','生產':'create:cogwheel','旅行':'create:track','戰鬥':'irons_spellbooks:iron_spell_book','探索':'minecraft:ender_eye','協作':'minecolonies:supplycampdeployer','收藏':'minecraft:book'};
@@ -123,10 +124,10 @@ function wishlistOverview(){
 function refreshAtlasReader(frame){
  try{
   const doc=frame?.contentDocument;if(!doc)return;
-  const hasCss=[...doc.querySelectorAll('link[rel="stylesheet"]')].some(link=>link.href.includes('atlas-reader.css')&&link.href.includes('20261006-aoi9'));
-  const hasJs=[...doc.scripts].some(script=>script.src.includes('atlas-reader.js')&&script.src.includes('20261006-aoi9'));
-  if(!hasCss){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi9';link.dataset.aoiReader='7';doc.head.append(link)}
-  if(!hasJs){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi9';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
+  const hasCss=[...doc.querySelectorAll('link[rel="stylesheet"]')].some(link=>link.href.includes('atlas-reader.css')&&link.href.includes('20261006-aoi10'));
+  const hasJs=[...doc.scripts].some(script=>script.src.includes('atlas-reader.js')&&script.src.includes('20261006-aoi10'));
+  if(!hasCss){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi10';link.dataset.aoiReader='7';doc.head.append(link)}
+  if(!hasJs){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi10';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
  }catch{}
 }
 function mountAtlas(atlas,options={}){
@@ -135,7 +136,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi9" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi10" allow="clipboard-write"></iframe>`;
  const frame=$('#guide-frame');
  const openPayload=()=>({type:'atlas-open',id:options.item,query:options.query,reference:options.reference,done:options.done,mode:options.mode||'all',view:category==='companions'?'pets':category==='mounts'?'mounts':'boss',wishes:collections.filter(c=>c.sourceGuide===slug&&wanted(c.key)).map(c=>c.id)});
  frame?.addEventListener('load',()=>{
@@ -159,7 +160,7 @@ function notesPanel(key){return `<section class="panel"><h3>我的私人筆記</
 function advanceList(){const {q}=route(),needle=q.get('q')||'',group=q.get('group')||'',hidden=q.get('hidden')==='1',done=q.get('done')||'all';
  app.innerHTML=atlasNav('advancements')+heading('成就全收集','查看前置鏈與達成條件，逐步留下你在這個世界的足跡。')+`<form id="advance-filter" class="filters"><input name="q" aria-label="搜尋成就" placeholder="搜尋名稱、物品或條件…" value="${h(needle)}"><select name="group" aria-label="成就領域"><option value="">所有領域</option>${['原版','定居','生產','旅行','戰鬥','探索','夥伴'].map(g=>`<option ${group===g?'selected':''}>${g}</option>`).join('')}</select><select name="done" aria-label="成就完成狀態"><option value="all">所有進度</option><option value="todo" ${done==='todo'?'selected':''}>尚未完成</option><option value="done" ${done==='done'?'selected':''}>已完成</option></select><label class="inline"><input type="checkbox" name="hidden" value="1" ${hidden?'checked':''}>顯示隱藏成就（含劇透）</label><button class="primary">搜尋</button></form><div id="advance-results"></div>${notice(`本機資源共 ${advancements.length} 個顯示成就；${summary.technicalAdvancementCount.toLocaleString()} 個內部進度另存，不計完成率。父節點表示顯示關係，並非所有成就都強制要求先完成父節點。`)}`;
  const lower=needle.toLocaleLowerCase();const rows=advancements.filter(x=>(hidden||!x.hidden)&&(!group||groupFor(x.id.split(':')[0])===group)&&(!lower||`${x.title} ${x.description} ${x.id} ${JSON.stringify(x.criteria)}`.toLocaleLowerCase().includes(lower))&&(done==='done'?finished('advancement:'+x.id):done==='todo'?!finished('advancement:'+x.id):true));
- renderPage(rows,'advance-results',x=>`<div class="card"><a class="row" href="#advance/${enc(x.id)}">${image(x.icon?.item)}<div><span class="tag">${h(groupFor(x.id.split(':')[0]))}${x.hidden?' · 隱藏':''}</span><h3>${h(x.title)}</h3></div></a><p>${h(x.description)}</p>${completion('advancement:'+x.id)}<small>${x.requirements.length} 組條件${x.frame==='challenge'?' · 挑戰':''}</small></div>`);
+ renderPage(rows,'advance-results',x=>`<div class="card atlas-state-card">${atlasStateButtons('advancement:'+x.id)}<a class="row" href="#advance/${enc(x.id)}">${image(x.icon?.item)}<div><span class="tag">${h(groupFor(x.id.split(':')[0]))}${x.hidden?' · 隱藏':''}</span><h3>${h(x.title)}</h3></div></a><p>${h(x.description)}</p><small>${x.requirements.length} 組條件${x.frame==='challenge'?' · 挑戰':''}</small></div>`);if(!rows.length&&done==='done')$('#advance-results').innerHTML=empty('目前沒有已取得的成就。完成成就後點卡片右上角的 ✓，就會顯示在這裡。');
  $('#advance-filter').onsubmit=e=>{e.preventDefault();pageNumber=1;go('collections?category=advancements&'+new URLSearchParams([...new FormData(e.target)]).toString())};
 }
 function advance(id){const x=advancements.find(x=>x.id===id);if(!x){app.innerHTML=empty('找不到成就');return}
@@ -297,7 +298,7 @@ function collectionModal(key){
  const uid=user?.id||'guest',saved=progress.get('guide:'+slug)?.checklist||{},data=active?writeGuide(slug,saved,progress,collections):saved;
  for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  popupContext={slug,category,item:x.category==='strategy'?x.key.replace('scarlet:',''):x.id,query:x.title,reference:!x.collectible,mode:'all'};
- modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi9"></iframe>`);
+ modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi10"></iframe>`);
  $('#modal').classList.add('boss-dialog');
  const modalFrame=$('#atlas-modal-frame');modalFrame?.addEventListener('load',()=>refreshAtlasReader(modalFrame),{once:true});
 }
