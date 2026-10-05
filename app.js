@@ -120,6 +120,13 @@ function wishlistOverview(){
  const rows=all.filter(x=>wanted(x.key));
  app.innerHTML=atlasBreadcrumb('我想收集')+heading('我想收集')+`<p class="article-intro">跨收藏冊集中查看你下一步想取得的裝備、技能、首領獎勵、夥伴、坐騎與成就。</p><div class="grid cols3">${rows.map(x=>`<button class="card card-link wishlist-entry" type="button" data-wishlist-open="${h(x.key)}"><span class="tag">☆ 想收集</span><h3>${h(x.title)}</h3><p>${h(String(x.description||x.subtitle||'').slice(0,140))}</p></button>`).join('')||empty('還沒有標記任何想收集項目。打開任一收藏冊，按下 ☆ 加入。')}</div>`;
 }
+function refreshAtlasReader(frame){
+ try{
+  const doc=frame?.contentDocument;if(!doc)return;
+  if(!doc.querySelector('link[data-aoi-reader="7"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi7';link.dataset.aoiReader='7';doc.head.append(link)}
+  if(!doc.querySelector('script[data-aoi-reader="7"]')){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi7';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
+ }catch{}
+}
 function mountAtlas(atlas,options={}){
  const [category,,title,,slug]=atlas,g=originals.find(g=>g.id===slug);
  const saved=progress.get('guide:'+slug)?.checklist||{},data=active?writeGuide(slug,saved,progress,collections):saved,uid=user?.id||'guest';
@@ -130,6 +137,7 @@ function mountAtlas(atlas,options={}){
  const frame=$('#guide-frame');
  const openPayload=()=>({type:'atlas-open',id:options.item,query:options.query,reference:options.reference,done:options.done,mode:options.mode||'all',view:category==='companions'?'pets':category==='mounts'?'mounts':'boss',wishes:collections.filter(c=>c.sourceGuide===slug&&wanted(c.key)).map(c=>c.id)});
  frame?.addEventListener('load',()=>{
+   refreshAtlasReader(frame);
    try{frame.contentWindow.postMessage(openPayload(),location.origin)}catch{}
    setTimeout(()=>{
      if(!frame.isConnected||frame.dataset.ready==='true')return;
@@ -271,13 +279,15 @@ function advancementModal(id){
 }
 function collectionModal(key){
  const x=collections.find(x=>x.key===key);if(!x)return;
- const atlas=ATLASES.find(a=>a[0]===x.category)||ATLASES.find(a=>a[4]===x.sourceGuide);if(!atlas)return;
+ const modalCategory=x.mount?'mounts':x.category;
+ const atlas=ATLASES.find(a=>a[0]===modalCategory)||ATLASES.find(a=>a[4]===x.sourceGuide);if(!atlas)return;
  const [category,,title,,slug]=atlas,g=originals.find(g=>g.id===slug);if(!g)return;
  const uid=user?.id||'guest',saved=progress.get('guide:'+slug)?.checklist||{},data=active?writeGuide(slug,saved,progress,collections):saved;
  for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  popupContext={slug,category,item:x.category==='strategy'?x.key.replace('scarlet:',''):x.id,query:x.title,reference:!x.collectible,mode:'all'};
  modal(x.title,`<iframe id="atlas-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="${g.path}?player=${enc(uid)}&atlas=${enc(slug)}&section=${enc(category)}&popup=1&reader=20261006-aoi7"></iframe>`);
  $('#modal').classList.add('boss-dialog');
+ const modalFrame=$('#atlas-modal-frame');modalFrame?.addEventListener('load',()=>refreshAtlasReader(modalFrame),{once:true});
 }
 async function bossModal(id){
  const x=collections.find(x=>x.category==='bosses'&&x.id===id);if(x)collectionModal(x.key);
