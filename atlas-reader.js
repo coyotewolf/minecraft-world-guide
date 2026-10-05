@@ -154,7 +154,7 @@ function updateAtlasModeEmpty(){
  if(visible.length)return;
  // Source readers may already expose their own generic "no matches" panel.
  // Hide it in wishlist/obtained modes so the user sees exactly one state-specific explanation.
- document.querySelectorAll('#empty,#pet-empty,.empty-state').forEach(e=>e.hidden=true);
+ document.querySelectorAll('.empty,#empty,#pet-empty,.empty-state').forEach(e=>{if(!e.classList.contains('atlas-mode-empty'))e.hidden=true});
  const box=document.createElement('div');box.className='empty atlas-mode-empty';
  box.textContent=atlasMode==='wish'?'目前沒有「想收集」項目。打開任一條目，點 ☆ 星號即可加入「我想收集」。':'目前沒有「已取得」項目。取得後點條目上的 ✓ 按鈕，即會出現在這裡。';
  (document.querySelector('#list')||document.querySelector('#taming-collection .grid')||document.querySelector('#boss-panel .grid')||document.querySelector('.content')||document.querySelector('main'))?.append(box);
