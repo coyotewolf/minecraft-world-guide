@@ -123,8 +123,10 @@ function wishlistOverview(){
 function refreshAtlasReader(frame){
  try{
   const doc=frame?.contentDocument;if(!doc)return;
-  if(!doc.querySelector('link[data-aoi-reader="7"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi7';link.dataset.aoiReader='7';doc.head.append(link)}
-  if(!doc.querySelector('script[data-aoi-reader="7"]')){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi7';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
+  const hasCss=[...doc.querySelectorAll('link[rel="stylesheet"]')].some(link=>link.href.includes('atlas-reader.css')&&link.href.includes('20261006-aoi7'));
+  const hasJs=[...doc.scripts].some(script=>script.src.includes('atlas-reader.js')&&script.src.includes('20261006-aoi7'));
+  if(!hasCss){const link=doc.createElement('link');link.rel='stylesheet';link.href='../atlas-reader.css?v=20261006-aoi7';link.dataset.aoiReader='7';doc.head.append(link)}
+  if(!hasJs){const script=doc.createElement('script');script.src='../atlas-reader.js?v=20261006-aoi7';script.defer=true;script.dataset.aoiReader='7';doc.head.append(script)}
  }catch{}
 }
 function mountAtlas(atlas,options={}){
