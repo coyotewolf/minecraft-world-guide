@@ -40,11 +40,11 @@ function applyAtlasWishes(){
  for(const row of atlasRows()){
   const id=atlasEntryId(row);if(!id)continue;
   row.dataset.atlasWish=atlasWishes.has(id)?'1':'0';
-  let b=row.querySelector(':scope > .atlas-wish-button,:scope > summary .atlas-wish-button');
+  let b=row.querySelector('.atlas-wish-button[data-atlas-wish-toggle="'+CSS.escape(id)+'"]');
   if(!b){
    b=document.createElement('button');b.type='button';b.className='atlas-wish-button';b.dataset.atlasWishToggle=id;
    b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const next=!atlasWishes.has(id);next?atlasWishes.add(id):atlasWishes.delete(id);applyAtlasWishes();parent.postMessage({type:'atlas-wish',slug,id,wanted:next},location.origin)});
-   const target=row.matches('.entry')?row.querySelector('summary'):row.querySelector('.cardtop')||row;
+   const target=row.matches('.entry')?(row.querySelector('.entry-title')||row.querySelector('summary')):(row.querySelector('.cardtop')||row);
    target?.append(b);
   }
   if(b){b.textContent=atlasWishes.has(id)?'★':'☆';b.title=atlasWishes.has(id)?'從想收集移除':'加入想收集';b.setAttribute('aria-label',b.title)}
@@ -66,10 +66,23 @@ function setAtlasMode(mode){
  for(const row of atlasRows())row.hidden=mode==='wish'?!atlasWishes.has(atlasEntryId(row)):false;
  applyAtlasWishes();
 }
+function atlasTitle(){
+ const section=params.get('section');
+ if(section==='equipment')return '裝備圖鑑';
+ if(section==='skills')return '技能與法術圖鑑';
+ if(section==='companions')return '夥伴圖鑑';
+ if(section==='mounts')return '坐騎圖鑑';
+ if(section==='bosses')return '首領與事件圖鑑';
+ if(section==='strategy'||slug==='scarlet')return '緋紅獵人實戰手冊';
+ if(slug==='equipment')return '裝備圖鑑';
+ if(slug==='skills')return '技能與法術圖鑑';
+ if(slug==='bosses')return '首領・夥伴・坐騎圖鑑';
+ return '收藏圖鑑';
+}
 function installAtlasQuickbar(){
  if(document.getElementById('atlas-quickbar'))return;
  const bar=document.createElement('div');bar.id='atlas-quickbar';
- bar.innerHTML='<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
+ bar.innerHTML='<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details><strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
  document.body.prepend(bar);
  bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);bar.querySelector('details').open=false}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
  applyAtlasWishes();
