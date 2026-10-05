@@ -798,3 +798,78 @@ html[data-atlas=equipment] .atlas-equipment-search-dock{display:contents!importa
   width:calc(100% - 24px)!important;margin:0 12px 9px!important
  }
 }
+
+
+/* AOI corrections: skills summary sizing + equipment source chrome 2026-10-06 m */
+/* Equipment: keep the useful source view selector (依模組 / 依系列 / 全部裝備),
+   but remove the source-only title/menu chrome and the duplicate collection navigation. */
+html[data-atlas=equipment] header.hero{
+ display:none!important;
+}
+html[data-atlas=equipment] .navigation{
+ display:none!important;
+}
+html[data-atlas=equipment] .viewmodes{
+ display:flex!important;
+ visibility:visible!important;
+}
+html[data-atlas=equipment] .viewmodes[hidden]{
+ display:flex!important;
+}
+html[data-atlas=equipment] .viewmodes{
+ width:100%!important;max-width:none!important;
+ margin:10px 0 12px!important;
+ padding:0 22px!important;
+ gap:8px!important;
+ box-sizing:border-box!important;
+ background:transparent!important;
+}
+html[data-atlas=equipment] .viewmodes button{
+ flex:0 0 auto!important;
+ min-height:40px!important;
+ padding:7px 14px!important;
+}
+
+/* Skills & spells:
+   - collapsed card/summary text gets larger
+   - expanded detail text returns to the same scale as the other atlases. */
+html[data-atlas=skills] .entry>summary,
+html[data-atlas=skills] .entry>summary :is(.name,.preview,.subtitle,.route){
+ font-size:18px!important;
+ line-height:1.62!important;
+}
+html[data-atlas=skills] .entry>summary .name{
+ font-size:19px!important;
+}
+html[data-atlas=skills] .entry>summary :is(.subtitle,.route){
+ font-size:15px!important;
+}
+html[data-atlas=skills] .entry>.detail,
+html[data-atlas=skills] .entry>.detail :is(p,li,dd,dt,td,th,label,button,input,select){
+ font-size:16px!important;
+ line-height:1.65!important;
+}
+html[data-atlas=skills] .entry>.detail :is(small,.muted,.footnote){
+ font-size:13px!important;
+ line-height:1.55!important;
+}
+html[data-atlas=skills] .entry>.detail h3{
+ font-size:18px!important;
+ line-height:1.5!important;
+}
+
+/* Keep the equipment search/filter presentation structurally identical to the shared reader toolbar. */
+html[data-atlas=equipment] .atlas-equipment-shared-toolbar{
+ position:sticky!important;
+ top:58px!important;
+ z-index:50!important;
+}
+@media(max-width:760px){
+ html[data-atlas=equipment] .viewmodes{
+  padding-inline:12px!important;
+  overflow-x:auto!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-shared-toolbar{
+  top:50px!important;
+ }
+}
