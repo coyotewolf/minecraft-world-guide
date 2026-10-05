@@ -105,25 +105,33 @@ function textAfterTerm(root,label){
 
 function pairFilterActions(box,done,reset){
  const row=document.createElement('div');row.className='atlas-filter-actions';
- if(reset){reset.before(row);row.append(reset,done)}else{row.append(done);box.append(row)}
+ if(reset){reset.textContent='清除';reset.before(row);row.append(reset,done)}else{row.append(done);box.append(row)}
 }
 function installFilterCompletion(){
+ const install=(box,close)=>{
+  if(!box||box.querySelector('.atlas-filter-done'))return;
+  const reset=[...box.querySelectorAll('button')].find(b=>/清除|重設/.test(b.textContent.trim()));
+  if(reset)reset.textContent='清除';
+  const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=close;
+  pairFilterActions(box,done,reset);
+ };
  for(const d of document.querySelectorAll('.filter-drawer')){
-  const box=d.querySelector('.filter-options,.filters,.pet-controls');if(!box||box.querySelector('.atlas-filter-done'))continue;
-  const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>d.removeAttribute('open');
-  const reset=[...box.querySelectorAll('button')].find(b=>/清除|重設/.test(b.textContent));pairFilterActions(box,done,reset);
+  install(d.querySelector('.filter-options,.filters,.pet-controls'),()=>d.removeAttribute('open'));
+ }
+ for(const reset of document.querySelectorAll('#boss-reset,#pet-reset,#reset')){
+  const box=reset.closest('.filter-options,.filters,.pet-controls,#filters,.controls');if(!box)continue;
+  const drawer=reset.closest('details');
+  install(box,()=>{if(drawer)drawer.removeAttribute('open');else{const toggle=document.getElementById('toggleFilters');if(box.id==='filters'){box.hidden=true;toggle?.setAttribute('aria-expanded','false')}}});
  }
  const filters=document.getElementById('filters'),toggle=document.getElementById('toggleFilters');
- if(filters&&toggle&&!filters.querySelector('.atlas-filter-done')){
-  const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>{filters.hidden=true;toggle.setAttribute('aria-expanded','false')};
-  pairFilterActions(filters,done,document.getElementById('reset'));
- }
+ if(filters&&toggle)install(filters,()=>{filters.hidden=true;toggle.setAttribute('aria-expanded','false')});
+ for(const b of document.querySelectorAll('button'))if(/^(清除(?:／重設)?|清除篩選|重設篩選|重設)$/.test(b.textContent.trim()))b.textContent='清除';
 }
 function removeAtlasUtilityButtons(){
  for(const id of ['export','import','csv','pet-export','pet-import'])document.getElementById(id)?.remove();
  for(const b of document.querySelectorAll('button')){
   const label=b.textContent.trim();
-  if(/^(匯出|匯入)/.test(label)||/CSV/i.test(label))b.remove();
+  if(/^(匯出|匯入)/.test(label)||/CSV/i.test(label)||/^(展開本頁|收合本頁)$/.test(label))b.remove();
  }
 }
 function updateAtlasModeEmpty(){
@@ -186,16 +194,16 @@ const saintSpawn={
  'saintsdragons:ivy_oleander':'主世界・常春藤小屋；森林類生態域，原版明確包含森林、樺木森林、原始樺木森林、黑森林、繁花森林、針葉林、原始松木針葉林、原始雲杉針葉林與雪地針葉林。'
 };
 const berkTaming={
- 'dragonsofberk:night_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備夜視效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true},
- 'dragonsofberk:light_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true},
- 'dragonsofberk:night_light':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。',fury:true,noWild:true},
- 'dragonsofberk:monstrous_nightmare':{food:'生羊肉、生豬肉',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備抗火效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。'},
- 'dragonsofberk:deadly_nadder':{food:'生雞肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
- 'dragonsofberk:gronckle':{food:'生牛肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
- 'dragonsofberk:zippleback':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備力量效果，且不能持武器、不能穿護甲；否則 T4 馴服 AI 會把玩家視為威脅。'},
+ 'dragonsofberk:night_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備夜視效果，且不能持武器、不能穿護甲；否則 後續馴服階段會把不符合條件的玩家視為威脅。',fury:true},
+ 'dragonsofberk:light_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 後續馴服階段會把不符合條件的玩家視為威脅。',fury:true},
+ 'dragonsofberk:night_light':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200,gate:'接近第一階段時，玩家需具備隱形效果，且不能持武器、不能穿護甲；否則 後續馴服階段會把不符合條件的玩家視為威脅。',fury:true,noWild:true},
+ 'dragonsofberk:monstrous_nightmare':{food:'生羊肉、生豬肉',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備抗火效果，且不能持武器、不能穿護甲；否則 後續馴服階段會把不符合條件的玩家視為威脅。'},
+ 'dragonsofberk:deadly_nadder':{food:'生雞肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；後續馴服階段會把持武器或先前已被視為威脅的玩家繼續當成威脅。'},
+ 'dragonsofberk:gronckle':{food:'生牛肉',feeds:12,breed:'可疑的燉湯',hatch:600,gate:'第一階段在 8 格內接近時不要持武器；後續馴服階段會把持武器或先前已被視為威脅的玩家繼續當成威脅。'},
+ 'dragonsofberk:zippleback':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'可疑的燉湯',hatch:2400,gate:'接近第一階段時，玩家需具備力量效果，且不能持武器、不能穿護甲；否則 後續馴服階段會把不符合條件的玩家視為威脅。'},
  'dragonsofberk:skrill':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:18,breed:'可疑的燉湯',hatch:1200},
- 'dragonsofberk:stinger':{food:'生羊肉',feeds:12,breed:'可疑的燉湯',hatch:1200,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
- 'dragonsofberk:terrible_terror':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:12,breed:'河豚',hatch:300,gate:'第一階段在 8 格內接近時不要持武器；T2 馴服 AI 會把持武器或已被威脅記憶鎖定的玩家視為威脅。'},
+ 'dragonsofberk:stinger':{food:'生羊肉',feeds:12,breed:'可疑的燉湯',hatch:1200,gate:'第一階段在 8 格內接近時不要持武器；後續馴服階段會把持武器或先前已被視為威脅的玩家繼續當成威脅。'},
+ 'dragonsofberk:terrible_terror':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:12,breed:'河豚',hatch:300,gate:'第一階段在 8 格內接近時不要持武器；後續馴服階段會把持武器或先前已被視為威脅的玩家繼續當成威脅。'},
  'dragonsofberk:triple_stryke':{food:'生牛肉',feeds:18,breed:'可疑的燉湯',hatch:1200},
  'dragonsofberk:speed_stinger':{food:'生兔肉',feeds:25,breed:'可疑的燉湯',hatch:300,cold:true},
  'dragonsofberk:speed_stinger_leader':{untameable:true}
@@ -203,23 +211,23 @@ const berkTaming={
 function berkTameText(p){
  if(p.untameable)return '此實體在 1.0.5 程式碼中明確拒絕所有馴服食物（isItemStackForTaming 永遠回傳 false），不能像一般疾刺龍直接馴服。';
  const gate=p.gate?' '+p.gate:'';
- return '第一階段使用 '+p.food+' 推進馴服條。基礎需要 '+p.feeds+' 次有效餵食；皮膚／變體越稀有會再增加 0–5 次（權重 ≥75：+0、35–74：+2、15–34：+3、4–14：+4、1–3：+5）。'+gate+' 第一階段完成仍未正式馴服：所有 ADragonBase 都註冊 DragonRideTilTamed，需騎上野生龍持續嘗試；每次實際馴服判定有 30% 成功率，失敗會把玩家甩下並使龍發怒，之後再重試。';
+ return '第一階段使用 '+p.food+' 推進馴服條。基礎需要 '+p.feeds+' 次有效餵食；皮膚／變體越稀有會再增加 0–5 次（權重 ≥75：+0、35–74：+2、15–34：+3、4–14：+4、1–3：+5）。'+gate+' 第一階段完成後還要進行騎乘馴服：騎上野生龍反覆嘗試，每次判定有 30% 成功率；失敗時會被甩下，龍也會發怒，等安全後再重試。';
 }
 function berkFuryBreedText(id){
- if(id==='dragonsofberk:night_fury')return '蜂巢進入繁殖。夜煞不能和另一隻純夜煞配對；可與光煞／夜光龍配對。夜煞×光煞或夜煞×夜光龍：每次抽 0–99；1–3 產光煞蛋，4–99 產夜光龍蛋；抽到 0 時，若雙親的 FuryRareBredCount 都仍低於 10，產夜煞蛋，否則改產夜光龍蛋。';
- if(id==='dragonsofberk:light_fury')return '蜂巢進入繁殖。光煞可與 Fury 系配對；光煞×光煞沿用自身結果產光煞蛋。光煞×夜煞的機率為：3% 光煞、通常 96% 夜光龍、1% 稀有夜煞（僅雙親 FuryRareBredCount 都低於 10 時；否則該 1% 也改夜光龍）。光煞×夜光龍時，抽到 0 且稀有計數未滿才產光煞，其他情況產夜光龍。';
- if(id==='dragonsofberk:night_light')return '蜂巢進入繁殖。夜光龍不是自然生成表中的物種；主要由 Fury 系繁殖取得。夜光龍×夜光龍沿用自身結果產夜光龍蛋；與夜煞／光煞配對時依 Fury 特殊分支決定蛋種，其中夜煞×夜光龍與夜煞×光煞使用相同的 0–99 分布。';
+ if(id==='dragonsofberk:night_fury')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。夜煞不能和另一隻純夜煞配對，可與光煞或夜光龍配對。夜煞×光煞、夜煞×夜光龍：每次有 3% 產光煞蛋、96% 產夜光龍蛋；另有 1% 的稀有結果，只有兩隻親代各自累積的稀有後代次數都少於 10 次時才會產夜煞蛋，達到門檻後這 1% 也改為夜光龍蛋。';
+ if(id==='dragonsofberk:light_fury')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。光煞可與夜煞、光煞或夜光龍配對。光煞×光煞會產光煞蛋；光煞×夜煞時為 3% 光煞、96% 夜光龍，另有 1% 稀有夜煞結果，但只有兩隻親代各自累積的稀有後代次數都少於 10 次時才成立，達到門檻後這 1% 也改成夜光龍。光煞×夜光龍時，稀有判定尚未達門檻才可能產光煞，其餘產夜光龍。';
+ if(id==='dragonsofberk:night_light')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。夜光龍不在自然生成表中，主要靠夜煞、光煞與夜光龍之間的繁殖取得。夜光龍×夜光龍會產夜光龍蛋；與夜煞或光煞配對時，蛋種依上述稀有繁殖規則決定，其中夜煞×夜光龍和夜煞×光煞使用相同機率。';
  return '';
 }
 function berkBreedText(id,p){
  if(!p||p.untameable||!p.breed)return '';
  if(p.fury)return berkFuryBreedText(id);
- return '已馴服成龍使用 '+p.breed+' 進入繁殖；此物種的 getBreedEggResult 會建立對應物種龍蛋。';
+ return '準備兩隻已馴服、成年且符合配對條件的同種異性龍，對牠們使用 '+p.breed+' 讓雙方進入繁殖狀態；成功配對後會產下這個物種的龍蛋。';
 }
 function berkHatchText(p){
  if(!p||!p.hatch)return '';
  const mins=Math.round(p.hatch/60*100)/100;
- return '龍蛋的 1.0.5 預設孵化時間為 '+p.hatch+' 秒（約 '+mins+' 分鐘，可由伺服器設定調整）。'+(p.cold?'SpeedStingerEgg 明確覆寫為冷孵化。':'使用該蛋類別的正常孵化流程。')+'孵化出的幼龍仍應儘快完成馴服。';
+ return '龍蛋的 1.0.5 預設孵化時間為 '+p.hatch+' 秒（約 '+mins+' 分鐘，可由伺服器設定調整）。'+(p.cold?'疾刺龍蛋需要低溫孵化。':'依該物種龍蛋的正常孵化條件放置即可。')+'孵化出的幼龍仍應儘快完成馴服。';
 }
 
 const berkSpawn={
@@ -301,6 +309,42 @@ function enhanceSaintDragons(){
  }
  document.querySelectorAll('.loc').forEach(loc=>{if(/此版有野生|依物種生成設定|野生／孵化個體/.test(loc.textContent))loc.remove()});
 }
+
+function polishPlayerFacingDetails(){
+ if(slug!=='bosses')return;
+ for(const card of document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')){
+  const meta=card.querySelector('.entity-meta')?.textContent||'';
+  const hp=(meta.match(/生命\s*([\d,.]+)\s*HP/)||[])[1];
+  for(const dt of [...card.querySelectorAll('dt')]){
+   if(dt.textContent.trim()!=='生命值說明')continue;
+   const dd=dt.nextElementSibling;if(!dd||dd.tagName!=='DD')continue;
+   if(hp){
+    const mod=card.dataset.petMod||'';
+    dd.textContent=mod==='saintsdragons'
+      ?`上方的 ${hp} HP 是本整合包目前 Saints Dragons 設定中的成年基礎最大生命值，不是估算值。幼龍會因成長階段而不同；只有伺服器另外覆寫模組設定、指令或其他模組修改最大生命屬性時，實際上限才會改變。`
+      :mod==='dragonsofberk'
+      ?`上方的 ${hp} HP 取自 Dragons of Berk 1.0.5 此物種的基礎最大生命屬性，不是目前剩餘血量。藥水、指令或其他模組若額外修改最大生命屬性，遊戲內當下數值才會不同。`
+      :`上方的 ${hp} HP 是此條目查核到的基礎最大生命值，不是目前剩餘血量；只有成長階段、指令、狀態或其他模組實際修改最大生命屬性時，當下上限才會改變。`;
+   }
+  }
+  for(const dl of card.querySelectorAll('dl')){
+   const seen=new Set();
+   for(const dt of [...dl.querySelectorAll('dt')]){
+    const dd=dt.nextElementSibling;if(dd?.tagName!=='DD')continue;
+    const key=dt.textContent.trim()+'\n'+dd.textContent.trim();
+    if(seen.has(key)){dt.remove();dd.remove()}else seen.add(key);
+   }
+  }
+  if(card.dataset.petId)card.dataset.petSearch=card.textContent.replace(/\s+/g,' ').trim()+' '+card.dataset.petId;
+  else if(card.dataset.id)card.dataset.search=card.textContent.replace(/\s+/g,' ').trim()+' '+card.dataset.id;
+ }
+}
+function polishScarletGuide(){
+ if(slug!=='scarlet')return;
+ document.querySelectorAll('#chapter-9 figure').forEach(f=>f.classList.add('theme-diagram'));
+ document.querySelectorAll('.chapter-progress,.reading-progress,[data-progress],progress').forEach(e=>e.remove());
+}
+
 function unifyBossCollectionChecks(){
  for(const card of document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')){
   const checks=card.querySelector('.checks');if(!checks)continue;
@@ -363,7 +407,7 @@ function polishEquipmentControls(){
  renameCollectedLabels(document);
 }
 let polishTimer;
-new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','class','style']});
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},60)}).observe(document.body,{childList:true,subtree:true});
 renameCollectedLabels(document);polishEquipmentControls();
 
 const find=id=>document.getElementById(id);
@@ -446,7 +490,8 @@ if(slug){
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
   removeAtlasUtilityButtons();installFilterCompletion();
-  if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
+  if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();polishPlayerFacingDetails();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
+  if(slug==='scarlet')polishScarletGuide();
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
