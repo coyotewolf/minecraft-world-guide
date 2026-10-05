@@ -13,5 +13,5 @@ for p in (P/'guides').glob('*.html'):
  if 'id="world-reader-theme"' not in s:s=s.replace('</head>',style+'</head>',1);p.write_text(s,encoding='utf8')
 for p in (P/'guides').glob('*.html'):
  s=p.read_text(encoding='utf8')
- if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-vanilla1"></head>',1),encoding='utf8')
+ if '../vanilla.css' not in s:p.write_text(s.replace('</head>','<link rel="stylesheet" href="../vanilla.css?v=20261005-readability1"></head>',1),encoding='utf8')
 print('Four complete readers share the journal palette, pixel controls and motion preference.')

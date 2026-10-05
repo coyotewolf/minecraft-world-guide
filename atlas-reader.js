@@ -53,6 +53,10 @@ function openTarget(d){
 }
 if(slug){
   document.documentElement.dataset.atlas=slug;
+  for(const title of document.querySelectorAll('.modulehead h2')){
+    const text=title.textContent.trim(),match=text.match(/^([^A-Za-z]+?)\s+([A-Za-z].*)$/);
+    if(match){title.textContent='';const label=document.createElement('span'),alias=document.createElement('span');label.className='module-name';alias.className='module-alias';label.textContent=match[1];alias.textContent=match[2];title.append(label,alias);}
+  }
   // Remove promotional reader introductions, preserving actual game instructions.
   document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand,.collection-source-note').forEach(e=>e.remove());
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';

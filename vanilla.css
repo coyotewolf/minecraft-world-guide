@@ -46,3 +46,29 @@ html[data-atlas] .boss-appearance{color:var(--ink)!important}
 html[data-motion=off] .intro,html[data-motion=off] .intro *,html[data-motion=off] .entry-scene,html[data-motion=off] .auth-card{animation:none!important;transition:none!important;transform:none!important;rotate:none!important}
 
 .card-icon img{width:44px;height:44px;object-fit:contain;image-rendering:pixelated}.card-icon{background:transparent;border:0;box-shadow:none}
+
+/* Quiet reader headings, with breathing room around the original guide text. */
+html[data-atlas] body{font-size:14px!important;line-height:1.85!important}
+html[data-atlas] h2{font-size:20px;line-height:1.65;letter-spacing:0}html[data-atlas] h3{font-size:18px;line-height:1.65;letter-spacing:0}
+html[data-atlas] p,html[data-atlas] dd,html[data-atlas] td,html[data-atlas] li{font-size:14px;line-height:1.9}
+html[data-atlas] .entry summary,html[data-atlas] .chapter h2{font-size:17px!important;line-height:1.75!important}
+html[data-atlas=skills] main,html[data-atlas=scarlet] main{padding-left:18px!important;padding-right:18px!important}
+html[data-atlas=skills] .masthead,html[data-atlas=scarlet] .masthead{padding-left:18px!important;padding-right:18px!important}
+.nav-icon{display:grid;place-items:center;width:28px;height:28px;line-height:1;flex-shrink:0}.pixel-nav-icon{display:block;width:28px;height:28px}.bottom-nav a{gap:3px}.sidebar .nav-icon{width:28px}
+.atlas-note-tools{flex-shrink:0;display:flex;justify-content:flex-end;padding:8px 16px;background:var(--surface)}
+html[data-atlas] header.hero,html[data-atlas] .masthead{background:transparent!important;border:0!important;box-shadow:none!important;padding:14px 0 20px!important;margin:0 0 18px!important}
+html[data-atlas] header.hero h1,html[data-atlas] .masthead h1{font-size:22px!important;line-height:1.65!important;font-weight:400!important;letter-spacing:0!important;margin:0!important}
+html[data-atlas] .modulehead{background:transparent!important;border:0!important;box-shadow:none!important;padding:8px 0 14px!important;margin:18px 0 8px!important;align-items:center!important;gap:14px}
+html[data-atlas] .modulehead h2{margin:0;font-size:19px!important;line-height:1.6!important;font-weight:400!important;letter-spacing:0}
+html[data-atlas] .modulehead .module-name{display:block;font-size:19px;color:var(--ink)}
+html[data-atlas] .modulehead .module-alias{display:block;font-size:13px;color:var(--muted);line-height:1.6;margin-top:3px}
+html[data-atlas=bosses] main{padding:18px 18px 36px!important;max-width:1320px;margin:auto}
+html[data-atlas=bosses] body{font-size:14px!important;line-height:1.85!important}
+html[data-atlas=bosses] .card,html[data-atlas=bosses] .pet-card{padding:20px!important}
+html[data-atlas=bosses] .card h3,html[data-atlas=bosses] .pet-card h3{font-size:19px!important;font-weight:400!important;line-height:1.6!important;margin:14px 0 6px!important}
+html[data-atlas=bosses] .entity-meta{font-size:13px!important;line-height:1.8!important;min-height:0}
+html[data-atlas=bosses] dt{font-size:13px!important;line-height:1.8}html[data-atlas=bosses] dd,html[data-atlas=bosses] details,html[data-atlas=bosses] summary{font-size:14px!important;line-height:1.9!important}
+html[data-atlas=bosses] .entity-mod,html[data-atlas=bosses] .loc,html[data-atlas=bosses] .pet-capability{font-size:12px!important;line-height:1.85}
+html[data-atlas=bosses] .tag{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;font-size:11px!important;color:var(--muted)!important}
+html[data-atlas=bosses] .boss-heading-row{gap:12px}html[data-atlas=bosses] header.hero .boss-heading-row h1{white-space:normal!important;font-size:22px!important}
+@media(max-width:350px){html[data-atlas=bosses] main{padding:16px 14px 32px!important}html[data-atlas=bosses] header.hero .boss-heading-row h1{font-size:20px!important}html[data-atlas=bosses] .card,html[data-atlas=bosses] .pet-card{padding:16px!important}}
