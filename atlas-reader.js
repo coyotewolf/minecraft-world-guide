@@ -6,7 +6,7 @@ function adaptInventoryHints(){
   for(const el of document.querySelectorAll('.station'))if(el.querySelector('img')&&!el.dataset.itemHint){el.dataset.itemHint=el.textContent.trim();el.tabIndex=0;el.setAttribute('aria-label',el.dataset.itemHint);for(const span of el.querySelectorAll('span'))span.classList.add('inventory-label');}
   for(const el of document.querySelectorAll('.materialrow'))if(el.querySelector('img'))el.querySelector('.matname')?.classList.add('inventory-label');
 }
-adaptInventoryHints();let inventoryHintTimer;new MutationObserver(()=>{clearTimeout(inventoryHintTimer);inventoryHintTimer=setTimeout(adaptInventoryHints,20)}).observe(document.body,{childList:true,subtree:true});
+adaptInventoryHints();let inventoryHintTimer;new MutationObserver(()=>{clearTimeout(inventoryHintTimer);inventoryHintTimer=setTimeout(()=>{adaptInventoryHints();applyAtlasWishes()},20)}).observe(document.body,{childList:true,subtree:true});
 // Fill source-reader gaps with genuine inventory artwork from the installed pack.
 Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json').then(r=>{if(!r.ok)throw Error('Inventory assets unavailable');return r.json()}))).then(([inventory,names])=>{
   const paths=Object.fromEntries(Object.entries(inventory).map(([id,path])=>[id,'../'+path]));
@@ -24,6 +24,57 @@ Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json').then(r=>{
   addItemPictures(document);let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(()=>addItemPictures(document),60)}).observe(document.body,{childList:true,subtree:true});
   document.addEventListener('click',e=>{const b=e.target.closest('[data-inventory-item]');if(b){e.preventDefault();parent.postMessage({type:'guide-item',slug,id:b.dataset.inventoryItem},location.origin);}});
 }).catch(()=>{});
+
+function atlasEntryId(el){
+ if(el.dataset.petId)return el.dataset.petId;
+ if(el.dataset.id)return el.dataset.id;
+ return el.querySelector('[data-id]')?.dataset.id||'';
+}
+let atlasWishes=new Set(),atlasMode='all';
+function atlasRows(){
+ if(slug==='bosses')return [...document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')];
+ if(slug==='skills')return [...document.querySelectorAll('.entry')];
+ return [];
+}
+function applyAtlasWishes(){
+ for(const row of atlasRows()){
+  const id=atlasEntryId(row);if(!id)continue;
+  row.dataset.atlasWish=atlasWishes.has(id)?'1':'0';
+  let b=row.querySelector(':scope > .atlas-wish-button,:scope > summary .atlas-wish-button');
+  if(!b){
+   b=document.createElement('button');b.type='button';b.className='atlas-wish-button';b.dataset.atlasWishToggle=id;
+   b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const next=!atlasWishes.has(id);next?atlasWishes.add(id):atlasWishes.delete(id);applyAtlasWishes();parent.postMessage({type:'atlas-wish',slug,id,wanted:next},location.origin)});
+   const target=row.matches('.entry')?row.querySelector('summary'):row.querySelector('.cardtop')||row;
+   target?.append(b);
+  }
+  if(b){b.textContent=atlasWishes.has(id)?'★':'☆';b.title=atlasWishes.has(id)?'從想收集移除':'加入想收集';b.setAttribute('aria-label',b.title)}
+  if(atlasMode==='wish')row.hidden=!atlasWishes.has(id);
+ }
+}
+function setAtlasMode(mode){
+ atlasMode=mode;
+ if(slug==='equipment'){
+  const map={all:'all',wish:'wish',done:'done',materials:'materials'};document.querySelector('[data-tab="'+map[mode]+'"]')?.click();return;
+ }
+ if(mode==='done'){
+  if(slug==='skills')input('state','done');
+  else if(slug==='bosses'){const pet=!!document.querySelector('[data-view="pets"][aria-selected="true"],[data-view="mounts"][aria-selected="true"]');input(pet?'pet-state':'state',pet?'tamed':'won')}
+ }else if(mode==='all'){
+  if(slug==='skills')input('state','');
+  else if(slug==='bosses'){input('state','');input('pet-state','')}
+ }
+ for(const row of atlasRows())row.hidden=mode==='wish'?!atlasWishes.has(atlasEntryId(row)):false;
+ applyAtlasWishes();
+}
+function installAtlasQuickbar(){
+ if(document.getElementById('atlas-quickbar'))return;
+ const bar=document.createElement('div');bar.id='atlas-quickbar';
+ bar.innerHTML='<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
+ document.body.prepend(bar);
+ bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);bar.querySelector('details').open=false}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
+ applyAtlasWishes();
+}
+
 const find=id=>document.getElementById(id);
 const input=(id,value)=>{const e=find(id);if(e){e.value=value;e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));}};
 function openTarget(d){
@@ -53,6 +104,7 @@ function openTarget(d){
 }
 if(slug){
   document.documentElement.dataset.atlas=slug;
+  installAtlasQuickbar();
   for(const title of document.querySelectorAll('.modulehead h2')){
     const text=title.textContent.trim(),match=text.match(/^([^A-Za-z]+?)\s+([A-Za-z].*)$/);
     if(match){title.textContent='';const label=document.createElement('span'),alias=document.createElement('span');label.className='module-name';alias.className='module-alias';label.textContent=match[1];alias.textContent=match[2];title.append(label,alias);}
@@ -105,7 +157,7 @@ if(slug){
       if(p.textContent.startsWith('換手機、瀏覽器或移動檔案前'))p.textContent='登入帳號可在其他裝置接續紀錄。也可以先備份收藏，再用「還原收藏」匯入之前 HTML 匯出的進度。';
     }
   }).observe(find('detail'),{childList:true,subtree:true});
-  addEventListener('message',e=>{if(e.origin===location.origin&&e.source===parent&&e.data?.type==='atlas-open')openTarget(e.data);});
+  addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)return;if(e.data?.type==='atlas-open'){atlasWishes=new Set(e.data.wishes||[]);applyAtlasWishes();openTarget(e.data)}});
   // Keep original recipes, descriptions, images, filters and export/import handlers intact.
   document.addEventListener('click',e=>{
     const b=e.target.closest('[data-id],[data-pet-id],.entry');
