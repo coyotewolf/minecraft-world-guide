@@ -358,9 +358,16 @@ function installScarletChapterScroll(){
 function polishScarletGuide(){
  if(slug!=='scarlet')return;
  document.querySelectorAll('figure').forEach(f=>f.classList.add('theme-diagram'));
+ const classify=el=>{
+  if(el.closest('.guide-inline-item,[data-inventory-item]')){el.classList.remove('scarlet-theme-visual');el.classList.add('scarlet-item-visual');return}
+  const attrW=Number(el.getAttribute('width')||0),attrH=Number(el.getAttribute('height')||0);
+  const small=el.tagName==='IMG'&&(el.closest('table,.item,.icon,.skill-icon,.weapon-icon,.armor-icon')||((attrW&&attrW<=96)||(attrH&&attrH<=96))||(el.complete&&el.naturalWidth&&el.naturalWidth<=96&&el.naturalHeight<=96));
+  if(small){el.classList.remove('scarlet-theme-visual');el.classList.add('scarlet-item-visual');return}
+  el.classList.add('scarlet-theme-visual');el.classList.remove('scarlet-item-visual');
+ };
  document.querySelectorAll('main img,main svg,.content img,.content svg,.chapter img,.chapter svg').forEach(el=>{
-  if(el.closest('.guide-inline-item,[data-inventory-item]'))return;
-  el.classList.add('scarlet-theme-visual');
+  classify(el);
+  if(el.tagName==='IMG'&&!el.complete)el.addEventListener('load',()=>classify(el),{once:true});
  });
  document.querySelectorAll('.chapter-progress,.reading-progress,[data-progress],progress').forEach(e=>e.remove());
 }
