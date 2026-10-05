@@ -3,6 +3,14 @@ const params=new URLSearchParams(location.search);
 const slug=params.get('atlas');
 const atlasPopup=params.get('popup')==='1'||params.has('bossPopup');
 if(atlasPopup)document.documentElement.dataset.atlasPopup='true';
+function applyWorldTheme(theme){
+ const next=theme==='light'?'light':'dark';
+ document.documentElement.dataset.worldTheme=next;
+}
+try{applyWorldTheme(parent.document.documentElement.dataset.theme||localStorage.getItem('iaa-theme')||'dark')}catch{applyWorldTheme(localStorage.getItem('iaa-theme')||'dark')}
+addEventListener('message',e=>{
+ if(e.origin===location.origin&&e.source===parent&&e.data?.type==='guide-theme')applyWorldTheme(e.data.theme);
+});
 function adaptInventoryHints(){
   for(const el of document.querySelectorAll('[data-tip]')){el.dataset.itemHint=el.dataset.tip;el.removeAttribute('data-tip');el.removeAttribute('title');}
   for(const el of document.querySelectorAll('.station'))if(el.querySelector('img')&&!el.dataset.itemHint){el.dataset.itemHint=el.textContent.trim();el.tabIndex=0;el.setAttribute('aria-label',el.dataset.itemHint);for(const span of el.querySelectorAll('span'))span.classList.add('inventory-label');}
