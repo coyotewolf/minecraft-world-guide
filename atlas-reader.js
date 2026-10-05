@@ -122,17 +122,29 @@ function normalizeEquipmentSearchDock(){
  const search=document.getElementById('search')||document.querySelector('input[type="search"],input[placeholder*="搜尋"]');
  const toggle=document.getElementById('toggleFilters')||[...document.querySelectorAll('button')].find(b=>/篩選/.test(b.textContent.trim()));
  const filters=document.getElementById('filters');
- if(!search||search.closest('.atlas-equipment-search-dock'))return;
- const dock=document.createElement('div');dock.className='atlas-equipment-search-dock';
- const row=document.createElement('div');row.className='atlas-equipment-search-row';
- const anchor=(search.closest('.searchbar,.controls,.toolbar,.filters')||search.parentElement||search);
- anchor.parentElement?.insertBefore(dock,anchor);
- row.append(search);
- if(toggle)row.append(toggle);
- dock.append(row);
- if(filters)dock.append(filters);
- if(anchor!==dock&&anchor!==document.body&&anchor.childElementCount===0)anchor.remove();
+ if(!search)return;
+ let toolbar=search.closest('.atlas-equipment-shared-toolbar');
+ if(!toolbar){
+  const oldAnchor=search.closest('.searchbar,.controls,.toolbar,.filters')||search.parentElement;
+  toolbar=document.createElement('div');toolbar.className='toolbar atlas-equipment-shared-toolbar';
+  const inner=document.createElement('div');inner.className='toolbar-inner';
+  const box=document.createElement('div');box.className='searchbox';
+  const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  icon.setAttribute('aria-hidden','true');icon.setAttribute('fill','none');icon.setAttribute('stroke','currentColor');icon.setAttribute('stroke-width','1.5');icon.setAttribute('viewBox','0 0 24 24');
+  icon.innerHTML='<circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path>';
+  const clear=document.createElement('button');clear.type='button';clear.className='clear';clear.setAttribute('aria-label','清除搜尋');clear.textContent='×';
+  clear.onclick=()=>{search.value='';search.dispatchEvent(new Event('input',{bubbles:true}));search.dispatchEvent(new Event('change',{bubbles:true}));search.focus()};
+  box.append(icon,search,clear);inner.append(box);
+  if(toggle){toggle.classList.add('chapter-select','atlas-equipment-filter-toggle');inner.append(toggle)}
+  toolbar.append(inner);
+  oldAnchor.parentElement?.insertBefore(toolbar,oldAnchor);
+  if(filters)toolbar.append(filters);
+  if(oldAnchor!==toolbar&&oldAnchor!==document.body&&oldAnchor.childElementCount===0)oldAnchor.remove();
+ }else if(filters&&filters.parentElement!==toolbar){
+  toolbar.append(filters);
+ }
 }
+
 function installFilterCompletion(){
  const install=(box,close)=>{
   if(!box||box.querySelector('.atlas-filter-done'))return;
