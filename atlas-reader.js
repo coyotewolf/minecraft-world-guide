@@ -324,10 +324,10 @@ function polishPlayerFacingDetails(){
    if(hp){
     const mod=card.dataset.petMod||'';
     dd.textContent=mod==='saintsdragons'
-      ?`上方的 ${hp} HP 是本整合包目前 Saints Dragons 設定中的成年基礎最大生命值，不是估算值。幼龍會因成長階段而不同；只有伺服器另外覆寫模組設定、指令或其他模組修改最大生命屬性時，實際上限才會改變。`
+      ?`生命值：${hp} HP。這是本整合包目前 Saints Dragons 設定中的成年基礎最大生命值，不是估算值。幼龍會因成長階段而不同；只有伺服器另外覆寫模組設定、指令或其他模組修改最大生命屬性時，實際上限才會改變。`
       :mod==='dragonsofberk'
-      ?`上方的 ${hp} HP 取自 Dragons of Berk 1.0.5 此物種的基礎最大生命屬性，不是目前剩餘血量。藥水、指令或其他模組若額外修改最大生命屬性，遊戲內當下數值才會不同。`
-      :`上方的 ${hp} HP 是此條目查核到的基礎最大生命值，不是目前剩餘血量；只有成長階段、指令、狀態或其他模組實際修改最大生命屬性時，當下上限才會改變。`;
+      ?`生命值：${hp} HP。這是 Dragons of Berk 1.0.5 此物種的基礎最大生命屬性，不是目前剩餘血量。藥水、指令或其他模組若額外修改最大生命屬性，遊戲內當下數值才會不同。`
+      :`生命值：${hp} HP。這是此條目查核到的基礎最大生命值，不是目前剩餘血量；只有成長階段、指令、狀態或其他模組實際修改最大生命屬性時，當下上限才會改變。`;
    }
   }
   for(const dl of card.querySelectorAll('dl')){
@@ -344,7 +344,7 @@ function polishPlayerFacingDetails(){
 }
 function polishScarletGuide(){
  if(slug!=='scarlet')return;
- document.querySelectorAll('#chapter-9 figure').forEach(f=>f.classList.add('theme-diagram'));
+ document.querySelectorAll('figure').forEach(f=>f.classList.add('theme-diagram'));
  document.querySelectorAll('.chapter-progress,.reading-progress,[data-progress],progress').forEach(e=>e.remove());
 }
 
@@ -357,6 +357,61 @@ function unifyBossCollectionChecks(){
   const updateLabel=()=>{label.title=input.checked?'取消已取得':'標記為已取得';label.setAttribute('aria-label',label.title)};
   updateLabel();input.addEventListener('change',()=>{updateLabel();if(atlasMode==='done')card.hidden=!input.checked});
   checks.replaceChildren(label);label.append(input,document.createTextNode('✓'));checks.classList.add('atlas-single-check');
+ }
+}
+
+function installStableEquipmentToggle(){
+ if(slug!=='equipment'||typeof toggleList!=='function'||toggleList.__atlasStable)return;
+ const stable=function(which,id){
+  const a=state[which],was=a.includes(id);
+  state[which]=was?a.filter(x=>x!==id):[...a,id];
+  save();
+  const isWish=state.wish.includes(id),isDone=state.done.includes(id);
+  for(const card of document.querySelectorAll('.card')){
+   const open=card.querySelector('[data-open="'+CSS.escape(id)+'"]');if(!open)continue;
+   card.classList.toggle('collected',isDone);
+   const wish=card.querySelector('[data-wish="'+CSS.escape(id)+'"]');
+   const done=card.querySelector('[data-done="'+CSS.escape(id)+'"]');
+   if(wish){wish.classList.toggle('selected',isWish);wish.textContent=isWish?'★':'☆';wish.setAttribute('aria-pressed',String(isWish))}
+   if(done){done.classList.toggle('selected',isDone);done.textContent='✓';done.setAttribute('aria-pressed',String(isDone))}
+  }
+  if(current===id){
+   const wish=document.querySelector('#detail [data-wish="'+CSS.escape(id)+'"]');
+   const done=document.querySelector('#detail [data-done="'+CSS.escape(id)+'"]');
+   if(wish){wish.classList.toggle('selected',isWish);wish.textContent=isWish?'★':'☆';wish.setAttribute('aria-pressed',String(isWish))}
+   if(done){done.classList.toggle('selected',isDone);done.textContent='✓';done.setAttribute('aria-pressed',String(isDone))}
+  }
+  const doneCount=state.done.filter(id=>itemMap.has(id)).length,wishCount=state.wish.filter(id=>itemMap.has(id)).length,total=itemMap.size;
+  const doneStat=document.getElementById('doneStat'),wishStat=document.getElementById('wishCount'),percentStat=document.getElementById('percentStat'),progressFill=document.getElementById('progressFill');
+  if(doneStat)doneStat.textContent=String(doneCount);if(wishStat)wishStat.textContent=wishCount?String(wishCount):'';if(percentStat)percentStat.textContent=(total?Math.round(doneCount/total*100):0)+'%';if(progressFill)progressFill.style.width=(total?doneCount/total*100:0)+'%';
+  if((tab==='wishlist'&&which==='wish')||(tab==='done'&&which==='done'))render();
+  polishEquipmentControls();
+  if(which==='wish')toast(was?'已移出想收集冊':'已加入想收集冊');
+ };
+ stable.__atlasStable=true;toggleList=stable;
+}
+function unifyReaderStateControls(){
+ if(slug==='bosses'){
+  for(const card of document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')){
+   const wish=card.querySelector('.atlas-wish-button'),done=card.querySelector('.atlas-single-collect');
+   if(!wish||!done)continue;
+   let wrap=card.querySelector('.atlas-reader-state');
+   if(!wrap){wrap=document.createElement('div');wrap.className='atlas-reader-state';(card.querySelector('.cardtop')||card).append(wrap)}
+   if(wish.parentElement!==wrap)wrap.append(wish);
+   if(done.parentElement!==wrap)wrap.append(done);
+  }
+ }
+ if(slug==='skills'){
+  for(const entry of document.querySelectorAll('.entry')){
+   const title=entry.querySelector('.entry-title'),wish=entry.querySelector('.atlas-wish-button'),check=entry.querySelector('input.check');
+   if(!title||!wish||!check)continue;
+   let wrap=title.querySelector('.atlas-reader-state');
+   if(!wrap){wrap=document.createElement('div');wrap.className='atlas-reader-state';title.append(wrap)}
+   if(wish.parentElement!==wrap)wrap.append(wish);
+   let done=wrap.querySelector('.atlas-skill-done');
+   if(!done){done=document.createElement('label');done.className='atlas-skill-done';done.title=check.checked?'取消已取得':'標記為已取得';check.before(done);done.append(check,document.createTextNode('✓'))}
+   done.title=check.checked?'取消已取得':'標記為已取得';
+  }
  }
 }
 function installSpeedSorting(){
@@ -401,17 +456,33 @@ function polishEquipmentControls(){
    const wish=card.querySelector('.wishbtn'),done=card.querySelector('.collectbtn');
    if(!wish||!done)continue;
    card.classList.add('atlas-equipment-card');
+   wish.classList.add('atlas-wish-icon-button');
    done.classList.add('atlas-done-icon');
    if(done.textContent!=='✓')done.textContent='✓';
-   const aria=(done.classList.contains('selected')?'取消已取得：':'標記為已取得：')+(card.querySelector('.item-open h3')?.textContent.trim()||'裝備');
-   if(done.getAttribute('aria-label')!==aria)done.setAttribute('aria-label',aria);
+   const title=card.querySelector('.item-open h3')?.textContent.trim()||'裝備';
+   wish.setAttribute('aria-label',(wish.classList.contains('selected')?'從想收集移除：':'加入想收集：')+title);
+   done.setAttribute('aria-label',(done.classList.contains('selected')?'取消已取得：':'標記為已取得：')+title);
  }
- for(const b of document.querySelectorAll('#detail [data-done]')){const text=b.classList.contains('selected')?'✓ 已取得':'✓ 標記為已取得';if(b.textContent!==text)b.textContent=text;}
+ const actions=document.querySelector('#detail .actions');
+ if(actions){
+  actions.classList.add('atlas-detail-state-row');
+  const wish=actions.querySelector('[data-wish]'),done=actions.querySelector('[data-done]');
+  if(wish){
+   wish.classList.add('atlas-detail-state','atlas-detail-wish');
+   wish.textContent=wish.classList.contains('selected')?'★':'☆';
+   wish.setAttribute('aria-label',wish.classList.contains('selected')?'從想收集移除':'加入想收集');
+  }
+  if(done){
+   done.classList.add('atlas-detail-state','atlas-detail-done');
+   done.textContent='✓';
+   done.setAttribute('aria-label',done.classList.contains('selected')?'取消已取得':'標記為已取得');
+  }
+ }
  renameCollectedLabels(document);
 }
 let polishTimer;
-new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},60)}).observe(document.body,{childList:true,subtree:true});
-renameCollectedLabels(document);polishEquipmentControls();
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();unifyReaderStateControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},60)}).observe(document.body,{childList:true,subtree:true});
+renameCollectedLabels(document);polishEquipmentControls();unifyReaderStateControls();
 
 const find=id=>document.getElementById(id);
 const input=(id,value)=>{const e=find(id);if(e){e.value=value;e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));}};
@@ -493,7 +564,9 @@ if(slug){
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
   removeAtlasUtilityButtons();installFilterCompletion();
-  if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();polishPlayerFacingDetails();unifyBossCollectionChecks();installSpeedSorting();installModelZoom();}
+  if(slug==='equipment'){installStableEquipmentToggle();polishEquipmentControls();}
+  if(slug==='bosses'){enhanceSaintDragons();enhanceBerkDragons();polishPlayerFacingDetails();unifyBossCollectionChecks();unifyReaderStateControls();installSpeedSorting();installModelZoom();}
+  if(slug==='skills')unifyReaderStateControls();
   if(slug==='scarlet')polishScarletGuide();
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
