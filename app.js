@@ -108,7 +108,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&reader=20261005-race1" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&reader=20261006-aoi1" allow="clipboard-write"></iframe>`;
 }
 function renderPage(rows,target,render){const size=30,last=Math.max(1,Math.ceil(rows.length/size));pageNumber=Math.min(pageNumber,last);$('#'+target).innerHTML=`<p class="result-count">${rows.length.toLocaleString()} 筆 · 第 ${pageNumber} / ${last} 頁</p><div class="grid cols3">${rows.slice((pageNumber-1)*size,pageNumber*size).map(render).join('')}</div>${rows.length?`<div class="pager"><button data-page="${pageNumber-1}" ${pageNumber===1?'disabled':''}>← 上頁</button><span>${pageNumber} / ${last}</span><button data-page="${pageNumber+1}" ${pageNumber===last?'disabled':''}>下頁 →</button></div>`:empty('沒有符合條件的項目，試試不同關鍵字。')}`}
 function record(key){const x=collections.find(x=>x.key===key);if(!x){app.innerHTML=empty('找不到收藏項目');return}
@@ -236,7 +236,7 @@ let bossContext=null;
 async function bossModal(id){
  const x=collections.find(x=>x.category==='bosses'&&x.id===id);if(!x)return;
  const uid=user?.id||'guest',data=writeGuide('bosses',progress.get('guide:bosses')?.checklist||{},progress,collections);for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-bosses-'+k,v);
- bossContext={slug:'bosses',category:'bosses',item:id};modal(x.title,`<iframe id="boss-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="guides/bosses.html?player=${enc(uid)}&atlas=bosses&bossPopup=${enc(id)}&reader=20261005-race1"></iframe>`);$('#modal').classList.add('boss-dialog');
+ bossContext={slug:'bosses',category:'bosses',item:id};modal(x.title,`<iframe id="boss-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="guides/bosses.html?player=${enc(uid)}&atlas=bosses&bossPopup=${enc(id)}&reader=20261006-aoi1"></iframe>`);$('#modal').classList.add('boss-dialog');
 }
 document.addEventListener('boss-reference',e=>bossModal(e.detail).catch(showError));
 $('#modal').addEventListener('close',()=>{$('#modal').classList.remove('boss-dialog');$('#boss-modal-frame')?.remove();bossContext=null});
