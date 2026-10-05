@@ -1,46 +1,57 @@
-name: Build site bundle
+name: Build and deploy site
+
 on:
   push:
     branches: [main]
-    paths:
-      - 'app.js'
-      - 'atlas-reader.js'
-      - 'atlas-reader.css'
-      - 'avatar.js'
-      - 'recipe-view.js'
-      - 'recipe-labels.js'
-      - 'guide-progress.js'
-      - 'key-guide.js'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tools/build.mjs'
-      - '.github/workflows/build-site.yml'
+  workflow_dispatch:
+
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: build-site-${{ github.ref }}
+  group: pages
   cancel-in-progress: true
+
 jobs:
   build:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      - run: npm ci
-      - run: npm run check
-      - run: npm run build
-      - name: Commit generated bundle
-        run: |
-          if git diff --quiet -- assets/app.min.js; then
-            echo "Bundle already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/app.min.js
-          git commit -m "Build website bundle"
-          git push
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check JavaScript
+        run: npm run check
+
+      - name: Build site bundle
+        run: npm run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
