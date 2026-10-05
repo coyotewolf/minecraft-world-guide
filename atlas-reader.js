@@ -121,89 +121,125 @@ function normalizeEquipmentSearchDock(){
  if(slug!=='equipment')return;
 
  const quickbar=document.getElementById('atlas-quickbar');
-
- // Remove the source-only header and duplicate collection navigation.
  document.querySelector('header.hero')?.setAttribute('hidden','');
+
+ // Hide the source collection tabs; the shared top bar already provides these.
  const sourceTabs=[...document.querySelectorAll('[data-tab]')].filter(el=>!el.closest('#atlas-quickbar'));
  sourceTabs.forEach(el=>el.setAttribute('hidden',''));
 
- // Build the equipment search/filter shell as a TOP-LEVEL sibling of the shared quickbar.
- // This is intentional: placing it back inside the source .navigation/.toolbar can hide it
- // when that legacy wrapper is removed.
- const search=document.getElementById('search')||document.querySelector('input[type="search"],input[placeholder*="搜尋"]');
- const filters=document.getElementById('filters');
+ // Find the source search/filter controls but DO NOT reuse their visual wrapper.
+ // We keep the source input hidden and proxy into it so equipment gets exactly the
+ // same visible shell as the boss/companion/mount readers.
+ const nativeSearch=document.getElementById('search')||document.querySelector('input[type="search"],input[placeholder*="搜尋"]');
+ const nativeFilters=document.getElementById('filters');
+ const nativeSearchWrap=nativeSearch?.closest('form,.searchbar,.search,.toolbar,.controls,.navigation')||nativeSearch?.parentElement;
  const oldToggle=document.getElementById('toggleFilters')||[...document.querySelectorAll('button')].find(b=>/篩選/.test(b.textContent.trim())&&!b.closest('#atlas-quickbar'));
 
- if(search){
-  let controls=document.body.querySelector(':scope > .atlas-equipment-controls');
-  if(!controls){
-   controls=document.createElement('div');
-   controls.className='controls atlas-equipment-controls';
+ let progress=document.body.querySelector(':scope > .atlas-equipment-progress');
+ if(!progress){
+  progress=document.createElement('div');
+  progress.className='atlas-equipment-progress';
+  progress.innerHTML='<div class="atlas-equipment-progress-head"><strong>收藏進度</strong><span data-equipment-progress-count></span></div><div class="progress"><i data-equipment-progress-bar></i></div>';
+  quickbar?.after(progress);
+ }
+ const updateProgress=()=>{
+  const done=[...document.querySelectorAll('.card .collectbtn,.atlas-equipment-card .atlas-done-icon')].filter(b=>b.classList.contains('selected')||b.getAttribute('aria-pressed')==='true').length;
+  const all=document.querySelectorAll('.card .collectbtn,.atlas-equipment-card .atlas-done-icon').length;
+  const pct=all?Math.round(done/all*100):0;
+  const count=progress.querySelector('[data-equipment-progress-count]');
+  const bar=progress.querySelector('[data-equipment-progress-bar]');
+  if(count)count.textContent=done+' / '+all;
+  if(bar)bar.style.width=pct+'%';
+ };
+ updateProgress();
 
-   const searchbar=document.createElement('div');
-   searchbar.className='searchbar';
+ let controls=document.body.querySelector(':scope > .atlas-equipment-controls');
+ if(!controls){
+  controls=document.createElement('div');
+  controls.className='controls atlas-equipment-controls';
 
-   const drawer=document.createElement('details');
-   drawer.className='filter-drawer atlas-equipment-filter-drawer';
-   const summary=document.createElement('summary');
-   summary.textContent='篩選';
-   drawer.append(summary);
+  const searchbar=document.createElement('div');
+  searchbar.className='searchbar';
 
-   searchbar.append(search,drawer);
-   controls.append(searchbar);
+  const proxy=document.createElement('input');
+  proxy.type='search';
+  proxy.className='atlas-equipment-search-proxy';
+  proxy.placeholder=nativeSearch?.placeholder||'搜尋裝備';
+  proxy.setAttribute('aria-label',nativeSearch?.getAttribute('aria-label')||'搜尋裝備');
+  proxy.value=nativeSearch?.value||'';
+  proxy.addEventListener('input',()=>{
+   if(!nativeSearch)return;
+   nativeSearch.value=proxy.value;
+   nativeSearch.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  proxy.addEventListener('change',()=>{
+   if(!nativeSearch)return;
+   nativeSearch.value=proxy.value;
+   nativeSearch.dispatchEvent(new Event('change',{bubbles:true}));
+  });
 
-   if(filters){
-    filters.removeAttribute('hidden');
-    drawer.append(filters);
-   }
-
-   if(quickbar)quickbar.after(controls);
-   else document.body.prepend(controls);
-  }else{
-   const drawer=controls.querySelector('.atlas-equipment-filter-drawer');
-   if(search.parentElement!==controls.querySelector('.searchbar'))controls.querySelector('.searchbar')?.prepend(search);
-   if(filters&&drawer&&filters.parentElement!==drawer){
-    filters.removeAttribute('hidden');
-    drawer.append(filters);
-   }
+  const drawer=document.createElement('details');
+  drawer.className='filter-drawer atlas-equipment-filter-drawer';
+  const summary=document.createElement('summary');
+  summary.textContent='篩選';
+  drawer.append(summary);
+  if(nativeFilters){
+   nativeFilters.removeAttribute('hidden');
+   drawer.append(nativeFilters);
   }
-  if(oldToggle)oldToggle.setAttribute('hidden','');
+
+  searchbar.append(proxy,drawer);
+  controls.append(searchbar);
+  progress.after(controls);
  }
 
- // Restore the three native equipment browsing buttons by taking them OUT of the
- // legacy .viewmodes wrapper before that wrapper is hidden.
- const nativeViewButtons=[...document.querySelectorAll('.viewmodes button')].filter(b=>!b.closest('#atlas-quickbar'));
+ // Keep the proxy synchronized when the source code changes/clears the native search.
+ const proxy=controls.querySelector('.atlas-equipment-search-proxy');
+ if(proxy&&nativeSearch&&document.activeElement!==proxy&&proxy.value!==nativeSearch.value)proxy.value=nativeSearch.value;
+
+ // Hide ALL old search chrome so no stray magnifier button / second filter row survives.
+ if(nativeSearch){
+  nativeSearch.setAttribute('hidden','');
+  if(nativeSearchWrap&&!nativeSearchWrap.closest('.atlas-equipment-controls'))nativeSearchWrap.setAttribute('hidden','');
+ }
+ if(oldToggle)oldToggle.setAttribute('hidden','');
+
+ // Recover the three native equipment browsing buttons by text, regardless of which
+ // legacy wrapper/version they live in. Move (don't clone) them so original handlers survive.
+ const modeCandidates=[...document.querySelectorAll('button')].filter(b=>{
+  if(b.closest('#atlas-quickbar,.atlas-equipment-controls,#overlay'))return false;
+  const t=b.textContent.replace(/\s+/g,'').trim();
+  return /^(依照?模組|按模組|依照?系列|按系列|全部裝備)$/.test(t);
+ });
  let modes=document.body.querySelector(':scope > .atlas-equipment-viewmodes');
- if(nativeViewButtons.length){
+ if(modeCandidates.length){
   if(!modes){
    modes=document.createElement('div');
    modes.className='atlas-equipment-viewmodes';
-   const controls=document.body.querySelector(':scope > .atlas-equipment-controls');
-   (controls||quickbar)?.after(modes);
+   controls.after(modes);
   }
-  for(const b of nativeViewButtons){
+  for(const b of modeCandidates){
    b.removeAttribute('hidden');
    modes.append(b);
   }
  }
 
- // Fallback for source versions where those three buttons are not inside .viewmodes.
+ // Fallback by data-view for minified/source variants.
  if(!modes||!modes.children.length){
   const candidates=[...document.querySelectorAll('button[data-view]')].filter(b=>
-   !b.closest('#atlas-quickbar')&&!b.closest('#overlay')&&
+   !b.closest('#atlas-quickbar,.atlas-equipment-controls,#overlay')&&
    /^(all|mod|mods|module|modules|family|families|series)$/i.test(b.dataset.view||'')
   );
   if(candidates.length){
    if(!modes){
     modes=document.createElement('div');modes.className='atlas-equipment-viewmodes';
-    const controls=document.body.querySelector(':scope > .atlas-equipment-controls');
-    (controls||quickbar)?.after(modes);
+    controls.after(modes);
    }
    for(const b of candidates){b.removeAttribute('hidden');modes.append(b)}
   }
  }
 
- // Hide now-empty legacy wrappers only AFTER extracting the controls we need.
+ // Remove remaining legacy chrome only after extracting the controls we still need.
  for(const el of document.querySelectorAll('.navigation,.viewmodes,.atlas-equipment-shared-toolbar,.atlas-equipment-search-dock')){
   if(el.classList.contains('atlas-equipment-viewmodes'))continue;
   if(el.closest('.atlas-equipment-controls'))continue;
