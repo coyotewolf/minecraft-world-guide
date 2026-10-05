@@ -135,7 +135,7 @@ function normalizeEquipmentSearchDock(){
  const oldToggle=document.getElementById('toggleFilters')||[...document.querySelectorAll('button')].find(b=>/篩選/.test(b.textContent.trim())&&!b.closest('#atlas-quickbar'));
 
  if(search){
-  let controls=document.querySelector(':scope > .atlas-equipment-controls');
+  let controls=document.body.querySelector(':scope > .atlas-equipment-controls');
   if(!controls){
    controls=document.createElement('div');
    controls.className='controls atlas-equipment-controls';
@@ -173,12 +173,12 @@ function normalizeEquipmentSearchDock(){
  // Restore the three native equipment browsing buttons by taking them OUT of the
  // legacy .viewmodes wrapper before that wrapper is hidden.
  const nativeViewButtons=[...document.querySelectorAll('.viewmodes button')].filter(b=>!b.closest('#atlas-quickbar'));
- let modes=document.querySelector(':scope > .atlas-equipment-viewmodes');
+ let modes=document.body.querySelector(':scope > .atlas-equipment-viewmodes');
  if(nativeViewButtons.length){
   if(!modes){
    modes=document.createElement('div');
    modes.className='atlas-equipment-viewmodes';
-   const controls=document.querySelector(':scope > .atlas-equipment-controls');
+   const controls=document.body.querySelector(':scope > .atlas-equipment-controls');
    (controls||quickbar)?.after(modes);
   }
   for(const b of nativeViewButtons){
@@ -196,7 +196,7 @@ function normalizeEquipmentSearchDock(){
   if(candidates.length){
    if(!modes){
     modes=document.createElement('div');modes.className='atlas-equipment-viewmodes';
-    const controls=document.querySelector(':scope > .atlas-equipment-controls');
+    const controls=document.body.querySelector(':scope > .atlas-equipment-controls');
     (controls||quickbar)?.after(modes);
    }
    for(const b of candidates){b.removeAttribute('hidden');modes.append(b)}
