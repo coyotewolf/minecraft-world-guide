@@ -122,7 +122,7 @@ function mountAtlas(atlas,options={}){
  for(const [k,v] of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-'+slug+'-'+k,v);
  currentGuide={slug,category,...options};
  document.body.classList.add('atlas-open');
- app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi5" allow="clipboard-write"></iframe>`;
+ app.innerHTML=atlasNav(category,options.recordKey&&['skills','scarlet'].includes(slug)?options.recordKey:null)+`<div class="reader-loading-indicator" role="status">正在翻開收藏冊…</div><iframe aria-busy="true" class="guide-frame atlas-frame" id="guide-frame" title="${h(title)}" src="${g.path}?player=${enc(uid)}&atlas=${slug}&section=${enc(category)}&reader=20261006-aoi6" allow="clipboard-write"></iframe>`;
  const frame=$('#guide-frame');
  const openPayload=()=>({type:'atlas-open',id:options.item,query:options.query,reference:options.reference,done:options.done,mode:options.mode||'all',view:category==='companions'?'pets':category==='mounts'?'mounts':'boss',wishes:collections.filter(c=>c.sourceGuide===slug&&wanted(c.key)).map(c=>c.id)});
  frame?.addEventListener('load',()=>{
@@ -261,7 +261,7 @@ let bossContext=null;
 async function bossModal(id){
  const x=collections.find(x=>x.category==='bosses'&&x.id===id);if(!x)return;
  const uid=user?.id||'guest',data=writeGuide('bosses',progress.get('guide:bosses')?.checklist||{},progress,collections);for(const [k,v]of Object.entries(data))localStorage.setItem('iaa-guide-'+uid+'-bosses-'+k,v);
- bossContext={slug:'bosses',category:'bosses',item:id};modal(x.title,`<iframe id="boss-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="guides/bosses.html?player=${enc(uid)}&atlas=bosses&bossPopup=${enc(id)}&reader=20261006-aoi5"></iframe>`);$('#modal').classList.add('boss-dialog');
+ bossContext={slug:'bosses',category:'bosses',item:id};modal(x.title,`<iframe id="boss-modal-frame" class="boss-modal-frame" title="${h(x.title)}" src="guides/bosses.html?player=${enc(uid)}&atlas=bosses&bossPopup=${enc(id)}&reader=20261006-aoi6"></iframe>`);$('#modal').classList.add('boss-dialog');
 }
 document.addEventListener('boss-reference',e=>bossModal(e.detail).catch(showError));
 $('#modal').addEventListener('close',()=>{$('#modal').classList.remove('boss-dialog');$('#boss-modal-frame')?.remove();bossContext=null});
