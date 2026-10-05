@@ -59,10 +59,10 @@ function atlasBreadcrumb(parts){
 }
 function finished(key){return !!progress.get(key)?.completed}
 function wanted(key){return !!progress.get(key)?.checklist?.wish}
-function wishlistToggle(key,label='加入想收集'){return `<label class="complete-check wishlist-check"><input type="checkbox" data-wish="${h(key)}" ${wanted(key)?'checked':''}>☆ ${h(label)}</label>`}
+function wishlistToggle(key,label='加入想收集'){return `<label class="complete-check wishlist-check collection-state-button"><input type="checkbox" data-wish="${h(key)}" ${wanted(key)?'checked':''}><span class="wishlist-symbol" aria-hidden="true"></span><span>${h(label)}</span></label>`}
 const JOURNEY_ORDER=['start','land','colony-start','factory','combat','expedition'];
 function nextJourneyArticle(){return JOURNEY_ORDER.find(id=>!finished('article:'+id))||JOURNEY_ORDER[JOURNEY_ORDER.length-1]}
-function completion(key,label='已完成收藏'){return `<label class="complete-check"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}>${h(label)}</label>`}
+function completion(key,label='已完成收藏'){return `<label class="complete-check collection-state-button collection-done-button"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}><span class="done-symbol" aria-hidden="true">✓</span><span>${h(label)}</span></label>`}
 function atlasStateButtons(key){return `<div class="atlas-card-state"><label class="atlas-state-icon atlas-wish-icon" title="${wanted(key)?'從我想收集移除':'加入我想收集'}"><input type="checkbox" data-wish="${h(key)}" ${wanted(key)?'checked':''}><span aria-hidden="true">${wanted(key)?'★':'☆'}</span></label><label class="atlas-state-icon atlas-done-icon" title="${finished(key)?'取消已取得':'標記為已取得'}"><input type="checkbox" data-complete="${h(key)}" ${finished(key)?'checked':''}><span aria-hidden="true">✓</span></label></div>`}
 function needAccount(){if(active&&user&&world)return true;toast(user?'帳號仍待管理員核准':'請登入已核准的帳號來保存紀錄');openAuth();return false}
 function groupFor(ns){if(['minecolonies','supplementaries','webdisplaystogether'].includes(ns))return '定居';if(['create','ae2','vintage','tetra','butchercraft','create_enchantment_industry','createmetallurgy','create_connected','farmersdelight','kaleidoscope_cookery'].includes(ns))return '生產';if(['northstar','railways','createrailwaysnavigator'].includes(ns))return '旅行';if(['irons_spellbooks','efn','slu','bonfires','onekick'].includes(ns))return '戰鬥';if(['alexsmobs','adorablehamsterpets','saintsdragons','dragonsofberk'].includes(ns))return '夥伴';return ns==='minecraft'?'原版':'探索'}
