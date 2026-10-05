@@ -1,0 +1,23 @@
+export const KEY_VERSION='20261005-v1';
+export function keyLabel(value){
+ const [key,modifier]=String(value||'key.keyboard.unknown').split(':');
+ const labels={'key.keyboard.unknown':'不設定','key.mouse.left':'滑鼠左鍵','key.mouse.right':'滑鼠右鍵','key.mouse.middle':'滑鼠中鍵','key.mouse.4':'滑鼠側鍵 4','key.mouse.5':'滑鼠側鍵 5','key.keyboard.grave.accent':'`','key.keyboard.space':'Space','key.keyboard.left.shift':'左 Shift','key.keyboard.right.shift':'右 Shift','key.keyboard.left.control':'左 Ctrl','key.keyboard.right.control':'右 Ctrl','key.keyboard.left.alt':'左 Alt','key.keyboard.right.alt':'右 Alt','key.keyboard.caps.lock':'Caps Lock','key.keyboard.backslash':'\\','key.keyboard.left.bracket':'[','key.keyboard.right.bracket':']','key.keyboard.comma':',','key.keyboard.period':'.','key.keyboard.apostrophe':"'",'key.keyboard.semicolon':';','key.keyboard.scroll.lock':'Scroll Lock'};
+ const label=labels[key]||key.replace('key.keyboard.keypad.','數字鍵盤 ').replace('key.keyboard.','').replace('key.mouse.','滑鼠鍵 ').replace(/^[a-z]$/,s=>s.toUpperCase()).replace(/^f\d+$/,s=>s.toUpperCase()).replace(/\./g,' ');
+ return (modifier?({CONTROL:'Ctrl',SHIFT:'Shift',ALT:'Alt'}[modifier]||modifier)+'＋':'')+label;
+}
+export function mountKeyGuide(root,{data,h,image,onFinish,saved={},onSave}){
+ let step=0,tab='setup',query='',showUnbound=false,checks={...saved};
+ const byId=new Map(data.rows.map(x=>[x.key,x]));
+ const groups=data.groups;
+ function row(id){const r=byId.get(id);if(!r)return '';const checked=checks[id];return `<label class="key-task"><input type="checkbox" data-key-check="${h(id)}" ${checked?'checked':''}><span><strong>${h(r.name)}</strong>${r.tip?`<span class="key-tip">${h(r.tip)}</span>`:''}${r.current!==r.suggested?`<span class="key-before">目前：${h(keyLabel(r.current))}</span>`:''}</span><kbd>${h(keyLabel(r.suggested))}</kbd></label>`}
+ function draw(){
+ const g=groups[step];root.innerHTML=`<section class="key-guide"><header class="key-heading">${image('minecraft:tripwire_hook')}<h1>按鍵設定</h1></header><div class="key-tabs"><button data-key-tab="setup" aria-pressed="${tab==='setup'}">設定引導</button><button data-key-tab="all" aria-pressed="${tab==='all'}">查找按鍵</button></div>${tab==='setup'?`<div class="key-stage"><div class="key-stage-count">${step+1} / ${groups.length}</div><h2>${h(g.title)}</h2><p>${h(g.text)}</p><div class="key-progress" aria-hidden="true">${groups.map((_,i)=>`<i class="${i<=step?'filled':''}"></i>`).join('')}</div><div class="key-tasks">${g.keys.map(row).join('')}</div>${g.note?`<p class="key-note">${h(g.note)}</p>`:''}<div class="key-actions"><button data-key-back ${step===0?'disabled':''}>上一頁</button><button class="primary" data-key-next>${step===groups.length-1?'完成設定':'下一頁 →'}</button></div></div>`:`<section class="key-stage"><form id="key-search"><input type="search" aria-label="搜尋按鍵功能" placeholder="搜尋功能或按鍵…" value="${h(query)}"><label class="key-unbound"><input type="checkbox" id="key-unbound" ${showUnbound?'checked':''}>顯示不需設定的項目</label></form><div id="key-results"></div></section>`}<div class="key-footer"><a class="btn" href="downloads/按鍵設定.txt" download>下載按鍵清單</a><button data-key-skip>略過設定</button></div></section>`;
+ root.querySelectorAll('[data-key-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.keyTab;draw()});
+ root.querySelectorAll('[data-key-check]').forEach(b=>b.onchange=()=>{checks[b.dataset.keyCheck]=b.checked;onSave(checks)});
+ root.querySelector('[data-key-back]')?.addEventListener('click',()=>{step=Math.max(0,step-1);draw();root.scrollIntoView({block:'start'})});
+ root.querySelector('[data-key-next]')?.addEventListener('click',()=>{if(step===groups.length-1){onFinish('complete',checks);return}step++;draw();root.scrollIntoView({block:'start'})});
+ root.querySelector('[data-key-skip]').onclick=()=>onFinish('skipped',checks);
+ if(tab==='all'){const filter=()=>{const q=query.trim().toLocaleLowerCase();const rows=data.rows.filter(r=>(showUnbound||r.suggested!=='key.keyboard.unknown')&&`${r.name} ${keyLabel(r.suggested)}`.toLocaleLowerCase().includes(q));root.querySelector('#key-results').innerHTML=rows.length?rows.map(r=>`<div class="key-reference"><strong>${h(r.name)}</strong><kbd>${h(keyLabel(r.suggested))}</kbd></div>`).join(''):'<p>找不到符合的按鍵。</p>'};root.querySelector('#key-search').onsubmit=e=>e.preventDefault();root.querySelector('input[type=search]').oninput=e=>{query=e.target.value;filter()};root.querySelector('#key-unbound').onchange=e=>{showUnbound=e.target.checked;filter()};filter();}
+ }
+ draw();
+}

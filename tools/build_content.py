@@ -161,6 +161,11 @@ for id in all_items:
 for a in A:
  a['items']=[{'id':id,'name':label(id),'hasRecipe':bool(recipe_cards[id]['recipes'])} for id in a['items']]
  a['evidence']='本機模組資源、配方與按鍵盤點；步驟尚未逐項遊戲內驗收'
+overrides_path=D/'control-article-overrides.json'
+if overrides_path.exists():
+ overrides=json.loads(overrides_path.read_text(encoding='utf8'))
+ for article in A:
+  if article['id'] in overrides:article['steps']=overrides[article['id']]
 (D/'articles.json').write_text(json.dumps(A,ensure_ascii=False,separators=(',',':')),encoding='utf8')
 (D/'tutorial-recipes.json').write_text(json.dumps(recipe_cards,ensure_ascii=False,separators=(',',':')),encoding='utf8')
 print('articles',len(A),'recipe cards',len(recipe_cards))
