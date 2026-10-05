@@ -873,3 +873,150 @@ html[data-atlas=equipment] .atlas-equipment-shared-toolbar{
   top:50px!important;
  }
 }
+
+
+/* Equipment shell exact parity with boss/mount atlas 2026-10-06 n */
+/* Undo the earlier equipment-only toolbar imitation. */
+html[data-atlas=equipment] .atlas-equipment-shared-toolbar,
+html[data-atlas=equipment] .atlas-equipment-search-dock{
+ display:none!important;
+}
+
+/* The source hero/hamburger and duplicate source collection tabs must not appear. */
+html[data-atlas=equipment] header.hero,
+html[data-atlas=equipment] .navigation[hidden],
+html[data-atlas=equipment] .viewmodes[hidden]{
+ display:none!important;
+}
+
+/* Search + filter: same visible shell used by the boss / companion / mount readers. */
+html[data-atlas=equipment] .atlas-equipment-controls{
+ position:sticky!important;
+ top:58px!important;
+ z-index:50!important;
+ width:100%!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:10px 24px!important;
+ background:var(--bg)!important;
+ border-bottom:1px solid var(--line)!important;
+ box-sizing:border-box!important;
+}
+html[data-atlas=equipment] .atlas-equipment-controls>.searchbar{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ gap:8px!important;
+ align-items:start!important;
+ width:100%!important;
+ max-width:none!important;
+ position:relative!important;
+}
+html[data-atlas=equipment] .atlas-equipment-controls .searchbar>input{
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ min-height:46px!important;
+ height:46px!important;
+ margin:0!important;
+ padding:9px 12px!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ background:var(--input,var(--bg))!important;
+ color:var(--ink)!important;
+ box-shadow:none!important;
+ font-size:16px!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer{
+ position:relative!important;
+ margin:0!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>summary{
+ list-style:none!important;
+ min-height:46px!important;
+ height:46px!important;
+ padding:9px 16px!important;
+ border:1px solid var(--line)!important;
+ border-radius:0!important;
+ background:var(--input,var(--surface))!important;
+ color:var(--ink)!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ cursor:pointer!important;
+ white-space:nowrap!important;
+ box-sizing:border-box!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>summary::-webkit-details-marker{
+ display:none!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer[open]>summary{
+ border-color:var(--accent)!important;
+ color:var(--accent)!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer>#filters{
+ position:absolute!important;
+ right:0!important;
+ top:54px!important;
+ z-index:80!important;
+ width:min(480px,calc(100vw - 48px))!important;
+ max-width:none!important;
+ margin:0!important;
+ padding:14px!important;
+ background:var(--card)!important;
+ border:1px solid var(--line)!important;
+ box-shadow:0 12px 35px #0003!important;
+ box-sizing:border-box!important;
+}
+html[data-atlas=equipment] .atlas-equipment-filter-drawer:not([open])>#filters{
+ display:none!important;
+}
+
+/* Restore the actual equipment browsing modes: 依照模組 / 依照系列 / 全部裝備. */
+html[data-atlas=equipment] .atlas-equipment-viewmodes{
+ display:flex!important;
+ align-items:center!important;
+ flex-wrap:wrap!important;
+ gap:8px!important;
+ width:100%!important;
+ max-width:none!important;
+ margin:12px 0!important;
+ padding:0 24px!important;
+ box-sizing:border-box!important;
+ background:transparent!important;
+}
+html[data-atlas=equipment] .atlas-equipment-viewmodes>button{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:42px!important;
+ padding:8px 14px!important;
+ margin:0!important;
+ border:1px solid var(--line)!important;
+ background:var(--surface)!important;
+ color:var(--ink)!important;
+ box-shadow:none!important;
+}
+html[data-atlas=equipment] .atlas-equipment-viewmodes>button.active,
+html[data-atlas=equipment] .atlas-equipment-viewmodes>button[aria-pressed="true"]{
+ background:var(--raised)!important;
+ color:var(--accent)!important;
+ border-color:var(--accent)!important;
+}
+
+@media(max-width:760px){
+ html[data-atlas=equipment] .atlas-equipment-controls{
+  top:50px!important;
+  padding:10px 12px!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-filter-drawer>#filters{
+  width:min(480px,calc(100vw - 24px))!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-viewmodes{
+  padding-inline:12px!important;
+  overflow-x:auto!important;
+  flex-wrap:nowrap!important;
+ }
+ html[data-atlas=equipment] .atlas-equipment-viewmodes>button{
+  flex:0 0 auto!important;
+ }
+}
