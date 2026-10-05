@@ -52,9 +52,10 @@ function applyAtlasWishes(){
  }
 }
 function setAtlasMode(mode){
- atlasMode=mode;
+ atlasMode=['all','wish','done','materials'].includes(mode)?mode:'all';
+ document.querySelectorAll('[data-atlas-mode]').forEach(b=>b.classList.toggle('active',b.dataset.atlasMode===atlasMode));
  if(slug==='equipment'){
-  const map={all:'all',wish:'wish',done:'done',materials:'materials'};document.querySelector('[data-tab="'+map[mode]+'"]')?.click();return;
+  const map={all:'all',wish:'wish',done:'done',materials:'materials'};document.querySelector('[data-tab="'+map[atlasMode]+'"]')?.click();return;
  }
  if(mode==='done'){
   if(slug==='skills')input('state','done');
@@ -82,10 +83,63 @@ function atlasTitle(){
 function installAtlasQuickbar(){
  if(document.getElementById('atlas-quickbar'))return;
  const bar=document.createElement('div');bar.id='atlas-quickbar';
- bar.innerHTML='<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details><strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
+ const menu=slug==='scarlet'?'':'<details class="atlas-menu"><summary aria-label="收藏冊選單">☰</summary><div class="atlas-menu-panel"><button type="button" data-atlas-mode="all">圖鑑</button><button type="button" data-atlas-mode="wish">☆ 想收集</button><button type="button" data-atlas-mode="done">✓ 已收藏</button>'+(slug==='equipment'?'<button type="button" data-atlas-mode="materials">素材</button>':'')+'</div></details>';
+ bar.innerHTML=menu+'<strong class="atlas-quick-title">'+atlasTitle()+'</strong><span class="atlas-quick-spacer"></span><button type="button" data-atlas-expand aria-label="全部展開">＋</button><button type="button" data-atlas-collapse aria-label="全部收合">－</button>';
  document.body.prepend(bar);
- bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);bar.querySelector('details').open=false}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
+ bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.atlasMode){setAtlasMode(b.dataset.atlasMode);parent.postMessage({type:'atlas-mode-route',slug,mode:b.dataset.atlasMode},location.origin);bar.querySelector('details')?.removeAttribute('open')}else if(b.hasAttribute('data-atlas-expand'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>{if(!d.closest('[hidden]'))d.open=true});else if(b.hasAttribute('data-atlas-collapse'))document.querySelectorAll('details:not(.atlas-menu)').forEach(d=>d.open=false)});
  applyAtlasWishes();
+}
+
+
+function textAfterTerm(root,label){
+ const term=[...root.querySelectorAll('dt')].find(dt=>dt.textContent.trim()===label);
+ return term?.nextElementSibling?.tagName==='DD'?term.nextElementSibling:null;
+}
+function enhanceSaintDragons(){
+ for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="saintsdragons:"]')){
+  const id=pet.dataset.petId,name=pet.querySelector('h3')?.textContent.trim()||id;
+  const source=[...document.querySelectorAll('.card[data-id]')].find(card=>card.dataset.id===id);
+  const hp=(pet.querySelector('.entity-meta')?.textContent.match(/生命\\s*([\\d.]+)\\s*HP/i)||[])[1];
+  const mount=pet.querySelector('.mount-detail');
+  if(mount){
+   const healthTerms=[...mount.querySelectorAll('dt')].filter(dt=>dt.textContent.trim()==='生命值說明');
+   healthTerms.forEach((dt,i)=>{const dd=dt.nextElementSibling;if(i===0&&dd?.tagName==='DD')dd.textContent=hp?'本機 Saints Dragons 0.9.51 設定：'+name+'成年基礎生命值 '+hp+' HP。幼體成長階段、受傷／增益狀態或伺服器覆寫會讓實際生命值不同。':'此卡片未解析到成年生命值，請以遊戲內實體面板為準。';else{dd?.remove();dt.remove()}});
+  }
+  const acquire=[...pet.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent.includes('取得與材料'));
+  if(!acquire)continue;
+  const where=textAfterTerm(acquire,'在哪裡取得');
+  if(!where||where.dataset.expandedDragon==='1')continue;
+  where.dataset.expandedDragon='1';
+  const wild=source?.querySelector('.loc')?.textContent.replace(/^⌖\\s*/,'').trim();
+  const loot=source?textAfterTerm(source,'主要掉落池')?.textContent.trim():'';
+  const advancement=source?textAfterTerm(source,'進度／成就')?.textContent.trim():'';
+  const tame=textAfterTerm(acquire,'如何取得／馴服')?.textContent.trim();
+  const conditions=textAfterTerm(acquire,'重要條件／用途')?.textContent.trim();
+  const dt=where.previousElementSibling;
+  const frag=document.createDocumentFragment();
+  const pairs=[
+   ['野生個體',wild||name+'依該物種的自然生成設定出現；若伺服器修改生成規則，以伺服器設定為準。'],
+   ['龍蛋取得',loot&&loot.includes('龍蛋')?loot:'目前這份本機資料沒有顯示「'+name+'龍蛋」為死亡掉落；請以該物種成就／互動路線取得，不把其他龍種的蛋混用。'],
+   ['孵化','取得「'+name+'」對應龍蛋後，使用 Saints Dragons 的該物種孵化流程孵化成'+name+'幼體；這一步與後續馴服狀態分開記錄。'],
+   ['馴服進度',[tame,conditions,advancement&&advancement!=='無此模組專屬擊殺進度。'?'相關進度：'+advancement:''].filter(Boolean).join(' ')]
+  ];
+  for(const pair of pairs){const ndt=document.createElement('dt'),ndd=document.createElement('dd');ndt.textContent=pair[0];ndd.textContent=pair[1];frag.append(ndt,ndd)}
+  dt?.replaceWith(frag);where.remove();
+ }
+}
+function installSpeedSorting(){
+ const table=document.querySelector('#speed-overview .speed-table');if(!table||table.dataset.sortReady)return;
+ table.dataset.sortReady='1';const body=table.tBodies[0],rows=[...body.rows];rows.forEach((r,i)=>r.dataset.originalOrder=i);
+ const labels=['地面跑速','地面衝刺／加速','水平飛行','飛行加速'];let state=null;
+ const value=(row,col)=>{const m=row.cells[col]?.textContent.replace(/,/g,'').match(/-?\\d+(?:\\.\\d+)?/);return m?Number(m[0]):null};
+ const render=()=>{const sorted=[...rows];if(state)sorted.sort((a,b)=>{const av=value(a,state.col),bv=value(b,state.col);if(av==null&&bv==null)return Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder);if(av==null)return 1;if(bv==null)return-1;return state.dir==='desc'?bv-av:av-bv});else sorted.sort((a,b)=>Number(a.dataset.originalOrder)-Number(b.dataset.originalOrder));sorted.forEach(r=>body.append(r));table.querySelectorAll('.speed-sort-button').forEach(b=>{const active=state&&Number(b.dataset.col)===state.col;b.classList.toggle('active',!!active);b.querySelector('span').textContent=active?(state.dir==='desc'?'↓':'↑'):'↕'});};
+ labels.forEach((label,i)=>{const th=table.tHead.rows[0].cells[i+1];if(!th)return;th.innerHTML='';const b=document.createElement('button');b.type='button';b.className='speed-sort-button';b.dataset.col=String(i+1);b.innerHTML=label+'<span aria-hidden="true">↕</span>';b.setAttribute('aria-label',label+'排序，第一次由大到小');b.onclick=()=>{const col=i+1;state=state?.col===col?{col,dir:state.dir==='desc'?'asc':'desc'}:{col,dir:'desc'};render()};th.append(b)});
+ const tools=document.createElement('div');tools.className='speed-sort-tools';const clear=document.createElement('button');clear.type='button';clear.className='speed-sort-clear';clear.textContent='清除排序';clear.onclick=()=>{state=null;render()};tools.append(clear);table.closest('.table-scroll')?.before(tools);render();
+}
+function installModelZoom(){
+ const attach=img=>{if(img.dataset.localZoom)return;img.dataset.localZoom='1';img.addEventListener('pointermove',e=>{if(e.pointerType&&e.pointerType!=='mouse')return;const r=img.getBoundingClientRect(),x=((e.clientX-r.left)/r.width)*100,y=((e.clientY-r.top)/r.height)*100;img.style.transformOrigin=x+'% '+y+'%';img.classList.add('local-zoom-active')});img.addEventListener('pointerleave',()=>img.classList.remove('local-zoom-active'))};
+ document.querySelectorAll('.model-dialog img').forEach(attach);
+ new MutationObserver(()=>document.querySelectorAll('.model-dialog img').forEach(attach)).observe(document.body,{childList:true,subtree:true});
 }
 
 const find=id=>document.getElementById(id);
@@ -154,6 +208,7 @@ if(slug){
     expand.onclick=e=>petsSelected()?find('pet-open').click():expandBoss.call(expand,e);
     collapse.onclick=e=>petsSelected()?find('pet-close').click():collapseBoss.call(collapse,e);
   }
+  if(slug==='bosses'){enhanceSaintDragons();installSpeedSorting();installModelZoom();}
   const topButton=document.createElement('button');
   topButton.id='atlas-back-top';topButton.type='button';topButton.hidden=true;
   topButton.dataset.itemHint='回到最上面';topButton.setAttribute('aria-label','回到最上面');
@@ -170,7 +225,7 @@ if(slug){
       if(p.textContent.startsWith('換手機、瀏覽器或移動檔案前'))p.textContent='登入帳號可在其他裝置接續紀錄。也可以先備份收藏，再用「還原收藏」匯入之前 HTML 匯出的進度。';
     }
   }).observe(find('detail'),{childList:true,subtree:true});
-  addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)return;if(e.data?.type==='atlas-open'){atlasWishes=new Set(e.data.wishes||[]);applyAtlasWishes();openTarget(e.data)}});
+  addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)return;if(e.data?.type==='atlas-open'){atlasWishes=new Set(e.data.wishes||[]);setAtlasMode(e.data.mode||'all');applyAtlasWishes();openTarget(e.data)}});
   // Keep original recipes, descriptions, images, filters and export/import handlers intact.
   document.addEventListener('click',e=>{
     const b=e.target.closest('[data-id],[data-pet-id],.entry');
