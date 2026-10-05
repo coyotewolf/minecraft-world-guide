@@ -512,3 +512,118 @@ html[data-atlas=scarlet][data-world-theme=dark] .guide-inline-item img,
 html[data-atlas=scarlet][data-world-theme=dark] [data-inventory-item] img{
  filter:none!important;background:transparent!important;
 }
+
+
+/* AOI atlas readability/navigation corrections 2026-10-06 i */
+/* Desktop: replace the hamburger with compact inline collection-mode buttons.
+   Mobile keeps the existing hamburger layout unchanged. */
+.atlas-desktop-modes{display:none}
+@media(min-width:761px){
+ html[data-atlas] #atlas-quickbar{
+  position:sticky!important;
+  display:grid!important;
+  grid-template-columns:minmax(150px,1fr) auto minmax(150px,1fr)!important;
+  align-items:center!important;
+  column-gap:14px!important;
+  min-height:58px!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-menu{display:none!important}
+ html[data-atlas] #atlas-quickbar>.atlas-quick-title{
+  grid-column:1!important;justify-self:start!important;
+  overflow:visible!important;text-overflow:clip!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-desktop-modes{
+  grid-column:2!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  gap:6px!important;margin:0!important;min-width:0!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-desktop-modes button{
+  min-width:74px!important;width:auto!important;max-width:104px!important;
+  min-height:38px!important;padding:6px 12px!important;margin:0!important;
+  white-space:nowrap!important;font-size:13px!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-quick-spacer{display:none!important}
+ html[data-atlas] #atlas-quickbar>[data-atlas-expand]{
+  grid-column:3!important;justify-self:end!important;margin-right:50px!important;
+ }
+ html[data-atlas] #atlas-quickbar>[data-atlas-collapse]{
+  grid-column:3!important;justify-self:end!important;
+ }
+}
+
+/* Scarlet desktop chapter rail scrolls independently when the pointer is over it. */
+@media(min-width:761px){
+ html[data-atlas=scarlet] .sidebar{
+  position:sticky!important;top:58px!important;
+  max-height:calc(100vh - 70px)!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain!important;scrollbar-gutter:stable!important;
+ }
+}
+
+/* Scarlet dark mode: only diagrams are theme-converted. Item/weapon/armor icons keep their
+   original pixels, original colors, and transparent alpha. */
+html[data-atlas=scarlet][data-world-theme=dark] .scarlet-item-visual,
+html[data-atlas=scarlet][data-world-theme=dark] img.scarlet-item-visual{
+ filter:none!important;background:transparent!important;mix-blend-mode:normal!important;opacity:1!important;
+ box-shadow:none!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram,
+html[data-atlas=scarlet][data-world-theme=dark] .figure{
+ background:#171a18!important;color:#eef1ed!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram>img.scarlet-theme-visual,
+html[data-atlas=scarlet][data-world-theme=dark] .figure>img.scarlet-theme-visual{
+ background:transparent!important;
+ filter:invert(.92) hue-rotate(180deg) brightness(.88) contrast(1.12)!important;
+ mix-blend-mode:normal!important;opacity:1!important;
+}
+html[data-atlas=scarlet][data-world-theme=dark] figure.theme-diagram>svg.scarlet-theme-visual,
+html[data-atlas=scarlet][data-world-theme=dark] .figure>svg.scarlet-theme-visual{
+ background:#171a18!important;filter:none!important;color:#eef1ed!important;
+}
+/* Never apply the diagram filter to common inventory-sized pictures, even if source markup is sparse. */
+html[data-atlas=scarlet][data-world-theme=dark] :is(td,th,.item,.icon,.skill-icon,.weapon-icon,.armor-icon) img{
+ filter:none!important;background:transparent!important;mix-blend-mode:normal!important;opacity:1!important;
+}
+
+/* Light mode audit: use a high-contrast paper palette consistently across all atlas readers. */
+html[data-atlas][data-world-theme=light]{
+ --bg:#f4f0e5!important;--surface:#fffdf6!important;--card:#ece8dc!important;--raised:#ded9cb!important;
+ --ink:#20251f!important;--muted:#525b51!important;--line:#8e9388!important;--accent:#4d641f!important;
+ color-scheme:light!important;
+}
+html[data-atlas][data-world-theme=light] body{
+ background:#f4f0e5!important;color:#20251f!important;
+}
+html[data-atlas][data-world-theme=light] :is(main,.shell,.content,.module,.card,.pet-card,.entry,.panel,.sheet,#detail,.toolbar,.controls,.pet-searchbar){
+ color:#20251f!important;
+}
+html[data-atlas][data-world-theme=light] :is(p,li,dd,dt,td,th,label,small,.muted,.method,.processnote,.description,.note){
+ color:#2e352e!important;text-shadow:none!important;
+}
+html[data-atlas][data-world-theme=light] :is(h1,h2,h3,h4,h5,h6,strong,b,summary){
+ color:#171c17!important;text-shadow:none!important;
+}
+html[data-atlas][data-world-theme=light] :is(.card,.pet-card,.entry,.panel,.sheet,.recipebox,.groupcard,.notice,.restriction,.tooltipbody){
+ background:#fffdf6!important;border-color:#8e9388!important;
+}
+html[data-atlas][data-world-theme=light] :is(th,.modulehead,.sheetbar,.toolbar,.controls,.pet-searchbar){
+ background:#ded9cb!important;color:#171c17!important;
+}
+html[data-atlas][data-world-theme=light] :is(input,select,textarea,button){
+ color:#171c17!important;border-color:#7f857c!important;
+}
+html[data-atlas][data-world-theme=light] :is(input,select,textarea){
+ background:#fffdf6!important;
+}
+html[data-atlas][data-world-theme=light] a{color:#3f5f18!important}
+html[data-atlas][data-world-theme=light] .tag{color:#465044!important;background:#ece8dc!important}
+
+/* Skills & spells: match the reading size of the other collection books. */
+html[data-atlas=skills] body,
+html[data-atlas=skills] main,
+html[data-atlas=skills] .entry,
+html[data-atlas=skills] .entry :is(p,li,dd,dt,td,th,label,button,input,select){
+ font-size:16px!important;line-height:1.65!important;
+}
+html[data-atlas=skills] .entry :is(small,.muted){font-size:13px!important;line-height:1.55!important}
