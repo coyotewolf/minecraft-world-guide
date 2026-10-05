@@ -238,3 +238,48 @@ html[data-atlas=scarlet][data-world-theme=dark] #art-large[data-diagram="true"]{
 html[data-atlas=scarlet][data-world-theme=dark] .figure{
  background:#fff!important;border-color:var(--line)!important
 }
+
+
+/* AOI atlas corrections 2026-10-06 e */
+html[data-atlas] .atlas-filter-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+ grid-column:1/-1!important;width:100%!important
+}
+html[data-atlas] .atlas-filter-actions>button{width:100%!important;margin:0!important}
+html[data-atlas=scarlet] .filter-drawer,
+html[data-atlas=scarlet] #toggleFilters,
+html[data-atlas=scarlet] #filters,
+html[data-atlas=scarlet] .chapter-select{display:none!important}
+
+/* The range diagrams are authored with a light canvas. Keep that canvas intact in dark mode. */
+html[data-atlas=scarlet] .figure{background:#f7f7f2!important}
+html[data-atlas=scarlet] .figure img{
+ display:block!important;width:100%!important;height:auto!important;background:#f7f7f2!important;
+ filter:none!important;mix-blend-mode:normal!important;opacity:1!important
+}
+html[data-atlas=scarlet] .figure figcaption{background:var(--surface)!important;color:var(--ink)!important}
+
+/* Equipment details live inside the site's outer dialog; remove every piece of source-reader modal chrome. */
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat{
+ position:relative!important;inset:auto!important;z-index:auto!important;
+ display:block!important;min-height:0!important;height:auto!important;overflow:visible!important
+}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat #drawer{
+ min-height:0!important;height:auto!important;background:transparent!important
+}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .sheetbar,
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .drawerback,
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .drawerclose,
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat [data-close],
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .close,
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat .back{display:none!important}
+html[data-atlas-popup=true][data-atlas=equipment] #overlay.atlas-popup-flat #detail{
+ padding:16px 18px 30px!important;max-width:1180px!important;width:100%!important
+}
+
+/* Full-width Scarlet desktop reader with a larger chapter rail. */
+@media(min-width:1100px){
+ html[data-atlas=scarlet] .layout{grid-template-columns:320px minmax(0,1fr)!important;gap:34px!important;padding-inline:32px!important}
+ html[data-atlas=scarlet] .sidebar{width:320px!important;max-width:320px!important}
+ html[data-atlas=scarlet] .sidebar a{font-size:15px!important;padding:10px 12px!important}
+}
