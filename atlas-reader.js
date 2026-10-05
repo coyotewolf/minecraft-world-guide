@@ -52,7 +52,7 @@ function applyAtlasWishes(){
   if(b){b.textContent=atlasWishes.has(id)?'★':'☆';b.title=atlasWishes.has(id)?'從想收集移除':'加入想收集';b.setAttribute('aria-label',b.title)}
   if(atlasMode==='wish')row.hidden=!atlasWishes.has(id);
  }
- queueMicrotask(updateAtlasModeEmpty);
+ queueMicrotask(()=>{unifyReaderStateControls();updateAtlasModeEmpty()});
 }
 function atlasCompleted(row){
  return !!row.querySelector('input[data-field="loot"]:checked,input[data-pet-field="tamed"]:checked');
@@ -321,14 +321,7 @@ function polishPlayerFacingDetails(){
   for(const dt of [...card.querySelectorAll('dt')]){
    if(dt.textContent.trim()!=='生命值說明')continue;
    const dd=dt.nextElementSibling;if(!dd||dd.tagName!=='DD')continue;
-   if(hp){
-    const mod=card.dataset.petMod||'';
-    dd.textContent=mod==='saintsdragons'
-      ?`生命值：${hp} HP。這是本整合包目前 Saints Dragons 設定中的成年基礎最大生命值，不是估算值。幼龍會因成長階段而不同；只有伺服器另外覆寫模組設定、指令或其他模組修改最大生命屬性時，實際上限才會改變。`
-      :mod==='dragonsofberk'
-      ?`生命值：${hp} HP。這是 Dragons of Berk 1.0.5 此物種的基礎最大生命屬性，不是目前剩餘血量。藥水、指令或其他模組若額外修改最大生命屬性，遊戲內當下數值才會不同。`
-      :`生命值：${hp} HP。這是此條目查核到的基礎最大生命值，不是目前剩餘血量；只有成長階段、指令、狀態或其他模組實際修改最大生命屬性時，當下上限才會改變。`;
-   }
+   if(hp)dd.textContent=`生命：${hp} HP`;
   }
   for(const dl of card.querySelectorAll('dl')){
    const seen=new Set();
@@ -345,6 +338,10 @@ function polishPlayerFacingDetails(){
 function polishScarletGuide(){
  if(slug!=='scarlet')return;
  document.querySelectorAll('figure').forEach(f=>f.classList.add('theme-diagram'));
+ document.querySelectorAll('main img,main svg,.content img,.content svg,.chapter img,.chapter svg').forEach(el=>{
+  if(el.closest('.guide-inline-item,[data-inventory-item]'))return;
+  el.classList.add('scarlet-theme-visual');
+ });
  document.querySelectorAll('.chapter-progress,.reading-progress,[data-progress],progress').forEach(e=>e.remove());
 }
 
@@ -393,24 +390,34 @@ function installStableEquipmentToggle(){
 function unifyReaderStateControls(){
  if(slug==='bosses'){
   for(const card of document.querySelectorAll('.card[data-id],.pet-card[data-pet-id]')){
-   const wish=card.querySelector('.atlas-wish-button'),done=card.querySelector('.atlas-single-collect');
-   if(!wish||!done)continue;
+   const wish=card.querySelector('.atlas-wish-button');
+   let done=card.querySelector('.atlas-single-collect');
+   if(!done){
+    const input=card.dataset.petId?card.querySelector('input[data-pet-field="tamed"]'):card.querySelector('input[data-field="loot"]');
+    if(input){
+     done=document.createElement('label');done.className='atlas-single-collect';
+     const update=()=>{done.title=input.checked?'取消已取得':'標記為已取得';done.setAttribute('aria-label',done.title)};
+     input.addEventListener('change',update);update();done.append(input,document.createTextNode('✓'));
+    }
+   }
+   if(!wish&&!done)continue;
    let wrap=card.querySelector('.atlas-reader-state');
    if(!wrap){wrap=document.createElement('div');wrap.className='atlas-reader-state';(card.querySelector('.cardtop')||card).append(wrap)}
-   if(wish.parentElement!==wrap)wrap.append(wish);
-   if(done.parentElement!==wrap)wrap.append(done);
+   if(done&&done.parentElement!==wrap)wrap.append(done);
+   if(wish&&wish.parentElement!==wrap)wrap.append(wish);
   }
  }
  if(slug==='skills'){
   for(const entry of document.querySelectorAll('.entry')){
    const title=entry.querySelector('.entry-title'),wish=entry.querySelector('.atlas-wish-button'),check=entry.querySelector('input.check');
-   if(!title||!wish||!check)continue;
+   if(!title||!check)continue;
    let wrap=title.querySelector('.atlas-reader-state');
    if(!wrap){wrap=document.createElement('div');wrap.className='atlas-reader-state';title.append(wrap)}
-   if(wish.parentElement!==wrap)wrap.append(wish);
    let done=wrap.querySelector('.atlas-skill-done');
    if(!done){done=document.createElement('label');done.className='atlas-skill-done';done.title=check.checked?'取消已取得':'標記為已取得';check.before(done);done.append(check,document.createTextNode('✓'))}
    done.title=check.checked?'取消已取得':'標記為已取得';
+   if(done.parentElement!==wrap)wrap.append(done);
+   if(wish&&wish.parentElement!==wrap)wrap.append(wish);
   }
  }
 }
