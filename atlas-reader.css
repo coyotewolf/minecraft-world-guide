@@ -627,3 +627,42 @@ html[data-atlas=skills] .entry :is(p,li,dd,dt,td,th,label,button,input,select){
  font-size:16px!important;line-height:1.65!important;
 }
 html[data-atlas=skills] .entry :is(small,.muted){font-size:13px!important;line-height:1.55!important}
+
+
+/* AOI atlas header/light-cover refinements 2026-10-06 j */
+/* Desktop title row: title left, compact view tabs truly centered, +/- aligned on one row. */
+@media(min-width:761px){
+ html[data-atlas] #atlas-quickbar{
+  display:flex!important;align-items:center!important;position:sticky!important;
+  min-height:58px!important;padding:6px 14px!important;gap:8px!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-quick-title{
+  flex:0 1 auto!important;min-width:150px!important;max-width:34%!important;
+  justify-self:auto!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-desktop-modes{
+  position:absolute!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+  margin:0!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-desktop-modes button{
+  min-width:72px!important;max-width:102px!important;width:auto!important;
+  min-height:38px!important;padding:6px 11px!important;
+ }
+ html[data-atlas] #atlas-quickbar>.atlas-quick-spacer{display:block!important;flex:1 1 auto!important}
+ html[data-atlas] #atlas-quickbar>[data-atlas-expand],
+ html[data-atlas] #atlas-quickbar>[data-atlas-collapse]{
+  position:static!important;grid-column:auto!important;justify-self:auto!important;
+  margin:0!important;flex:0 0 42px!important;
+ }
+}
+
+/* Skills & spells: one more step up for comfortable parity with the other books. */
+html[data-atlas=skills] body,
+html[data-atlas=skills] main,
+html[data-atlas=skills] .entry,
+html[data-atlas=skills] .entry :is(p,li,dd,dt,td,th,label,button,input,select){
+ font-size:17px!important;line-height:1.68!important;
+}
+html[data-atlas=skills] .entry :is(small,.muted){font-size:14px!important;line-height:1.58!important}
