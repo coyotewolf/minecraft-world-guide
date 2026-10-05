@@ -119,3 +119,27 @@ html[data-motion=off] .team-notification-bell.has-unread span{animation:none}
 .modal-atlas-state .atlas-done-icon:has(input:checked){
  background:#2f8f4e!important;border-color:#2f8f4e!important;color:#fff!important
 }
+
+
+/* Final square collection buttons 2026-10-06 */
+.modal-atlas-state .atlas-card-state{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:6px!important;
+}
+.modal-atlas-state .atlas-state-icon{
+ position:relative!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+ padding:0!important;margin:0!important;box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ border:2px solid var(--line)!important;border-radius:4px!important;
+ background:var(--surface)!important;color:var(--muted)!important;
+ box-shadow:inset 2px 2px 0 rgba(255,255,255,.18),inset -2px -2px 0 rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.25)!important;
+ line-height:1!important;text-align:center!important;transform:none!important;
+}
+.modal-atlas-state .atlas-state-icon input{
+ position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important;
+}
+.modal-atlas-state .atlas-state-icon span{
+ display:grid!important;place-items:center!important;width:100%!important;height:100%!important;margin:0!important;line-height:1!important;
+}
+.modal-atlas-state .atlas-done-icon:has(input:checked){
+ background:#2f8f4e!important;border-color:#1f6f39!important;color:#fff!important;
+}
