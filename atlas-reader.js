@@ -103,30 +103,40 @@ function textAfterTerm(root,label){
  return term?.nextElementSibling?.tagName==='DD'?term.nextElementSibling:null;
 }
 
+function pairFilterActions(box,done,reset){
+ const row=document.createElement('div');row.className='atlas-filter-actions';
+ if(reset){reset.before(row);row.append(reset,done)}else{row.append(done);box.append(row)}
+}
 function installFilterCompletion(){
  for(const d of document.querySelectorAll('.filter-drawer')){
   const box=d.querySelector('.filter-options,.filters,.pet-controls');if(!box||box.querySelector('.atlas-filter-done'))continue;
   const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>d.removeAttribute('open');
-  const reset=[...box.querySelectorAll('button')].find(b=>/清除|重設/.test(b.textContent));reset?.after(done);if(!reset)box.append(done);
+  const reset=[...box.querySelectorAll('button')].find(b=>/清除|重設/.test(b.textContent));pairFilterActions(box,done,reset);
  }
  const filters=document.getElementById('filters'),toggle=document.getElementById('toggleFilters');
  if(filters&&toggle&&!filters.querySelector('.atlas-filter-done')){
   const done=document.createElement('button');done.type='button';done.className='atlas-filter-done';done.textContent='完成';done.onclick=()=>{filters.hidden=true;toggle.setAttribute('aria-expanded','false')};
-  const reset=document.getElementById('reset');reset?.after(done);if(!reset)filters.append(done);
+  pairFilterActions(filters,done,document.getElementById('reset'));
  }
 }
 function removeAtlasUtilityButtons(){
- for(const id of ['export','import','csv'])document.getElementById(id)?.remove();
- for(const b of document.querySelectorAll('button'))if(/^(匯出收集進度|匯入收集進度|匯出目前清單 CSV)$/.test(b.textContent.trim()))b.remove();
+ for(const id of ['export','import','csv','pet-export','pet-import'])document.getElementById(id)?.remove();
+ for(const b of document.querySelectorAll('button')){
+  const label=b.textContent.trim();
+  if(/^(匯出|匯入)/.test(label)||/CSV/i.test(label))b.remove();
+ }
 }
 function updateAtlasModeEmpty(){
  document.querySelector('.atlas-mode-empty')?.remove();
- if(!['wish','done'].includes(atlasMode)||slug==='equipment')return;
- const visible=atlasRows().filter(r=>!r.hidden);
+ if(!['wish','done'].includes(atlasMode))return;
+ let visible=[];
+ if(slug==='equipment'){
+  visible=[...document.querySelectorAll('.card')].filter(card=>!card.hidden&&getComputedStyle(card).display!=='none');
+ }else visible=atlasRows().filter(r=>!r.hidden);
  if(visible.length)return;
  const box=document.createElement('div');box.className='empty atlas-mode-empty';
- box.textContent=atlasMode==='wish'?'目前沒有「想收集」項目。點條目上的 ☆ 星號，就能把它加入「我想收集」。':'目前沒有「已取得」項目。取得後點條目上的 ✓ 按鈕，即會出現在這裡。';
- (document.querySelector('#list')||document.querySelector('#taming-collection .grid')||document.querySelector('#boss-panel .grid')||document.querySelector('main'))?.append(box);
+ box.textContent=atlasMode==='wish'?'目前沒有「想收集」項目。打開任一條目，點 ☆ 星號即可加入「我想收集」。':'目前沒有「已取得」項目。取得後點條目上的 ✓ 按鈕，即會出現在這裡。';
+ (document.querySelector('#list')||document.querySelector('#taming-collection .grid')||document.querySelector('#boss-panel .grid')||document.querySelector('.content')||document.querySelector('main'))?.append(box);
 }
 
 const saintTaming={
@@ -175,6 +185,34 @@ const saintSpawn={
  'saintsdragons:varasuchus':'主世界・蜷鱷龍巢穴；海灘／沼澤類生態域，原版明確包含海灘、石岸、沼澤與紅樹林沼澤。',
  'saintsdragons:ivy_oleander':'主世界・常春藤小屋；森林類生態域，原版明確包含森林、樺木森林、原始樺木森林、黑森林、繁花森林、針葉林、原始松木針葉林、原始雲杉針葉林與雪地針葉林。'
 };
+const berkTaming={
+ 'dragonsofberk:night_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200},
+ 'dragonsofberk:light_fury':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'蜂巢',hatch:1200},
+ 'dragonsofberk:monstrous_nightmare':{food:'生羊肉、生豬肉',feeds:25,breed:'可疑的燉湯',hatch:2400},
+ 'dragonsofberk:deadly_nadder':{food:'生雞肉',feeds:12,breed:'可疑的燉湯',hatch:600},
+ 'dragonsofberk:gronckle':{food:'生牛肉',feeds:12,breed:'可疑的燉湯',hatch:600},
+ 'dragonsofberk:zippleback':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:25,breed:'可疑的燉湯',hatch:2400},
+ 'dragonsofberk:skrill':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:18,breed:'可疑的燉湯',hatch:1200},
+ 'dragonsofberk:stinger':{food:'生羊肉',feeds:12,breed:'可疑的燉湯',hatch:1200},
+ 'dragonsofberk:terrible_terror':{food:'生鮭魚、生鱈魚、熱帶魚',feeds:12,breed:'河豚',hatch:300},
+ 'dragonsofberk:triple_stryke':{food:'生牛肉',feeds:18,breed:'可疑的燉湯',hatch:1200},
+ 'dragonsofberk:speed_stinger':{food:'生兔肉',feeds:25,breed:'可疑的燉湯',hatch:300,cold:true},
+ 'dragonsofberk:speed_stinger_leader':{untameable:true}
+};
+function berkTameText(p){
+ if(p.untameable)return '此實體在 1.0.5 程式碼中明確拒絕所有馴服食物（isItemStackForTaming 永遠回傳 false），不能像一般疾刺龍直接餵食馴服。';
+ return '對野生個體餵 '+p.food+' 累積馴服進度。基礎需要 '+p.feeds+' 次有效餵食；皮膚／變體越稀有會再增加 0–5 次（權重 ≥75：+0、35–74：+2、15–34：+3、4–14：+4、1–3：+5），所以實際總數依遇到的變體而定。';
+}
+function berkBreedText(p){
+ if(!p||p.untameable||!p.breed)return '';
+ return '已馴服成龍使用 '+p.breed+' 進入繁殖；模組會產生對應物種龍蛋。';
+}
+function berkHatchText(p){
+ if(!p||!p.hatch)return '';
+ const mins=Math.round(p.hatch/60*100)/100;
+ return '龍蛋的 1.0.5 預設孵化時間為 '+p.hatch+' 秒（約 '+mins+' 分鐘，可由伺服器設定調整）。'+(p.cold?'此蛋類別標記為冷孵化。':'一般蛋使用模組的溫度／孵化機制。')+'孵化出的幼龍仍需儘快完成馴服。';
+}
+
 const berkSpawn={
  'dragonsofberk:stinger':'主世界自然生成：向日葵平原、莽原、莽原高地（預設權重 5，每群 2–3）；惡地、疏林惡地、風蝕惡地（權重 1，每群 1–2）。',
  'dragonsofberk:terrible_terror':'主世界自然生成：石岸、河流、海灘（預設權重 1，每群 1–3）；叢林、竹林、黑森林（權重 2，每群 2–3）。',
@@ -191,19 +229,28 @@ const berkSpawn={
 };
 function enhanceBerkDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="dragonsofberk:"]')){
-  const id=pet.dataset.petId,spawn=berkSpawn[id]||'';
+  const id=pet.dataset.petId,spawn=berkSpawn[id]||'',profile=berkTaming[id];
   const acquire=[...pet.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent.includes('取得與材料'));if(!acquire)continue;
+  const dl=acquire.querySelector('dl');
+  const tame=textAfterTerm(acquire,'如何取得／馴服')||textAfterTerm(acquire,'馴服進度')||textAfterTerm(acquire,'馴服方法');
+  if(tame&&profile){tame.previousElementSibling.textContent='馴服方法';tame.textContent=berkTameText(profile)}
   const where=textAfterTerm(acquire,'在哪裡取得');
   if(where){
     if(spawn){where.previousElementSibling.textContent='野生個體';where.textContent='⌖ '+spawn;}
-    else if(/物種巢穴|生成設定|龍蛋路線/.test(where.textContent)){where.previousElementSibling?.remove();where.remove();}
+    else if(/物種巢穴|生成設定|龍蛋路線|自然生成/.test(where.textContent)){where.previousElementSibling?.remove();where.remove();}
+  }else if(spawn&&dl){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='野生個體';dd.textContent='⌖ '+spawn;dl.prepend(dt,dd)}
+  for(const dd of [...acquire.querySelectorAll('dd')])if(/物種巢穴／生成設定|亦有對應龍蛋路線|依物種設定|一般與豐盛|機率由物種/.test(dd.textContent)){dd.previousElementSibling?.remove();dd.remove()}
+  if(profile&&dl&&!acquire.dataset.berkExact){
+    acquire.dataset.berkExact='1';
+    const breed=berkBreedText(profile);if(breed){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='繁殖／龍蛋取得';dd.textContent=breed;dl.append(dt,dd)}
+    const hatch=berkHatchText(profile);if(hatch){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent='孵化';dd.textContent=hatch;dl.append(dt,dd)}
   }
-  for(const dd of acquire.querySelectorAll('dd'))if(/物種巢穴／生成設定|亦有對應龍蛋路線/.test(dd.textContent)&&!spawn){dd.previousElementSibling?.remove();dd.remove();}
   pet.dataset.petSearch=pet.textContent.replace(/\s+/g,' ').trim()+' '+id;
  }
  for(const card of document.querySelectorAll('.card[data-id^="dragonsofberk:"]')){
-  const spawn=berkSpawn[card.dataset.id]||'',loc=card.querySelector('.loc');
+  const id=card.dataset.id,spawn=berkSpawn[id]||'',profile=berkTaming[id],loc=card.querySelector('.loc');
   if(spawn&&loc)loc.textContent='⌖ '+spawn;
+  if(profile)card.dataset.search=(card.dataset.search||card.textContent.replace(/\s+/g,' ').trim())+' '+berkTameText(profile)+' '+berkBreedText(profile)+' '+berkHatchText(profile);
  }
 }
 function enhanceSaintDragons(){
@@ -307,7 +354,7 @@ function polishEquipmentControls(){
  renameCollectedLabels(document);
 }
 let polishTimer;
-new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+new MutationObserver(()=>{clearTimeout(polishTimer);polishTimer=setTimeout(()=>{renameCollectedLabels(document);polishEquipmentControls();installFilterCompletion();removeAtlasUtilityButtons();updateAtlasModeEmpty()},20)}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','class','style']});
 renameCollectedLabels(document);polishEquipmentControls();
 
 const find=id=>document.getElementById(id);
@@ -324,7 +371,7 @@ function openTarget(d){
   if(slug==='equipment'){
     if(d.done==='done')document.querySelector('[data-tab="done"]')?.click();
     if(d.query){document.querySelector('[data-view="all"]')?.click();input('search',d.query);}
-    if(d.id&&typeof drawDetail==='function'){drawDetail(d.id);if(atlasPopup){document.documentElement.dataset.popupFocus='true';document.body.style.overflow='auto';document.getElementById('overlay')?.classList.add('atlas-popup-flat');}}
+    if(d.id&&typeof drawDetail==='function'){drawDetail(d.id);if(atlasPopup){document.documentElement.dataset.popupFocus='true';document.body.style.overflow='auto';const overlay=document.getElementById('overlay');overlay?.classList.add('atlas-popup-flat');overlay?.querySelector('.sheetbar')?.setAttribute('hidden','');overlay?.querySelectorAll('[data-close],.close,.back').forEach(el=>el.setAttribute('hidden',''));}}
   }else if(slug==='skills'){
     // Reference entries live in a separate source collection; select it before searching.
     if(d.reference||d.done==='reference')find('referenceView')?.click();
@@ -355,7 +402,11 @@ if(slug){
   // Remove promotional reader introductions, preserving actual game instructions.
   document.querySelectorAll('header.masthead .mark,header.masthead p,header.hero > p:not([id]),header.hero .topline .brand,.collection-source-note').forEach(e=>e.remove());
   if(slug==='equipment')document.querySelector('header.hero h1').textContent='裝備收藏冊';
-  if(slug==='scarlet'){document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';document.getElementById('chapter')?.setAttribute('hidden','');}
+  if(slug==='scarlet'){
+  document.querySelector('header.masthead h1').textContent='緋紅獵人攻略';
+  document.getElementById('chapter')?.setAttribute('hidden','');
+  document.querySelectorAll('.filter-drawer,#toggleFilters,#filters,.chapter-select').forEach(el=>el.remove());
+ }
   if(slug==='bosses'){
     if(atlasPopup){document.querySelector('header.hero')?.setAttribute('hidden','');document.querySelector('#boss-panel > .actions')?.setAttribute('hidden','');document.querySelector('#boss-panel > .controls')?.setAttribute('hidden','');document.querySelector('#taming-collection .pet-searchbar')?.setAttribute('hidden','');document.querySelector('#taming-collection > .actions')?.setAttribute('hidden','');document.querySelector('#pet-status')?.setAttribute('hidden','');document.querySelector('#speed-overview')?.setAttribute('hidden','');}
     document.querySelector('.collection-tabs')?.setAttribute('hidden','');
