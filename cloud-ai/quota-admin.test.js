@@ -1,8 +1,12 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {GuideService,approvedIdentity,dayKey} from './core.js';
-import {quotaChange,changeQuota,quotaReport,recordUsage,providerDay,providerReset} from './quota-admin.js';
+import {GuideService,approvedIdentity,dayKey,providerAnswer} from './core.js';
+import {quotaChange,changeQuota,quotaReport,recordUsage,providerDay,providerReset,qwenNeurons} from './quota-admin.js';
 class Store{constructor(){this.rows=new Map();this.queue=Promise.resolve()}async get(k){return structuredClone(this.rows.get(k))}async put(k,v){this.rows.set(k,structuredClone(v))}async delete(keys){for(const k of keys)this.rows.delete(k)}transaction(fn){const p=this.queue.then(()=>fn(this));this.queue=p.catch(()=>{});return p}}
 const uid='11111111-1111-4111-8111-111111111111';
+test('Workers AI usage settles the preflight reservation only when token counts are present',async()=>{
+ let spent=0;await providerAnswer({AI:{run:async()=>({response:'ok',usage:{prompt_tokens:500,completion_tokens:50}})}},'test',async()=>true,async(p,d,n)=>{spent+=n});assert.equal(spent,4);assert.equal(qwenNeurons({prompt_tokens:500,completion_tokens:50}),4);assert.equal(qwenNeurons({prompt_tokens:500}),null);
+ let unreported=0;await providerAnswer({AI:{run:async()=>({response:'ok'})}},'test',async()=>true,async(p,d,n)=>{unreported+=n});assert(unreported>4);
+});
 test('admin identity comes from fresh RPC, not mutable auth metadata',async()=>{
  const request=new Request('https://test',{headers:{Authorization:'Bearer test-token'}}),env={SUPABASE_URL:'https://test',SUPABASE_KEY:'public'};
  const fake=admin=>async url=>Response.json(url.endsWith('/user')?{id:uid,user_metadata:{admin:true}}:{active:true,admin});

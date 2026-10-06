@@ -1,5 +1,13 @@
 import fs from 'node:fs/promises';import test from 'node:test';import assert from 'node:assert/strict';import {retrieve,tokens} from './ai-search.js';import {playerEvidence} from './ai-evidence.js';
 import {retrieveMany} from './ai-search.js';
+import {modelEvidence} from './ai-evidence.js';
+
+test('reference follow-up finds related configuration definitions beyond shortened search text',async()=>{
+ const manifest={shards:[{file:'actor',terms:'試驗獸 馴服',ids:['test'],kinds:['馴服與餵食']},{file:'config',terms:'設定',ids:['test'],kinds:['模組資料']}]};
+ const text='// unrelated header\n'.repeat(150)+'public List<String> testFoods = List.of("test:specific_food");\n';
+ const pages={'coverage-index.json':{files:[['actor',[]],['config',[]]],subjects:{'試驗獸':[0]},codeLookup:{t:'lookup'}},lookup:{testfoods:[1]},actor:[{id:'actor',title:'馴服與餵食 · 試驗獸',search:'試驗獸 馴服 testFoods',runtimeEvidence:true,text:'Requires testFoods;'}],config:[{id:'config',title:'模組資料 · 設定',search:text.slice(0,1000),runtimeEvidence:true,text}]};
+ const r=await retrieveMany(manifest,['試驗獸 馴服 testFoods'],async f=>pages[f],{related:true});assert.equal(r.facts[0].id,'config');assert(modelEvidence(r.facts[0]).text.includes('test:specific_food'));assert.equal(r.facts[0].text,text);
+});
 const root=new URL('./data/ai/',import.meta.url);const read=async f=>JSON.parse(await fs.readFile(new URL(f,root),'utf8'));
 test('Chinese matching uses overlapping pairs and ignores generic intents',()=>{assert(tokens('我想查魔法之眼').includes('魔法'));assert(tokens('我想查魔法之眼').includes('之眼'));assert(!tokens('在哪取得').includes('取得'))});
 test('entity index retrieves both confirmed magical eye sources with readable percentages',async()=>{const m=await read('manifest.json');const facts=await retrieve(m,'魔法之眼在哪裡取得？',read);const evoker=facts.find(f=>f.source.endsWith('/entities/evoker.json')),chest=facts.find(f=>f.source.endsWith('/chests/woodland_mansion.json'));assert(evoker&&chest);assert(playerEvidence(evoker).text.includes('5%'));assert(playerEvidence(chest).text.includes('10%'));assert(!/endrem:|\.json|此池|權重/.test(playerEvidence(evoker).text));assert(m.facts>=82223)});

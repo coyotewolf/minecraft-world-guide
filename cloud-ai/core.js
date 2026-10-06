@@ -1,10 +1,10 @@
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
-import {playerLimit,recordUsage,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
+import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v17-named-source-priority';
+export const ANSWER_CACHE_VERSION='zh-tw-v18-reference-follow-up';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -52,7 +52,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  if(env.AI&&await canUse('cloudflare',estimate)){
   // Reserve worst-case tokens before invoking the free binding, even on errors.
   await onSpend('cloudflare',0,estimate);await options.onUsage?.('cloudflare','attempt');
-  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:10000});await onSpend('cloudflare',10000,0)}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
+  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});const settled=qwenNeurons(value.usage);if(settled!==null)await onSpend('cloudflare',0,settled-estimate);await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:10000});await onSpend('cloudflare',10000,0)}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
  }
  return null;
 }
@@ -99,7 +99,7 @@ export class GuideService{
   if(Array.isArray(copy.labels))copy.labels=copy.labels.map(x=>this.localize(x));
   return copy;
  }
- async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async(p,estimate)=>{const cooldown=await this.storage.get('cooldown:'+p)||0;if(cooldown>Date.now())return false;if(p==='cloudflare'){if((await this.storage.get('neurons:'+utcDay())||0)+estimate>8500){await this.storage.put('cooldown:cloudflare',Date.parse(utcDay()+'T00:00:00Z')+86400000);await this.storage.put('failure:cloudflare',{code:'daily_budget',at:Date.now()});return false}return true;}const cap=await this.storage.get('config:geminiDailyLimit');if(cap!==undefined&&(await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts>=cap)return false;return true},async(p,delay,spend)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay);if(spend)await this.storage.put('neurons:'+utcDay(),(await this.storage.get('neurons:'+utcDay())||0)+spend)},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,{...options,onUsage:(p,event,details)=>recordUsage(this.storage,p,event,details)})}
+ async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async(p,estimate)=>{const cooldown=await this.storage.get('cooldown:'+p)||0;if(cooldown>Date.now())return false;if(p==='cloudflare'){if((await this.storage.get('neurons:'+utcDay())||0)+estimate>8500){await this.storage.put('cooldown:cloudflare',Date.parse(utcDay()+'T00:00:00Z')+86400000);await this.storage.put('failure:cloudflare',{code:'daily_budget',at:Date.now()});return false}return true;}const cap=await this.storage.get('config:geminiDailyLimit');if(cap!==undefined&&(await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts>=cap)return false;return true},async(p,delay,spend)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay);if(spend)await this.storage.put('neurons:'+utcDay(),Math.max(0,(await this.storage.get('neurons:'+utcDay())||0)+spend))},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,{...options,onUsage:(p,event,details)=>recordUsage(this.storage,p,event,details)})}
  async availability(){
   const now=Date.now(),ready=[],failures=[];
   for(const name of ['gemini','cloudflare']){const cooldown=await this.storage.get('cooldown:'+name)||0;const failure=await this.storage.get('failure:'+name);const configured=name==='gemini'?!!(this.env.GEMINI_API_KEY||this.env.gemini_api):!!this.env.AI;const cap=await this.storage.get('config:geminiDailyLimit');const budget=name==='cloudflare'?(await this.storage.get('neurons:'+utcDay())||0)>=8480:cap!==undefined&&((await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts||0)>=cap;
@@ -215,7 +215,7 @@ export class GuideService{
      if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
      reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
      if(pass||!extra?.length)break;
-     this.stage='supplemental-evidence';const additional=await retrieveMany(this.manifest,extra.map(q=>normalizedQuestion+' '+q),file=>this.read(file));
+     this.stage='supplemental-evidence';const additional=await retrieveMany(this.manifest,extra.map(q=>normalizedQuestion+' '+q),file=>this.read(file),{related:true});
      const pool=[...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
      for(const f of pool){if(ids.has(f.id))continue;ids.add(f.id);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;

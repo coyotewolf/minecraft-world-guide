@@ -13,6 +13,7 @@ on:
       - "tools/build_relation_knowledge.mjs"
       - "tools/build_coverage_index.mjs"
       - "ai-search.js"
+      - "ai-evidence.js"
       - "ai-search.test.js"
       - ".github/workflows/deploy-cloud-ai.yml"
   workflow_dispatch:

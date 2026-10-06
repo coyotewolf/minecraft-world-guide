@@ -1,5 +1,5 @@
 const stop=new Set(['請問','在哪','哪裡','怎麼','如何','可以','我想','取得','掉落','製作','合成','配方','材料','機率','什麼','多少','它的','那它','得到','需要','要怎','麼取']);
-export function tokens(q){const text=String(q).toLowerCase(),out=text.match(/[a-z0-9_:.-]+/g)||[];for(const run of text.match(/[\u3400-\u9fff]+/g)||[]){if(run.length>2)out.push(run);for(let i=0;i<run.length-1;i++)out.push(run.slice(i,i+2))}return [...new Set(out)].filter(t=>t.length>1&&!stop.has(t))}
+export function tokens(q){const text=String(q).toLowerCase(),out=text.match(/[a-z0-9_:.-]+/g)||[];out.push(...out.flatMap(t=>t.split(/[.:]/).filter(part=>part.length>=3&&/[a-z]/.test(part))));for(const run of text.match(/[\u3400-\u9fff]+/g)||[]){if(run.length>2)out.push(run);for(let i=0;i<run.length-1;i++)out.push(run.slice(i,i+2))}return [...new Set(out)].filter(t=>t.length>1&&!stop.has(t))}
 export const recommendation=q=>/無聊|幹嘛|做什麼|玩什麼|推薦|下一個目標|不知道.*(做|玩)|有什麼.*(玩|做)|新手|入門|開始玩|嗨|你好/.test(q);
 const expanded=q=>/地形|拆家|毀.*建築|破壞.*(方塊|房子|基地)/.test(q)?q+' 地形與建築破壞':q;
 const intent=q=>/取得|掉落|哪裡|在哪|機率/.test(q)?'取得與掉落':/製作|合成|配方|材料/.test(q)?'製作配方':'';
@@ -38,10 +38,13 @@ export async function retrieveMany(manifest,queries,read,options={}){
  const once=file=>{if(!cache.has(file))cache.set(file,read(file));return cache.get(file)};
  if(!manifest._coverage)manifest._coverage=await once('coverage-index.json').catch(()=>({subjects:{}}));
  const locator=manifest._coverage.subjects||{};
+ let codeLookup={};if(options.related){const words=normalized.flatMap(tokens).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)).sort((a,b)=>b.length-a.length);const prefixes=[...new Set(words.map(t=>t[0]))].slice(0,4);for(const prefix of prefixes){const file=manifest._coverage.codeLookup?.[prefix];if(file)Object.assign(codeLookup,await once(file))}}
  const anchorsByQuery=[];const choices=normalized.map(q=>{
   const matched=Object.keys(locator).filter(n=>q.toLowerCase().includes(n));const names=matched.filter(n=>!matched.some(o=>o.length>n.length&&o.includes(n)));anchorsByQuery.push(names);
   const files=new Map();for(const name of names)for(const entry of locator[name]){const [file,kinds]=Number.isInteger(entry)?manifest._coverage.files[entry]:entry;files.set(file,kinds)};
-  const terms=tokens(actionQuery(q));return manifest.shards.map(s=>{const score=terms.reduce((sum,t)=>sum+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0)+(files.has(s.file)?100:0);return {s,score,kinds:files.get(s.file)||s.kinds||['其他']}}).filter(x=>x.score>0&&(!files.size||files.has(x.s.file))).sort((a,b)=>b.score-a.score||a.s.file.localeCompare(b.s.file));
+  if(options.related&&files.size){const mods=new Set(manifest.shards.filter(s=>files.has(s.file)).flatMap(s=>s.ids||[]));for(const s of manifest.shards)if(s.ids?.some(id=>mods.has(id)))files.set(s.file,s.kinds||['其他'])}
+  const referenced=new Set(tokens(q).flatMap(t=>(codeLookup[t]||[]).map(i=>manifest._coverage.files[i][0])));
+  const terms=tokens(actionQuery(q));return manifest.shards.map(s=>{const score=terms.reduce((sum,t)=>sum+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0)+(files.has(s.file)?100:0)+(referenced.has(s.file)?300:0);return {s,score,kinds:files.get(s.file)||s.kinds||['其他']}}).filter(x=>x.score>0&&(!files.size||files.has(x.s.file))).sort((a,b)=>b.score-a.score||a.s.file.localeCompare(b.s.file));
  });
  const picked=new Map();
  // Cover each query and evidence kind in turn; then fill by relevance. A recipe-only
@@ -49,7 +52,11 @@ export async function retrieveMany(manifest,queries,read,options={}){
  const covered=choices.map(()=>new Set());for(let round=0;round<16&&picked.size<16;round++)for(let i=0;i<choices.length;i++){const row=choices[i].find(x=>x.kinds.some(k=>!covered[i].has(k)));if(row){if(picked.size<16)picked.set(row.s.file,row);for(const kind of row.kinds)covered[i].add(kind)}}
  for(let i=0;i<16&&picked.size<16;i++)for(const list of choices){const row=list[i];if(row&&picked.size<16)picked.set(row.s.file,row)}
  const pages=await Promise.all([...picked.keys()].map(once)),all=pages.flat();
- const ranked=normalized.map((q,i)=>rank(all,actionQuery(q),36,anchorsByQuery[i]));const facts=[];
+ const ranked=normalized.map((q,i)=>{
+  const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows;
+  const words=tokens(actionQuery(q)).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t));
+  return rows.map((f,index)=>{let bonus=0,line=-1;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const score=concrete?(exact?1000:500):50;if(score>bonus){bonus=score;line=j}}}return {f:line>=0?{...f,retrievalText:lines.slice(Math.max(0,line-3),line+20).map((text,j)=>j===Math.min(3,line)?text.slice(0,2000):text.slice(0,500)).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
+ });const facts=[];
  for(let i=0;i<36;i++)for(const list of ranked){const f=list[i];if(f&&!facts.some(x=>x.id===f.id))facts.push(f)}
  // Keep curated reviewed evidence, and concrete activities appropriate to progress.
  if(manifest.reviewed){const reviewed=await once(manifest.reviewed);facts.unshift(...reviewed.filter(f=>normalized.some((q,i)=>{const relevant=!anchorsByQuery[i].length||anchorsByQuery[i].some(n=>(f.title+' '+(f.labels||[]).join(' ')+' '+f.search).toLowerCase().includes(n));return relevant&&(f.matchAll?.every(g=>g.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))})))}
