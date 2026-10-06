@@ -53,6 +53,15 @@ test('creature behavior question still retains checked building risk evidence',a
  env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'蓑鮋龍 原木 建築安全',facet:'companions',mode:'mechanism',focus:['原木']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'原木房屋不能保證安全。',factIds:['1']}}};
  await service.ask('u','蓑鮋龍放原木房子旁邊安全嗎');assert(input.facts.some(f=>f.text.includes('不區分玩家放置')));
 });
+
+test('compact conversation state preserves progress beyond recent transcript while allowing topic changes',async()=>{
+ const {service,env,storage}=setup(),cid='00000000-0000-4000-8000-000000000008';env.CONVERSATION_PLANNER='true';let calls=0;
+ await storage.put('conversation:u:'+cid,{expires:Date.now()+86400000,questions:['找會飛的龍'],answers:['比較坐騎。'],context:'龍',intent:{...trophyPlan,query:'會飛又能騎的龍',facet:'companions',mode:'recommendation'}});
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:[]);
+ env.AI.run=async(_,value)=>{calls++;if(calls===1){const input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(input.priorIntent.progress,'advanced');assert(input.priorIntent.query.includes('會飛'));return {response:trophyPlan}}return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
+ const result=await service.ask('u','哪些王有獎盃',cid,Array.from({length:8},()=>({user:'其他內容',assistant:'接著聊。'})));
+ assert.equal(result.intent,undefined);assert.equal(result.body.intent.useHistory,false);assert.equal((await storage.get('conversation:u:'+cid)).intent.facet,'bossDrops');
+});
 test('only exact supplied facts are returned; fabricated IDs reject the response',()=>{assert.deepEqual(selectedFacts('{"factIds":["unknown"]}',[fact]),[]);assert.deepEqual(selectedFacts({factIds:['test-id','test-id']},[fact]),[fact]);assert.deepEqual(selectedFacts('<script>bad</script>',[fact]),[])});
 test('approved account check requires active RPC status',async()=>{const request=new Request('https://test',{headers:{Authorization:'Bearer fake'}}),env={SUPABASE_URL:'https://sb',SUPABASE_KEY:'public'};let calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:false})),null);calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:true})),'u')});
 test('Gemini quota failure falls back to Cloudflare',async()=>{let fallback=0;const spent=[];const result=await providerAnswer({GEMINI_API_KEY:'not-real',AI:{run:async()=>{fallback++;return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}}}},'prompt',async()=>true,async(...args)=>spent.push(args),async()=>new Response('{}',{status:429}));assert.equal(result.provider,'cloudflare');assert.equal(fallback,1);assert(spent.some(x=>x[0]==='gemini'&&x[1]===60000))});

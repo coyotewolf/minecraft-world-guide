@@ -2,7 +2,7 @@ import {retrieve,activityPool} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v12-task-specific-evidence';
+export const ANSWER_CACHE_VERSION='zh-tw-v13-conversation-state';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -114,6 +114,7 @@ export class GuideService{
   const previous=cloudTurns.length?{questions:cloudTurns.map(t=>t.user),answers:cloudTurns.map(t=>t.assistant),context:cloudTurns.map(t=>t.user).join(' ').slice(-1800)}:saved?.expires>Date.now()?saved:{questions:[],answers:[],context:''};
   previous.questions=Array.isArray(previous.questions)?previous.questions:[];
   previous.answers=Array.isArray(previous.answers)?previous.answers:[];
+  const priorIntent=saved?.expires>Date.now()&&validIntent(saved.intent)?saved.intent:null;
   const day=dayKey(),uk='user:'+day+':'+uid,gk='global:'+day,mk='minute:'+uid;
   const slot=await this.storage.transaction(async tx=>{const u=await tx.get(uk)||0,g=await tx.get(gk)||0,m=await tx.get(mk)||{at:0,n:0};if(u>=50||g>=400)return {error:'今日免費問答額度已用完，仍可搜尋解包資料。',status:429};if(Date.now()-m.at<60000&&m.n>=4)return {error:'提問稍快，請等一分鐘再試。',status:429};await tx.put(uk,u+1);await tx.put(gk,g+1);await tx.put(mk,Date.now()-m.at<60000?{at:m.at,n:m.n+1}:{at:Date.now(),n:1});return {remaining:49-u}});
   if(slot.error)return {status:slot.status,body:slot};
@@ -124,11 +125,11 @@ export class GuideService{
   if(this.env.CONVERSATION_PLANNER==='true'){
    this.stage='intent';
    const priorTurns=previous.questions.slice(-6).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-6).length)[i]||''}));
-   const intentKey='cache:intent:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+normalizedQuestion)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const intentKey='cache:intent:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion)))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:350,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:350,temperature:0});
    if(!intent){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
    plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});
    }
@@ -187,9 +188,9 @@ export class GuideService{
   // Raw manual categories must not crowd out concrete player instructions.
   for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
-  const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
+  const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length&&plan?.mode!=='chat'){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
-   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const cacheKey='cache:'+digest,cached=await this.storage.get(cacheKey);
    if(cached&&cached.expires>Date.now()){await remember(cached.body.facts,cached.body.answer);return {status:200,body:{...cached.body,remaining:slot.remaining}}};
    const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f);const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}

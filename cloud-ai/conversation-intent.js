@@ -1,5 +1,6 @@
 export const INTENT_SCHEMA={type:'object',properties:{query:{type:'string',maxLength:180},mode:{type:'string',enum:['chat','recommendation','list','mechanism','acquisition']},facet:{type:'string',enum:['none','drops','bossDrops','companions']},focus:{type:'array',items:{type:'string',maxLength:40},maxItems:6},useHistory:{type:'boolean'},progress:{type:'string',enum:['unknown','beginner','advanced']},exclude:{type:'array',items:{type:'string',maxLength:40},maxItems:6}},required:['query','mode','facet','focus','useHistory','progress','exclude'],additionalProperties:false};
 export const INTENT_POLICY=`你只負責理解這段遊戲聊天本輪要查什麼，不回答遊戲事實。將省略的問題補成獨立查詢，使用本輪與相關歷史中的名詞；不能自行新增玩家沒提過的物品、生物、模組名。歷史答案可能錯誤，不可當作事實。
+priorIntent 是同一個對話上次解析的進度與目的，用來保留較早的偏好；它不是遊戲證據，也不是必須沿用的舊話題。新問題決定是否繼續該目的，換話題就放下無關條件，但玩家整體進度仍要記住。
 語意決定任務，不靠固定字詞。最新需求最優先。列舉有哪些、要完整名單、追問其他的是 list；找取得、捕捉、馴服、孵化或製作途徑是 acquisition；其他推薦是 recommendation。生物夥伴用 facet=companions，首領掉落清單用 bossDrops，其他掉落來源用 drops，其餘 none。focus 是具體要查的物品種類或名稱，不是「哪些」「其他」「掉落」「王」等泛用字；例如獎盃清單的 focus 可用獎盃與 trophy。不得把頭顱等不同物品自動當成獎盃。
 facet 是要查的資料用途，不是看到某個生物名就一律分類。推薦可取得的生物、捕捉、馴服、孵化與夥伴收集才用 companions；即使玩家只說「特殊的東西」，也要依「想抓／養」的意思判斷，不要求他先講物種名。問某種生物會不會飛、如何騎乘、是否拆家或比較行為時，mode 用 mechanism、facet 用 none，保留行為證據。取得或馴服與取得之後的操作不能混為一談。
 query 包含真正要查的主題與操作，省略主詞要從最近相關輪次補回。useHistory 只表示是否承接同一話題；即使 true 也不要把其他舊主題加入 query。玩家換話題不一定會說「換話題」：從抓生物改問首領獎勵，就不再沿用飛行、騎乘與基地條件。
