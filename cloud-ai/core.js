@@ -36,8 +36,9 @@ export function providerMessages(prompt){
 export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onFailure=async()=>{},valid=()=>true,options={}){
  const outputTokens=options.maxTokens||700;
  const messages=providerMessages(prompt),system=messages.find(m=>m.role==='system');
+ if(options.schema)messages[0].content+='\n輸出 JSON 格式：'+JSON.stringify(options.schema);
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
- const estimate=Math.ceil(new TextEncoder().encode(prompt).length*4625/1e6+outputTokens*30475/1e6);
+ const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
  if(geminiKey&&await canUse('gemini',0)){
   const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},body:JSON.stringify({...(system?{systemInstruction:{parts:[{text:system.content}]}}:{}),contents:messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),generationConfig:{temperature:options.temperature??0.45,maxOutputTokens:outputTokens,responseMimeType:'application/json',responseJsonSchema:options.schema||SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
   if(r?.ok){const data=await r.json().catch(()=>({})),value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onSpend('gemini',10000,0);await onFailure('gemini',{code:'invalid_answer',delay:10000})}
