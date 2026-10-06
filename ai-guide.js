@@ -1,7 +1,7 @@
 import {retrieve} from './ai-search.js';
 import {playerEvidence} from './ai-evidence.js';
 
-let auth,identity,host,controller,manifest,state,busy=false,cloudReady=false,history=[],translationMap=null,translationMatchers=[],hydrating=false,syncWarning=false,retryQuestion=null,historyEpoch=0;
+let auth,identity,host,controller,manifest,state,busy=false,cloudReady=false,history=[],translationMap=null,translationMatchers=[],hydrating=false,syncWarning=false,retryQuestion=null,retryRequestId=null,historyEpoch=0;
 const storageKey=uid=>'aoi-assistant:'+uid;
 const migrationKey=uid=>'aoi-assistant-cloud-migrated:'+uid;
 function newConversationId(){if(crypto.randomUUID)return crypto.randomUUID();const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=bytes[6]&15|64;bytes[8]=bytes[8]&63|128;const hex=[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join('-')}
@@ -35,7 +35,7 @@ async function loadTranslations(){
 }
 function localizeText(text){if(typeof text!=='string'||!translationMap)return text;let out=text;for(const re of translationMatchers)out=out.replace(re,m=>translationMap[m]||m);return out}
 function localizeFact(f){if(!f)return f;const copy={...f};for(const k of ['title','playerTitle','playerSummary','text'])if(typeof copy[k]==='string')copy[k]=localizeText(copy[k]);if(Array.isArray(copy.labels))copy.labels=copy.labels.map(localizeText);return copy}
-function factsView(facts){const {h}=auth;if(!(facts||[]).length)return '';return `<div class="assistant-sources"><details><summary>查看來源${facts.length>1?`（${facts.length}）`:''}</summary>${facts.map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact assistant-fact-compact"><h3>${h(shown.title)}</h3><p class="assistant-source-label">${h(localizeText(f.source)||'本站查核資料')}</p><p>${h(shown.text)}</p>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</article>`}).join('')}</details></div>`}
+function factsView(facts){const {h}=auth;if(!(facts||[]).length)return '';return `<div class="assistant-sources"><details><summary>查看來源${facts.length>1?`（${facts.length}）`:''}</summary>${facts.map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact assistant-fact-compact"><h3>${h(shown.title)}</h3><p class="assistant-source-label">${h(f.runtimeEvidence||/\.jar|Volitans|Entity|Projectile|Manager|Handler|Breath|FuryBolt/.test(f.source||'')?'目前整合包的模組資料與程式查核':localizeText(f.source)||'本站查核資料')}</p><p>${h(shown.text)}</p>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</article>`}).join('')}</details></div>`}
 function updateHistoryControl(){
  const select=$('#assistant-history');
  if(!select)return;
@@ -169,7 +169,7 @@ export function mountAiGuide(){openAssistant()}
 async function send(ai,retrying=false){
  const question=$('#assistant-input').value.trim();if(!question||busy||ai&&(!auth.active||!auth.cfg.aiEndpoint))return;
  const owner=identity,snapshot=auth,conversationId=state.conversationId;controller=new AbortController();const signal=controller.signal;busy=true;
- const userMessage=normalizeMessage({role:'user',text:question,created_at:nowIso()});if(!retrying)state.messages.push(userMessage);retryQuestion=null;$('#assistant-input').value='';save();paint(true);
+ const userMessage=normalizeMessage({role:'user',text:question,created_at:nowIso()});const requestId=retrying&&retryRequestId?retryRequestId:userMessage.id;if(!retrying)state.messages.push(userMessage);retryQuestion=null;$('#assistant-input').value='';save();paint(true);
  try{
   if(ai&&cloudEnabled()){
    try{await ensureConversation(question.slice(0,80));if(!retrying)await cloudMessage(userMessage,conversationId,owner);await refreshHistory()}catch{syncWarning=true}
@@ -178,7 +178,7 @@ async function send(ai,retrying=false){
   if(ai){
    const session=await snapshot.db.auth.getSession();if(identity!==owner||signal.aborted||state.conversationId!==conversationId)return;
    const token=session.data?.session?.access_token;if(!token||session.data.session.user.id!==owner)throw Error('請重新登入玩家帳號。');
-   const response=await fetch(snapshot.cfg.aiEndpoint.replace(/\/$/,'')+'/ask',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({question,conversationId}),signal:AbortSignal.any([signal,AbortSignal.timeout(90000)])});
+   const response=await fetch(snapshot.cfg.aiEndpoint.replace(/\/$/,'')+'/ask',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({question,conversationId,requestId}),signal:AbortSignal.any([signal,AbortSignal.timeout(90000)])});
    const answer=await response.json();if(!response.ok){if(identity===owner)host.dataset.availability=JSON.stringify({code:answer.code,diagnostic:answer.diagnostic,stage:answer.stage,providers:answer.providers,lastFailures:answer.lastFailures});const e=Error(answer.error||'小助手暫時無法回覆，試試搜尋。');e.retryAt=answer.retryAt;throw e}
    facts=answer.facts||[];text=answer.answer||answer.message||(facts.length?'我找到相關資料，但目前無法整理成完整回答。':'目前資料不足以可靠回答這題。');
    if(identity===owner)host.dataset.provider=answer.provider||'none';
@@ -191,7 +191,7 @@ async function send(ai,retrying=false){
   if(ai&&cloudEnabled())try{await cloudMessage(assistantMessage,conversationId,owner);await refreshHistory()}catch{syncWarning=true}
  }catch(e){
   if(identity===owner&&!signal.aborted&&state.conversationId===conversationId){
-   retryQuestion=question;
+   retryQuestion=question;retryRequestId=requestId;
    const retryNote=e.retryAt?' 可在 '+new Date(e.retryAt).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+' 再試。':'';
    const assistantMessage=normalizeMessage({role:'assistant',text:(e.name==='TimeoutError'?'等候較久，請稍後再試。':e.message)+retryNote,created_at:nowIso()});state.messages.push(assistantMessage);save();
    if(ai&&cloudEnabled())try{await cloudMessage(assistantMessage,conversationId,owner)}catch{syncWarning=true}
