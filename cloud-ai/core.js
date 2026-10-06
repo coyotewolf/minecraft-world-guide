@@ -150,7 +150,10 @@ export class GuideService{
   const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f).filter(f=>!flying||!['playbook:dragon-terrain-berk-safe','playbook:dragon-terrain-berk-matrix'].includes(f.id));
   const broad=(this.gameplay||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.f);
   const candidates=[];
-  for(const f of [...curated.filter(f=>f.category!=='activity'),...current,...broad.filter(f=>f.playerSummary),...curated.filter(f=>f.category==='activity')])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  const currentPlayer=current.filter(f=>f.playerSummary),contextPlayer=contextual.filter(f=>f.playerSummary),broadPlayer=broad.filter(f=>f.playerSummary);
+  // Keep direct, prior-topic and playable instructions in the bounded pool.
+  // Raw manual categories must not crowd out concrete player instructions.
+  for(const f of [...curated.filter(f=>f.category!=='activity'),...currentPlayer.slice(0,4),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity').slice(0,2),...currentPlayer.slice(4),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length)return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}};
