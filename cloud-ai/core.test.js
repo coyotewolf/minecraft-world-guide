@@ -46,6 +46,13 @@ test('capture request prioritizes companion acquisition conditions over passive 
  env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'特殊生物 馴服',facet:'companions',mode:'acquisition',focus:['馴服']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'雷暴期間找野生個體，壓制後餵食。',factIds:['1']}}};
  await service.ask('u','都不想，有什麼特殊的東西可以抓嗎');assert(input.facts[0].text.includes('戰鬥壓制後餵食'));assert(!input.facts.some(f=>f.title==='上龍操作'));
 });
+
+test('creature behavior question still retains checked building risk evidence',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('player-playbook.json')?[{id:'safety',category:'dragon-behavior',title:'蓑鮋龍的建築安全',search:'蓑鮋龍 原木 建築安全',playerSummary:'拆相連原木，不區分玩家放置；木屋不能保證安全。'}]:[]);
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'蓑鮋龍 原木 建築安全',facet:'companions',mode:'mechanism',focus:['原木']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'原木房屋不能保證安全。',factIds:['1']}}};
+ await service.ask('u','蓑鮋龍放原木房子旁邊安全嗎');assert(input.facts.some(f=>f.text.includes('不區分玩家放置')));
+});
 test('only exact supplied facts are returned; fabricated IDs reject the response',()=>{assert.deepEqual(selectedFacts('{"factIds":["unknown"]}',[fact]),[]);assert.deepEqual(selectedFacts({factIds:['test-id','test-id']},[fact]),[fact]);assert.deepEqual(selectedFacts('<script>bad</script>',[fact]),[])});
 test('approved account check requires active RPC status',async()=>{const request=new Request('https://test',{headers:{Authorization:'Bearer fake'}}),env={SUPABASE_URL:'https://sb',SUPABASE_KEY:'public'};let calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:false})),null);calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:true})),'u')});
 test('Gemini quota failure falls back to Cloudflare',async()=>{let fallback=0;const spent=[];const result=await providerAnswer({GEMINI_API_KEY:'not-real',AI:{run:async()=>{fallback++;return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}}}},'prompt',async()=>true,async(...args)=>spent.push(args),async()=>new Response('{}',{status:429}));assert.equal(result.provider,'cloudflare');assert.equal(fallback,1);assert(spent.some(x=>x[0]==='gemini'&&x[1]===60000))});
