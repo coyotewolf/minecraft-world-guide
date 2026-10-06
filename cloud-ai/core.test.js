@@ -45,7 +45,7 @@ test('unfamiliar conversational prompts are not limited to exact item-name looku
   const storage=new Store();
   const env={FREE_ONLY_ACK:'true',AI:{run:async()=>({response:{answer:'可以從一個小型、可完成的目標開始。',factIds:['1']}})},ASSETS:{fetch:async r=>r.url.endsWith('manifest.json')?Response.json({version:'v1',shards:[]}):r.url.endsWith('player-playbook.json')?Response.json([{id:'activity',title:'小型目標',category:'activity',search:'無聊 幹嘛 做什麼 玩什麼 推薦 下一步 基地 朋友 半小時',labels:['玩法'],source:'本站教學',playerTitle:'小型目標',playerSummary:'挑一個短時間能完成的建造、收集、遠征或合作目標。'}]):Response.json([])}};
   const result=await new GuideService(storage,env).ask('u',question);
-  assert.notEqual(result.body.answer,'');assert.notMatch(result.body.answer||'',/換個名稱問問看/);
+  assert.notEqual(result.body.answer,'');assert.equal(/換個名稱問問看/.test(result.body.answer||''),false);
  }
 });
 
