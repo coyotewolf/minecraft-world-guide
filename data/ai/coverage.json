@@ -1,6 +1,6 @@
 {
  "scannedAt": "2026-10-06T08:23:42.790959+00:00",
- "scope": "每個已安裝 JAR 的資源；211 個保留模組及其內附套件的 Java bytecode 全面反編譯。47 個純效能或共用函式庫另列排除原因。",
+ "scope": "258 個已安裝 JAR 均抽取資源。210 個玩法、介面及相容模組（含內附套件）完整覆蓋類別；48 個純效能及共用函式庫列明排除原因。CFR 還原失敗的方法另以 Vineflower 1.12.0 補查。",
  "mods": [
   {
    "file": "[forge]ctov-3.4.14.jar",
@@ -17,7 +17,8 @@
    "decompile": "complete",
    "bytecodeClasses": 3,
    "representedClasses": 3,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "adorablehamsterpets-3.7.0-1.20.1+forge.jar",
@@ -34,7 +35,8 @@
    "decompile": "complete",
    "bytecodeClasses": 504,
    "representedClasses": 504,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ae2omnicells-1.20.1-forge-1.1.6.jar",
@@ -51,7 +53,8 @@
    "decompile": "complete",
    "bytecodeClasses": 65,
    "representedClasses": 65,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ae2wtlib-15.3.3-forge.jar",
@@ -68,7 +71,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "alexsmobs-1.22.9.jar",
@@ -85,7 +89,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1118,
    "representedClasses": 1118,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "AmbientSounds_FORGE_v6.3.8_mc1.20.1.jar",
@@ -102,7 +107,8 @@
    "decompile": "complete",
    "bytecodeClasses": 64,
    "representedClasses": 64,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "appliedcreate-1.20.1-1.1.6.jar",
@@ -119,7 +125,8 @@
    "decompile": "complete",
    "bytecodeClasses": 94,
    "representedClasses": 94,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ApricityUI-forge-1.20.1-1.2.4-hotfix.jar",
@@ -136,7 +143,8 @@
    "decompile": "complete",
    "bytecodeClasses": 810,
    "representedClasses": 810,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "aquamirae-forge-1.20.1-7.1.13.jar",
@@ -153,7 +161,8 @@
    "decompile": "complete",
    "bytecodeClasses": 404,
    "representedClasses": 404,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ares_hud-2.0.5-forge-1.20.1.jar",
@@ -173,7 +182,8 @@
    "decompile": "complete",
    "bytecodeClasses": 252,
    "representedClasses": 252,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "balm-forge-1.20.1-7.3.44.jar",
@@ -192,7 +202,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "banana-colony-client-TW-translation-1.20.1-v1.0.11.jar",
@@ -209,7 +220,8 @@
    "decompile": "complete",
    "bytecodeClasses": 13,
    "representedClasses": 13,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "better-party-forge-1.20.1-1.1.7.jar",
@@ -226,7 +238,8 @@
    "decompile": "complete",
    "bytecodeClasses": 111,
    "representedClasses": 111,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "better-party-x-xaeros-world-map-forge-1.20.1-1.0.2.jar",
@@ -243,7 +256,8 @@
    "decompile": "complete",
    "bytecodeClasses": 22,
    "representedClasses": 22,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "bettervillage-forge-1.20.1-3.3.1-all.jar",
@@ -262,7 +276,8 @@
    "decompile": "complete",
    "bytecodeClasses": 9,
    "representedClasses": 9,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "blockui-1.20.1-1.0.194-snapshot.jar",
@@ -279,7 +294,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "Bonfires-1.20.1-1.2.20d-5d9820a.jar",
@@ -296,7 +312,8 @@
    "decompile": "complete",
    "bytecodeClasses": 99,
    "representedClasses": 99,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "booneforgeapi-1.20.1-1.2.jar",
@@ -313,7 +330,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "botarium-forge-1.20.1-2.3.4.jar",
@@ -330,7 +348,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "butchercraft-2.4.1.jar",
@@ -347,7 +366,8 @@
    "decompile": "complete",
    "bytecodeClasses": 166,
    "representedClasses": 166,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "CameraOverhaul-v2.1.1-forge+mc[1.20-1.20.5].jar",
@@ -364,7 +384,8 @@
    "decompile": "complete",
    "bytecodeClasses": 57,
    "representedClasses": 57,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "carryon-forge-1.20.1-2.1.2.7.jar",
@@ -383,7 +404,8 @@
    "decompile": "complete",
    "bytecodeClasses": 81,
    "representedClasses": 81,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "cbc_at_Forge_1.20.1_0.1.4b.jar",
@@ -400,7 +422,8 @@
    "decompile": "complete",
    "bytecodeClasses": 231,
    "representedClasses": 231,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "certain_questing_additions-forge-1.1.6+mc1.20.1.jar",
@@ -419,7 +442,8 @@
    "decompile": "complete",
    "bytecodeClasses": 51,
    "representedClasses": 51,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "chestcavity-1.20.1-2.17.1.1.jar",
@@ -436,7 +460,8 @@
    "decompile": "complete",
    "bytecodeClasses": 113,
    "representedClasses": 113,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "citadel-2.6.3-1.20.1.jar",
@@ -453,7 +478,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "cloth-config-11.1.136-forge (2).jar",
@@ -470,7 +496,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "CodeChickenLib-1.20.1-4.4.0.528-universal.jar",
@@ -487,7 +514,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "colorwheel-forge-1.3.0-beta3+mc1.20.1.jar",
@@ -506,7 +534,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "ContingameIME-1.0.7-1.20.1-forge.jar",
@@ -523,7 +552,8 @@
    "decompile": "complete",
    "bytecodeClasses": 76,
    "representedClasses": 76,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "copycats-3.0.10+mc.1.20.1-forge.jar",
@@ -542,7 +572,8 @@
    "decompile": "complete",
    "bytecodeClasses": 414,
    "representedClasses": 414,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "corpse-forge-1.20.1-1.0.23.jar",
@@ -559,7 +590,8 @@
    "decompile": "complete",
    "bytecodeClasses": 123,
    "representedClasses": 123,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "cosmeticarmorreworked-1.20.1-v1a.jar",
@@ -576,7 +608,8 @@
    "decompile": "complete",
    "bytecodeClasses": 40,
    "representedClasses": 40,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create-balancedflight-1.20.1_v2.4.5.jar",
@@ -593,7 +626,8 @@
    "decompile": "complete",
    "bytecodeClasses": 53,
    "representedClasses": 53,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create-new-age-1.2.0+forge-mc1.20.1.jar",
@@ -613,7 +647,8 @@
    "decompile": "complete",
    "bytecodeClasses": 210,
    "representedClasses": 210,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create-stuff-additions1.20.1_v2.1.1.jar",
@@ -630,7 +665,8 @@
    "decompile": "complete",
    "bytecodeClasses": 454,
    "representedClasses": 454,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_compatible_storage-2.11.0-all.jar",
@@ -649,7 +685,8 @@
    "decompile": "complete",
    "bytecodeClasses": 50,
    "representedClasses": 50,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_connected-1.2.3-mc1.20.1-all.jar",
@@ -668,7 +705,8 @@
    "decompile": "complete",
    "bytecodeClasses": 383,
    "representedClasses": 383,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_enchantment_industry-1.4.1-for-create-6.0.8.jar",
@@ -685,7 +723,8 @@
    "decompile": "complete",
    "bytecodeClasses": 146,
    "representedClasses": 146,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_enhanced_schematicannon-1.0.3-6.0+.jar",
@@ -702,7 +741,8 @@
    "decompile": "complete",
    "bytecodeClasses": 81,
    "representedClasses": 81,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_fantasizing-1.20.1-1.1.1.jar",
@@ -719,7 +759,8 @@
    "decompile": "complete",
    "bytecodeClasses": 105,
    "representedClasses": 105,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_jetpack-forge-4.4.6.jar",
@@ -738,7 +779,8 @@
    "decompile": "complete",
    "bytecodeClasses": 66,
    "representedClasses": 66,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_mechanical_spawner-1.20.1-0.1.7-6.0.6.jar",
@@ -755,7 +797,8 @@
    "decompile": "complete",
    "bytecodeClasses": 59,
    "representedClasses": 59,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_pattern_schematics-1.3.3.jar",
@@ -772,7 +815,8 @@
    "decompile": "complete",
    "bytecodeClasses": 57,
    "representedClasses": 57,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_power_loader-2.0.3-mc1.20.1.jar",
@@ -789,7 +833,8 @@
    "decompile": "complete",
    "bytecodeClasses": 63,
    "representedClasses": 63,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "create_wizardry-1.20.1-0.4.2.jar",
@@ -806,7 +851,8 @@
    "decompile": "complete",
    "bytecodeClasses": 48,
    "representedClasses": 48,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createaddition-1.20.1-1.3.3.jar",
@@ -823,7 +869,8 @@
    "decompile": "complete",
    "bytecodeClasses": 186,
    "representedClasses": 186,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createadditionallogistics-1.20.1-1.4.5.jar",
@@ -840,7 +887,8 @@
    "decompile": "complete",
    "bytecodeClasses": 227,
    "representedClasses": 227,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createappliedkinetics-1.5.1-1.20.1.jar",
@@ -857,7 +905,8 @@
    "decompile": "complete",
    "bytecodeClasses": 14,
    "representedClasses": 14,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createbigcannons-5.11.4-mc.1.20.1-forge.jar",
@@ -876,7 +925,8 @@
    "decompile": "complete",
    "bytecodeClasses": 914,
    "representedClasses": 914,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "CreateCyberGoggles-1.20.1-7.2.2-Forge.jar",
@@ -893,7 +943,8 @@
    "decompile": "complete",
    "bytecodeClasses": 176,
    "representedClasses": 176,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createdeco-2.0.3-1.20.1-forge.jar",
@@ -910,7 +961,8 @@
    "decompile": "complete",
    "bytecodeClasses": 68,
    "representedClasses": 68,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createdieselgenerators-1.20.1-1.3.12.jar",
@@ -927,7 +979,8 @@
    "decompile": "complete",
    "bytecodeClasses": 222,
    "representedClasses": 222,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createfluidstuffs-1.2.1-all.jar",
@@ -946,7 +999,8 @@
    "decompile": "complete",
    "bytecodeClasses": 68,
    "representedClasses": 68,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createimmersivetacz-1.4-1.20.1.jar",
@@ -963,7 +1017,8 @@
    "decompile": "complete",
    "bytecodeClasses": 9,
    "representedClasses": 9,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createliquidfuel-2.2.0-1.20.1.jar",
@@ -980,7 +1035,8 @@
    "decompile": "complete",
    "bytecodeClasses": 11,
    "representedClasses": 11,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createmetallurgy-1.0.1-1.20.1.jar",
@@ -999,7 +1055,8 @@
    "decompile": "complete",
    "bytecodeClasses": 236,
    "representedClasses": 236,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createoreexcavation-1.20-1.6.5.jar",
@@ -1016,7 +1073,8 @@
    "decompile": "complete",
    "bytecodeClasses": 131,
    "representedClasses": 131,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createrailwaysnavigator-forge-1.20.1-beta-0.9.1-C6.jar",
@@ -1033,7 +1091,8 @@
    "decompile": "complete",
    "bytecodeClasses": 540,
    "representedClasses": 540,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createstockbridge-1.20-0.2.0.jar",
@@ -1050,7 +1109,8 @@
    "decompile": "complete",
    "bytecodeClasses": 41,
    "representedClasses": 41,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createtransmission-1.1.0+forge-create6-1.20.1.jar",
@@ -1069,7 +1129,8 @@
    "decompile": "complete",
    "bytecodeClasses": 34,
    "representedClasses": 34,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createultimine-1.20.1-forge-1.3.1.jar",
@@ -1086,7 +1147,8 @@
    "decompile": "complete",
    "bytecodeClasses": 5,
    "representedClasses": 5,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "createutilities-0.3.2+1.20.1.jar",
@@ -1103,7 +1165,8 @@
    "decompile": "complete",
    "bytecodeClasses": 64,
    "representedClasses": 64,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "CreativeCore_FORGE_v2.12.39_mc1.20.1.jar",
@@ -1120,7 +1183,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "cupboard-1.20.1-4.2.jar",
@@ -1137,7 +1201,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "curiouslanterns-1.20.1-1.3.7.jar",
@@ -1154,7 +1219,8 @@
    "decompile": "complete",
    "bytecodeClasses": 11,
    "representedClasses": 11,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "CustomStartingGear-1.20-2.0.3.jar",
@@ -1171,7 +1237,8 @@
    "decompile": "complete",
    "bytecodeClasses": 7,
    "representedClasses": 7,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "daffas_arsenal-3.6.0.jar",
@@ -1188,7 +1255,8 @@
    "decompile": "complete",
    "bytecodeClasses": 3,
    "representedClasses": 3,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "defaultoptions-forge-1.20.1-18.0.5.jar",
@@ -1205,7 +1273,8 @@
    "decompile": "complete",
    "bytecodeClasses": 36,
    "representedClasses": 36,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "deltaboxlib-forge-2.2.0+1.20.1.jar",
@@ -1222,7 +1291,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "DisenchantmentEditTable-1.20-1.1.2.jar",
@@ -1239,7 +1309,8 @@
    "decompile": "complete",
    "bytecodeClasses": 45,
    "representedClasses": 45,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "domum_ornamentum-1.20.1-1.0.304-snapshot-universal.jar",
@@ -1256,7 +1327,8 @@
    "decompile": "complete",
    "bytecodeClasses": 288,
    "representedClasses": 288,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "dragonfight-1.20.1-4.7.jar",
@@ -1273,7 +1345,8 @@
    "decompile": "complete",
    "bytecodeClasses": 14,
    "representedClasses": 14,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "dragonlib-forge-1.20.1-beta-3.0.28.jar",
@@ -1293,7 +1366,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "dragonsofberk-1.20.1-1.0.5.jar",
@@ -1310,7 +1384,8 @@
    "decompile": "complete",
    "bytecodeClasses": 291,
    "representedClasses": 291,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "effortlessbuilding-1.20.1-3.11 (2).jar",
@@ -1330,7 +1405,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1300,
    "representedClasses": 1300,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "efiscompat-2.6.0 (1).jar",
@@ -1347,7 +1423,8 @@
    "decompile": "complete",
    "bytecodeClasses": 32,
    "representedClasses": 32,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "empire-key-search-1.20.1-1.0.0.jar",
@@ -1364,7 +1441,8 @@
    "decompile": "complete",
    "bytecodeClasses": 5,
    "representedClasses": 5,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "EnderStorage-1.20.1-2.11.0.188-universal.jar",
@@ -1381,7 +1459,8 @@
    "decompile": "complete",
    "bytecodeClasses": 52,
    "representedClasses": 52,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "endrem_forge-5.3.3-R-1.20.1.jar",
@@ -1398,7 +1477,8 @@
    "decompile": "complete",
    "bytecodeClasses": 23,
    "representedClasses": 23,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "entityculling-forge-1.10.5-mc1.20.1.jar",
@@ -1418,7 +1498,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "epic_fight_avalon-20.12.6.5.jar",
@@ -1435,7 +1516,8 @@
    "decompile": "complete",
    "bytecodeClasses": 98,
    "representedClasses": 98,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "EpicColonies-Forge-EFM-20.14.17-20.0.91.jar",
@@ -1452,7 +1534,8 @@
    "decompile": "complete",
    "bytecodeClasses": 104,
    "representedClasses": 104,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "epicysm-1.20.1-1.1.4.jar",
@@ -1469,7 +1552,8 @@
    "decompile": "complete",
    "bytecodeClasses": 110,
    "representedClasses": 110,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ExtendedAE-1.20-1.4.20-forge.jar",
@@ -1486,7 +1570,8 @@
    "decompile": "complete",
    "bytecodeClasses": 381,
    "representedClasses": 381,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "extra_gauges-2.0.7.jar",
@@ -1505,7 +1590,8 @@
    "decompile": "complete",
    "bytecodeClasses": 97,
    "representedClasses": 97,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "fragmentum-forge-1.20.1-1.5.2.jar",
@@ -1527,7 +1613,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "FramedBlocks-9.4.3.jar",
@@ -1547,7 +1634,8 @@
    "decompile": "complete",
    "bytecodeClasses": 2008,
    "representedClasses": 2008,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ftb-chunks-forge-2001.3.8.jar",
@@ -1566,7 +1654,8 @@
    "decompile": "complete",
    "bytecodeClasses": 202,
    "representedClasses": 202,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ftb-quests-forge-2001.4.22.jar",
@@ -1583,7 +1672,8 @@
    "decompile": "complete",
    "bytecodeClasses": 389,
    "representedClasses": 389,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ftb-teams-forge-2001.3.2.jar",
@@ -1600,7 +1690,8 @@
    "decompile": "complete",
    "bytecodeClasses": 122,
    "representedClasses": 122,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ftb-xmod-compat-forge-2.1.3.jar",
@@ -1617,7 +1708,8 @@
    "decompile": "complete",
    "bytecodeClasses": 83,
    "representedClasses": 83,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ftbxaerocompat-forge-1.1.3.jar",
@@ -1636,7 +1728,8 @@
    "decompile": "complete",
    "bytecodeClasses": 17,
    "representedClasses": 17,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "functionalstorage-1.20.1-1.2.14.jar",
@@ -1653,7 +1746,8 @@
    "decompile": "complete",
    "bytecodeClasses": 142,
    "representedClasses": 142,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "fzzy_config-0.7.7+1.20.1+forge.jar",
@@ -1673,7 +1767,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "gd656lightcore-0.0.4-1.20.1-forge.jar",
@@ -1690,7 +1785,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "Glodium-1.20-1.5-forge.jar",
@@ -1707,7 +1803,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "GokiSkills-forge-1.1.3-1.20.1.jar",
@@ -1726,7 +1823,8 @@
    "decompile": "complete",
    "bytecodeClasses": 59,
    "representedClasses": 59,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "guccivuitton-1.20.1-0.2.2.jar",
@@ -1743,7 +1841,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1,
    "representedClasses": 1,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "HammerLib-1.20.1-20.1.50.jar",
@@ -1760,7 +1859,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "hourglass-1.20-1.2.1.1.jar",
@@ -1777,7 +1877,8 @@
    "decompile": "complete",
    "bytecodeClasses": 39,
    "representedClasses": 39,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "idas_forge-1.13.0+1.20.1.jar",
@@ -1794,7 +1895,8 @@
    "decompile": "complete",
    "bytecodeClasses": 19,
    "representedClasses": 19,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ImmediatelyFast-Forge-1.5.5+1.20.4.jar",
@@ -1814,7 +1916,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "immersive_ballistic-forge-1.4-ALPHA-8+1.20.1.jar",
@@ -1834,7 +1937,8 @@
    "decompile": "complete",
    "bytecodeClasses": 58,
    "representedClasses": 58,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "immersive_paintings-0.6.13+1.20.1-forge.jar",
@@ -1851,7 +1955,8 @@
    "decompile": "complete",
    "bytecodeClasses": 93,
    "representedClasses": 93,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ImprovableSkills-1.20.1-20.1.13.jar",
@@ -1868,7 +1973,8 @@
    "decompile": "complete",
    "bytecodeClasses": 202,
    "representedClasses": 202,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Industrial Platform-1.20.1-1.8.0.jar",
@@ -1885,7 +1991,8 @@
    "decompile": "complete",
    "bytecodeClasses": 40,
    "representedClasses": 40,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "item-filters-forge-2001.1.0-build.59.jar",
@@ -1902,7 +2009,8 @@
    "decompile": "complete",
    "bytecodeClasses": 57,
    "representedClasses": 57,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ItemPhysicLite_FORGE_v1.6.13_mc1.20.1.jar",
@@ -1919,7 +2027,8 @@
    "decompile": "complete",
    "bytecodeClasses": 6,
    "representedClasses": 6,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Jade-1.20.1-Forge-11.13.3.jar",
@@ -1936,7 +2045,8 @@
    "decompile": "complete",
    "bytecodeClasses": 242,
    "representedClasses": 242,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "JadeAddons-1.20.1-Forge-5.5.1.jar",
@@ -1953,7 +2063,8 @@
    "decompile": "complete",
    "bytecodeClasses": 35,
    "representedClasses": 35,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "jei-1.20.1-forge-15.58.0.209.jar",
@@ -1970,7 +2081,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1048,
    "representedClasses": 1048,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "kaleidoscope_compat-2.6.5-forge+mc1.20.1.jar",
@@ -1987,7 +2099,8 @@
    "decompile": "complete",
    "bytecodeClasses": 62,
    "representedClasses": 62,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "kaleidoscope_immersiveEating-forge1.20.1-1.4.2-create-ecosystem-bypass.jar",
@@ -2004,7 +2117,8 @@
    "decompile": "complete",
    "bytecodeClasses": 42,
    "representedClasses": 42,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "kaleidoscopecookery-1.4.1-forge+mc1.20.1.jar",
@@ -2021,7 +2135,8 @@
    "decompile": "complete",
    "bytecodeClasses": 444,
    "representedClasses": 444,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "leawind_third_person-3.0.3-beta+forge-1.20.1 (1).jar",
@@ -2038,7 +2153,8 @@
    "decompile": "complete",
    "bytecodeClasses": 163,
    "representedClasses": 163,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "libraryferret-forge-1.20.1-4.0.0.jar",
@@ -2055,7 +2171,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "lithostitched-forge-1.20.1-1.4.11.jar",
@@ -2072,7 +2189,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "lootselect-1.1.15+1.20.1.jar",
@@ -2089,7 +2207,8 @@
    "decompile": "complete",
    "bytecodeClasses": 18,
    "representedClasses": 18,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "M3H-1.5.3-1.20.1.jar",
@@ -2106,7 +2225,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1438,
    "representedClasses": 1438,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "mcef-forge-2.1.6-1.20.1 (1).jar",
@@ -2123,7 +2243,8 @@
    "decompile": "complete",
    "bytecodeClasses": 186,
    "representedClasses": 186,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "mcpitanlibarch-1.6.10-1.20.1-forge.jar",
@@ -2140,7 +2261,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "megacells-forge-2.4.6-1.20.1.jar",
@@ -2157,7 +2279,8 @@
    "decompile": "complete",
    "bytecodeClasses": 77,
    "representedClasses": 77,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "minecolonies-1.20.1-1.1.1282-snapshot.jar",
@@ -2174,7 +2297,8 @@
    "decompile": "complete",
    "bytecodeClasses": 2546,
    "representedClasses": 2546,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "monsterexpansion-1.20.1-v0.7.6.jar",
@@ -2191,7 +2315,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1064,
    "representedClasses": 1064,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "music_disc_maker-3.0.5+forge-1.20.1.jar",
@@ -2208,7 +2333,8 @@
    "decompile": "complete",
    "bytecodeClasses": 377,
    "representedClasses": 377,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "musicbox-forge-2.0.2+1.20.1.jar",
@@ -2225,7 +2351,8 @@
    "decompile": "complete",
    "bytecodeClasses": 45,
    "representedClasses": 45,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "mutil-1.20.1-6.2.0.jar",
@@ -2242,7 +2369,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "noplayernametags-1.1.2.jar",
@@ -2259,7 +2387,8 @@
    "decompile": "complete",
    "bytecodeClasses": 22,
    "representedClasses": 22,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Northstar-0.6.5+1.20.1.jar",
@@ -2278,7 +2407,8 @@
    "decompile": "complete",
    "bytecodeClasses": 726,
    "representedClasses": 726,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "onekick-1.20.1-1.0.0.jar",
@@ -2295,7 +2425,8 @@
    "decompile": "complete",
    "bytecodeClasses": 70,
    "representedClasses": 70,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "particular-1.20.1-Forge-1.5.7.jar",
@@ -2314,7 +2445,8 @@
    "decompile": "complete",
    "bytecodeClasses": 89,
    "representedClasses": 89,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Patchouli-1.20.1-85-FORGE.jar",
@@ -2331,7 +2463,8 @@
    "decompile": "complete",
    "bytecodeClasses": 196,
    "representedClasses": 196,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "perspective_api-1.5.0-beta+forge-1.20.1.jar",
@@ -2350,7 +2483,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "PlayerRevive_FORGE_v2.0.31_mc1.20.1.jar",
@@ -2367,7 +2501,8 @@
    "decompile": "complete",
    "bytecodeClasses": 24,
    "representedClasses": 24,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "polymorph-forge-0.49.11+1.20.1.jar",
@@ -2386,7 +2521,8 @@
    "decompile": "complete",
    "bytecodeClasses": 146,
    "representedClasses": 146,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "PresenceFootsteps-1.20.1-1.9.1-beta.1.jar",
@@ -2403,7 +2539,8 @@
    "decompile": "complete",
    "bytecodeClasses": 84,
    "representedClasses": 84,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "protection_pixel-2.2.1-forge-1.20.1.jar",
@@ -2422,7 +2559,8 @@
    "decompile": "complete",
    "bytecodeClasses": 696,
    "representedClasses": 696,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "quantified api-omni-2.2.3.jar",
@@ -2439,7 +2577,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "questsadditions-1.4.7.jar",
@@ -2456,7 +2595,8 @@
    "decompile": "complete",
    "bytecodeClasses": 49,
    "representedClasses": 49,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "radiantgear-forge-2.2.0+1.20.1.jar",
@@ -2473,7 +2613,8 @@
    "decompile": "complete",
    "bytecodeClasses": 15,
    "representedClasses": 15,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ritchiesprojectilelib-2.1.1-mc.1.20.1-forge.jar",
@@ -2490,7 +2631,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "ShyGuy-forge-1.20.1-3.7.jar",
@@ -2507,7 +2649,8 @@
    "decompile": "complete",
    "bytecodeClasses": 104,
    "representedClasses": 104,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "SimpleTrashcan-1.20.1-1.0.1.jar",
@@ -2524,7 +2667,8 @@
    "decompile": "complete",
    "bytecodeClasses": 9,
    "representedClasses": 9,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "skarrier_mobs-1.0.6-forge-1.20.1.jar",
@@ -2541,7 +2685,8 @@
    "decompile": "complete",
    "bytecodeClasses": 641,
    "representedClasses": 641,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "SLUClientPonderFix-1.20.1-1.0.2.jar",
@@ -2558,7 +2703,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1,
    "representedClasses": 1,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "SLUDarknessFix-1.20.1-1.2.0.jar",
@@ -2575,7 +2721,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1,
    "representedClasses": 1,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "sodiumdynamiclights-forge-1.0.10-1.20.1.jar",
@@ -2595,7 +2742,8 @@
    "decompile": "complete",
    "bytecodeClasses": 66,
    "representedClasses": 66,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "sophisticatedbackpacks-1.20.1-3.26.0.2119.jar",
@@ -2612,7 +2760,8 @@
    "decompile": "complete",
    "bytecodeClasses": 378,
    "representedClasses": 378,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "sophisticatedcore-1.20.1-1.5.0.2316.jar",
@@ -2629,7 +2778,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "sound-physics-remastered-forge-1.20.1-1.5.1.jar",
@@ -2646,7 +2796,8 @@
    "decompile": "complete",
    "bytecodeClasses": 91,
    "representedClasses": 91,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "spawnermod-1.20.1-1.9.3+Forge.jar",
@@ -2663,7 +2814,8 @@
    "decompile": "complete",
    "bytecodeClasses": 16,
    "representedClasses": 16,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Steam_Rails-1.7.3+forge-mc1.20.1.jar",
@@ -2682,7 +2834,8 @@
    "decompile": "complete",
    "bytecodeClasses": 960,
    "representedClasses": 960,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "stepitup-2.0.1-1.20.1-forge.jar",
@@ -2699,7 +2852,8 @@
    "decompile": "complete",
    "bytecodeClasses": 5,
    "representedClasses": 5,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "structurize-1.20.1-1.0.818.jar",
@@ -2716,7 +2870,8 @@
    "decompile": "complete",
    "bytecodeClasses": 314,
    "representedClasses": 314,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "sword_soaring-20.14.2.8-mc1.20.1-forge (1).jar",
@@ -2733,7 +2888,8 @@
    "decompile": "complete",
    "bytecodeClasses": 155,
    "representedClasses": 155,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tacz-tweaks-2.14.2-all.jar",
@@ -2753,7 +2909,8 @@
    "decompile": "complete",
    "bytecodeClasses": 802,
    "representedClasses": 802,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tacz_c-1.0.2-forge-1.20.1.jar",
@@ -2770,7 +2927,8 @@
    "decompile": "complete",
    "bytecodeClasses": 98,
    "representedClasses": 98,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tacz_presence-1.4.jar",
@@ -2787,7 +2945,8 @@
    "decompile": "complete",
    "bytecodeClasses": 82,
    "representedClasses": 82,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tetra-1.20.1-6.12.0.jar",
@@ -2804,7 +2963,14 @@
    "decompile": "complete",
    "bytecodeClasses": 906,
    "representedClasses": 906,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\se\\mickelus\\tetra\\blocks\\scroll\\ScrollTile.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "tetra_spell_book-1.1.9.jar",
@@ -2821,7 +2987,8 @@
    "decompile": "complete",
    "bytecodeClasses": 27,
    "representedClasses": 27,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tetracelium-1.20.1-1.3.1.jar",
@@ -2838,7 +3005,8 @@
    "decompile": "complete",
    "bytecodeClasses": 33,
    "representedClasses": 33,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tetracompat-1.0.0-all.jar",
@@ -2857,7 +3025,8 @@
    "decompile": "complete",
    "bytecodeClasses": 15,
    "representedClasses": 15,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "tinyredstone-1.20-5.0.3.jar",
@@ -2874,7 +3043,8 @@
    "decompile": "complete",
    "bytecodeClasses": 110,
    "representedClasses": 110,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "titanium-1.20.1-3.8.35.jar",
@@ -2891,7 +3061,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "ToolBelt-1.20.1-1.20.01.jar",
@@ -2908,7 +3079,8 @@
    "decompile": "complete",
    "bytecodeClasses": 106,
    "representedClasses": 106,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "ToolLevelingRework-lexforge-1.2.2.jar",
@@ -2925,7 +3097,8 @@
    "decompile": "complete",
    "bytecodeClasses": 18,
    "representedClasses": 18,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "translations_extractor-1.3.jar",
@@ -2942,7 +3115,8 @@
    "decompile": "complete",
    "bytecodeClasses": 11,
    "representedClasses": 11,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "uchicraftana-1.0.1-forge-1.20.1 (1).jar",
@@ -2959,7 +3133,8 @@
    "decompile": "complete",
    "bytecodeClasses": 5,
    "representedClasses": 5,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "UncraftingTable-forge-1.2.6.jar",
@@ -2976,7 +3151,8 @@
    "decompile": "complete",
    "bytecodeClasses": 15,
    "representedClasses": 15,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "vintage-1.20.1-1.6.1.jar",
@@ -2993,7 +3169,8 @@
    "decompile": "complete",
    "bytecodeClasses": 217,
    "representedClasses": 217,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "vss-0.2.12-forge-1.20.1.jar",
@@ -3010,7 +3187,14 @@
    "decompile": "complete",
    "bytecodeClasses": 267,
    "representedClasses": 267,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\dev\\xantha\\vss\\networking\\server\\storage\\PersistentColumnLodStore.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "WaT 0.4.0.jar",
@@ -3027,7 +3211,8 @@
    "decompile": "complete",
    "bytecodeClasses": 0,
    "representedClasses": 0,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "webdisplaystogether-1.08 (1).jar",
@@ -3044,7 +3229,8 @@
    "decompile": "complete",
    "bytecodeClasses": 714,
    "representedClasses": 714,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "Wolf要玩的appliedenergistics2-forge-15.4.10.jar",
@@ -3061,7 +3247,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1873,
    "representedClasses": 1873,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "xaerominimap-forge-1.20.1-26.5.0.jar",
@@ -3080,7 +3267,24 @@
    "decompile": "complete",
    "bytecodeClasses": 1028,
    "representedClasses": 1028,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "nested-java\\1\\xaero\\lib\\common\\config\\option\\value\\io\\serialization\\LargeConfigValueIOCodec.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "nested-java\\1\\xaero\\lib\\common\\config\\io\\ConfigIO.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\xaero\\hud\\category\\ui\\node\\EditorCategoryNode.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "XaeroPlus-2.36.2+forge-1.20.1-WM1.46.0-MM26.5.0.jar",
@@ -3099,7 +3303,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1301,
    "representedClasses": 1301,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "xaeroworldmap-forge-1.20.1-1.46.0.jar",
@@ -3118,7 +3323,19 @@
    "decompile": "complete",
    "bytecodeClasses": 709,
    "representedClasses": 709,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "nested-java\\1\\xaero\\lib\\common\\config\\option\\value\\io\\serialization\\LargeConfigValueIOCodec.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "nested-java\\1\\xaero\\lib\\common\\config\\io\\ConfigIO.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "ysm-2.6.5-forge+mc1.20.1-release.jar",
@@ -3137,7 +3354,8 @@
    "decompile": "complete",
    "bytecodeClasses": 957,
    "representedClasses": 957,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "中世紀建築ATi Structures V1.4.6.jar",
@@ -3154,7 +3372,8 @@
    "decompile": "complete",
    "bytecodeClasses": 0,
    "representedClasses": 0,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "中世紀建築grim-kingdoms-lost-structures-ruins-v1.0.3 1.20.jar",
@@ -3171,7 +3390,8 @@
    "decompile": "complete",
    "bytecodeClasses": 0,
    "representedClasses": 0,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "伺服器必備packetfixer-3.3.2-1.18-1.20.4-merged.jar",
@@ -3188,7 +3408,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "傳奇怪物legendarymonsters-2.2.2 MC 1.20.1.jar",
@@ -3205,7 +3426,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1325,
    "representedClasses": 1325,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "優化ferritecore-6.0.1-forge.jar",
@@ -3222,7 +3444,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "優化memoryleakfix-forge-1.17+-1.1.5.jar",
@@ -3239,7 +3462,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "優化modernfix-forge-5.27.83+mc1.20.1.jar",
@@ -3258,7 +3482,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "光影xenon-0.3.31+mc1.20.1.jar",
@@ -3279,7 +3504,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "列尼奧達斯epicfight_leonidas-1.0.1.jar",
@@ -3296,7 +3522,8 @@
    "decompile": "complete",
    "bytecodeClasses": 29,
    "representedClasses": 29,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "劍光zylob-forge1.20.1-20.14.11.jar",
@@ -3313,7 +3540,8 @@
    "decompile": "complete",
    "bytecodeClasses": 103,
    "representedClasses": 103,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "叢林YungsBetterJungleTemples-1.20-Forge-2.0.5.jar",
@@ -3330,7 +3558,8 @@
    "decompile": "complete",
    "bytecodeClasses": 38,
    "representedClasses": 38,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "史詩戰鬥epic-fight-20.14.17-mc1.20.1-forge.jar",
@@ -3347,7 +3576,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1301,
    "representedClasses": 1301,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "史詩戰鬥夜幕EpicFight Nightfall-3.4.1-all.jar",
@@ -3370,7 +3600,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1123,
    "representedClasses": 1123,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "史詩戰鬥畫面impactful-20.14.2.jar",
@@ -3387,7 +3618,8 @@
    "decompile": "complete",
    "bytecodeClasses": 42,
    "representedClasses": 42,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地牢YungsBetterDungeons-1.20-Forge-4.0.4.jar",
@@ -3404,7 +3636,8 @@
    "decompile": "complete",
    "bytecodeClasses": 70,
    "representedClasses": 70,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地牢浮IDA v2.1.1-1.20.1.jar",
@@ -3421,7 +3654,8 @@
    "decompile": "complete",
    "bytecodeClasses": 0,
    "representedClasses": 0,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地牢浮附屬integrated_api-forge-1.20.1-1.8.0.jar",
@@ -3440,7 +3674,8 @@
    "decompile": "complete",
    "bytecodeClasses": 204,
    "representedClasses": 204,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地牢浮附屬LostArchitects-forge-1.0.4.jar",
@@ -3457,7 +3692,8 @@
    "decompile": "complete",
    "bytecodeClasses": 3,
    "representedClasses": 3,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地牢海洋DungeonsAriseSevenSeas-1.20.x-1.0.2-forge.jar",
@@ -3474,7 +3710,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1,
    "representedClasses": 1,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "地獄YungsBetterNetherFortresses-1.20-Forge-2.0.6.jar",
@@ -3491,7 +3728,8 @@
    "decompile": "complete",
    "bytecodeClasses": 31,
    "representedClasses": 31,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "夜幕入侵nightfall_invade-1.3.2.jar",
@@ -3508,7 +3746,8 @@
    "decompile": "complete",
    "bytecodeClasses": 70,
    "representedClasses": 70,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "夜幕附加epicfight-extra-1.2.1-mc1.20.1-forge-all.jar",
@@ -3529,7 +3768,8 @@
    "decompile": "complete",
    "bytecodeClasses": 190,
    "representedClasses": 190,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "夸克Quark-4.0-462.jar",
@@ -3546,7 +3786,8 @@
    "decompile": "complete",
    "bytecodeClasses": 936,
    "representedClasses": 936,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "奇蹟武器WeaponsOfMiracles-2.0.171-mc1.20.1-forge.jar",
@@ -3563,7 +3804,8 @@
    "decompile": "complete",
    "bytecodeClasses": 332,
    "representedClasses": 332,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "履帶trackwork-1.20.1-1.2.4.jar",
@@ -3580,7 +3822,8 @@
    "decompile": "complete",
    "bytecodeClasses": 103,
    "representedClasses": 103,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "怪物mowziesmobs-1.8.2.jar",
@@ -3597,7 +3840,8 @@
    "decompile": "complete",
    "bytecodeClasses": 794,
    "representedClasses": 794,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "怪物skarrier_mobs-1.0.6-forge-1.20.1.jar",
@@ -3614,7 +3858,8 @@
    "decompile": "complete",
    "bytecodeClasses": 641,
    "representedClasses": 641,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "挖礦ftb-ultimine-forge-2001.1.8.jar",
@@ -3631,7 +3876,8 @@
    "decompile": "complete",
    "bytecodeClasses": 73,
    "representedClasses": 73,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "更好粒子aaa_particles-forge-1.20.1-2.2.3.jar",
@@ -3651,7 +3897,8 @@
    "decompile": "complete",
    "bytecodeClasses": 472,
    "representedClasses": 472,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心amendments-1.20-2.2.6.jar",
@@ -3670,7 +3917,8 @@
    "decompile": "complete",
    "bytecodeClasses": 256,
    "representedClasses": 256,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心architectury-9.2.14-forge.jar",
@@ -3687,7 +3935,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心AttributeFix-Forge-1.20.1-21.0.5.jar",
@@ -3704,7 +3953,8 @@
    "decompile": "complete",
    "bytecodeClasses": 9,
    "representedClasses": 9,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心clockwork-0.5.6.jar",
@@ -3725,7 +3975,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1317,
    "representedClasses": 1317,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心CombatEvolution-2.2.6.jar",
@@ -3742,7 +3993,8 @@
    "decompile": "complete",
    "bytecodeClasses": 187,
    "representedClasses": 187,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心Connector-1.0.0+1.20.1.jar",
@@ -3760,7 +4012,8 @@
    "decompile": "complete",
    "bytecodeClasses": 2156,
    "representedClasses": 2156,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心epic-fight-invincible-lib-20.14.8.2-mc1.20.1-forge.jar",
@@ -3777,7 +4030,8 @@
    "decompile": "complete",
    "bytecodeClasses": 91,
    "representedClasses": 91,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心fabric-api-0.92.6+1.11.15+1.20.1.jar",
@@ -3840,7 +4094,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1442,
    "representedClasses": 1442,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心ftb-library-forge-2001.2.13.jar",
@@ -3857,7 +4112,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心guideme-20.1.15.jar",
@@ -3874,15 +4130,62 @@
    "decompile": "complete",
    "bytecodeClasses": 5131,
    "representedClasses": 5131,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\guideme\\internal\\shaded\\snowball\\ext\\SpanishStemmer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\snowball\\ext\\RomanianStemmer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\snowball\\ext\\PortugueseStemmer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\snowball\\ext\\ItalianStemmer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\snowball\\ext\\BasqueStemmer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\lucene\\util\\OfflineSorter.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\lucene\\store\\LockVerifyServer.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\lucene\\analysis\\shingle\\FixedShingleFilter.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\guideme\\internal\\shaded\\lucene\\index\\IndexWriter.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "核心kotlinforforge-4.12.0-all.jar",
    "sha256": "6a66c6a68ec09f8717cdbf06883394f0ee24d7cd826b7134a0f81839e8e720ae",
    "key": "6a66c6a68ec09f87",
    "ids": [],
-   "excluded": false,
-   "reason": "",
+   "excluded": true,
+   "reason": "Kotlin for Forge 共用執行時；MANIFEST 明確標示 FMLModType: LIBRARY，不提供獨立玩家功能",
    "resources": 1,
    "classes": 4314,
    "nestedJars": [
@@ -3890,10 +4193,32 @@
     "META-INF/jarjar/kfflib-4.12.0.jar",
     "META-INF/jarjar/kffmod-4.12.0.jar"
    ],
-   "decompile": "complete",
+   "decompile": "excluded",
    "bytecodeClasses": 4381,
    "representedClasses": 4381,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\kotlinx\\coroutines\\flow\\StateFlowImpl.java",
+     "tool": "Vineflower 1.12.0",
+     "success": false
+    },
+    {
+     "source": "java\\kotlinx\\coroutines\\flow\\SharedFlowImpl.java",
+     "tool": "Vineflower 1.12.0",
+     "success": false
+    },
+    {
+     "source": "java\\kotlinx\\coroutines\\flow\\FlowKt__ShareKt.java",
+     "tool": "Vineflower 1.12.0",
+     "success": false
+    },
+    {
+     "source": "java\\kotlinx\\coroutines\\channels\\ChannelsKt__DeprecatedKt.java",
+     "tool": "Vineflower 1.12.0",
+     "success": false
+    }
+   ]
   },
   {
    "file": "核心lionfishapi-3.0.jar",
@@ -3910,7 +4235,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心moonlight-1.20-2.16.34-forge.jar",
@@ -3930,7 +4256,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心pandalib-forge-mc1.20-0.5.2-SNAPSHOT.jar",
@@ -3947,7 +4274,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心saintsdragons-0.9.51+forge-1.20.1.jar",
@@ -3964,7 +4292,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1227,
    "representedClasses": 1227,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "核心yet_another_config_lib_v3-3.6.6+1.20.1-forge.jar",
@@ -3990,7 +4319,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "核心YungsApi-1.20-Forge-4.0.6.jar",
@@ -4007,7 +4337,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "槍史epictaczcompat_1.20.1_1201-0.6.0.jar",
@@ -4024,7 +4355,8 @@
    "decompile": "complete",
    "bytecodeClasses": 3,
    "representedClasses": 3,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "槍槍tacz-1.20.1-1.1.8-hotfix.jar",
@@ -4048,7 +4380,19 @@
    "decompile": "complete",
    "bytecodeClasses": 3069,
    "representedClasses": 3069,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "nested-java\\3\\org\\luaj\\vm2\\LuaClosure.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "nested-java\\3\\org\\luaj\\vm2\\lib\\BaseLib.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "樹倒fallingtrees-forge-mc1.20-0.13.2-SNAPSHOT.jar",
@@ -4065,7 +4409,8 @@
    "decompile": "complete",
    "bytecodeClasses": 53,
    "representedClasses": 53,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "機械動力create-1.20.1-6.0.8.jar",
@@ -4087,7 +4432,14 @@
    "decompile": "complete",
    "bytecodeClasses": 3762,
    "representedClasses": 3762,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\com\\simibubi\\create\\content\\trains\\graph\\TrackEdge.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "武器epicfight_awaken-1.2.7.2-forge-1.20.1.jar",
@@ -4104,7 +4456,8 @@
    "decompile": "complete",
    "bytecodeClasses": 126,
    "representedClasses": 126,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "氣球eureka-1201-1.6.3.jar",
@@ -4123,7 +4476,8 @@
    "decompile": "complete",
    "bytecodeClasses": 98,
    "representedClasses": 98,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "沙漠YungsBetterDesertTemples-1.20-Forge-3.0.3.jar",
@@ -4140,7 +4494,8 @@
    "decompile": "complete",
    "bytecodeClasses": 57,
    "representedClasses": 57,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "澤塔Zeta-1.0-31.jar",
@@ -4159,7 +4514,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "災變L_Enders_Cataclysm-3.31.jar",
@@ -4178,7 +4534,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1345,
    "representedClasses": 1345,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "災變史詩EpicFight_X_L_Enders_Cataclysm-1.0.jar",
@@ -4195,7 +4552,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1,
    "representedClasses": 1,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "玩家動畫player-animation-lib-forge-1.0.2-rc1+1.20.jar",
@@ -4212,7 +4570,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "瓦爾基里valkyrienskies-120-2.4.11.jar",
@@ -4252,7 +4611,8 @@
    "decompile": "complete",
    "bytecodeClasses": 7900,
    "representedClasses": 7900,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "畫面優化oculus-mc1.20.1-1.8.0.jar",
@@ -4271,7 +4631,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1630,
    "representedClasses": 1630,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "真實地形reterraforged-0.0.6-forge-1.20.1 (1).jar",
@@ -4288,7 +4649,8 @@
    "decompile": "complete",
    "bytecodeClasses": 514,
    "representedClasses": 514,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "稻草人dummmmmmy-1.20-2.0.12-forge.jar",
@@ -4307,7 +4669,8 @@
    "decompile": "complete",
    "bytecodeClasses": 43,
    "representedClasses": 43,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "蛇geckolib-forge-1.20.1-4.8.4.jar",
@@ -4326,7 +4689,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "裝飾supplementaries-1.20-3.1.43-forge.jar",
@@ -4346,7 +4710,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1111,
    "representedClasses": 1111,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "要塞YungsBetterStrongholds-1.20-Forge-4.0.3.jar",
@@ -4363,7 +4728,8 @@
    "decompile": "complete",
    "bytecodeClasses": 36,
    "representedClasses": 36,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "語音voicechat-forge-1.20.1-2.6.23.jar",
@@ -4381,7 +4747,14 @@
    "decompile": "complete",
    "bytecodeClasses": 676,
    "representedClasses": 676,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "java\\de\\maxhenkel\\voicechat\\voice\\client\\AudioChannel.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "超視距voxy-0.2.14-alpha.jar",
@@ -4410,7 +4783,24 @@
    "decompile": "complete",
    "bytecodeClasses": 1543,
    "representedClasses": 1543,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": [
+    {
+     "source": "nested-java\\2\\redis\\clients\\jedis\\executors\\ClusterCommandExecutor.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "nested-java\\2\\redis\\clients\\jedis\\JedisClusterInfoCache.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    },
+    {
+     "source": "java\\me\\cortex\\voxy\\common\\thread\\MultiThreadPrioritySemaphore.java",
+     "tool": "Vineflower 1.12.0",
+     "success": true
+    }
+   ]
   },
   {
    "file": "跑酷ParCool-1.20.1-3.4.3.3.jar",
@@ -4427,7 +4817,8 @@
    "decompile": "complete",
    "bytecodeClasses": 302,
    "representedClasses": 302,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "跑酷連接epiccompat_parcool-forge-1.20.1-1.0.3.jar",
@@ -4444,7 +4835,8 @@
    "decompile": "complete",
    "bytecodeClasses": 14,
    "representedClasses": 14,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "農夫FarmersDelight-1.20.1-1.3.3.jar",
@@ -4463,7 +4855,8 @@
    "decompile": "complete",
    "bytecodeClasses": 291,
    "representedClasses": 291,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "逆卡巴拉fdbosses-3.1.0.3-1.20.1.jar",
@@ -4482,7 +4875,8 @@
    "decompile": "complete",
    "bytecodeClasses": 423,
    "representedClasses": 423,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "逆卡巴拉附加fdlib-1.0.9-1.20.1.jar",
@@ -4501,7 +4895,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "鉤爪grapplingHookMod-Reforged-1.2.jar",
@@ -4518,7 +4913,8 @@
    "decompile": "complete",
    "bytecodeClasses": 146,
    "representedClasses": 146,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "預生成Chunky-1.3.146.jar",
@@ -4535,7 +4931,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "飾品curios-forge-5.14.1+1.20.1.jar",
@@ -4552,7 +4949,8 @@
    "decompile": "complete",
    "bytecodeClasses": 143,
    "representedClasses": 143,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "首領崛起block_factorys_bosses-2.1.2-forge-1.20.1.jar",
@@ -4569,7 +4967,8 @@
    "decompile": "complete",
    "bytecodeClasses": 797,
    "representedClasses": 797,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "魂系slu_9990.3.1.20.1-remade.jar",
@@ -4586,7 +4985,8 @@
    "decompile": "complete",
    "bytecodeClasses": 2498,
    "representedClasses": 2498,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "魔法irons_lib-1.20.1-2.1.0.jar",
@@ -4603,7 +5003,8 @@
    "decompile": "excluded",
    "bytecodeClasses": null,
    "representedClasses": null,
-   "missingClasses": null
+   "missingClasses": null,
+   "methodRecovery": []
   },
   {
    "file": "魔法irons_spellbooks-1.20.1-3.16.3.jar",
@@ -4620,7 +5021,8 @@
    "decompile": "complete",
    "bytecodeClasses": 1264,
    "representedClasses": 1264,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   },
   {
    "file": "魔法動畫efiscompat-2.6.0.jar",
@@ -4637,7 +5039,8 @@
    "decompile": "complete",
    "bytecodeClasses": 32,
    "representedClasses": 32,
-   "missingClasses": []
+   "missingClasses": [],
+   "methodRecovery": []
   }
  ]
 }
