@@ -20,7 +20,7 @@ for(const shard of manifest.shards){
    const visit=entries=>{for(const entry of entries||[]){
     if(entry.type==='minecraft:loot_table')references++;
     if(entry.type==='minecraft:item'&&typeof entry.name==='string'){
-     const simple=!data.conditions?.length&&!data.functions?.length&&!pool.conditions?.length&&!pool.functions?.length&&!entry.conditions?.length&&pool.entries?.length===1&&pool.entries[0]===entry&&pool.rolls===1&&!(entry.functions||[]).some(x=>x.function!=='minecraft:set_count'||typeof x.count!=='number');
+     const simple=!data.conditions?.length&&!data.functions?.length&&!pool.conditions?.length&&!pool.functions?.length&&!entry.conditions?.length&&pool.entries?.length===1&&pool.entries[0]===entry&&pool.rolls===1&&!(entry.functions||[]).length&&(entry.weight??1)>0&&(entry.quality??0)===0&&(pool.bonus_rolls??0)===0;
      const count=(entry.functions||[]).find(x=>x.function==='minecraft:set_count')?.count??1;
      relations.push({itemId:entry.name,itemName:label(entry.name),sourceId,sourceName:names.get(sourceId)||f.playerTitle?.replace(/^擊殺|可以取得$/g,'')||sourceId,sourceType,boss:bosses.has(sourceId),detail:simple?'此掉落表每次執行必出，數量 '+count+'。':'此掉落表列出此物品；實際機率與數量需核對條件，不能假設必掉。',factId:f.id,shard:shard.file,source:f.source,jar:f.jar});
     }
