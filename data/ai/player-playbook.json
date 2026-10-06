@@ -1,0 +1,155 @@
+[
+  {
+    "id": "playbook:dragon-terrain-saints",
+    "title": "Saint's Dragons：哪些龍會影響地形",
+    "category": "dragon-behavior",
+    "search": "龍 破壞地形 地形破壞 拆樹 撞樹 火 點火 燒房子 荷葉 griefing terrain destroy block tree fire Cindervane Ignivorus Atroxiia Raevyx Volitans Varasuchus Stegonaut Nulljaw",
+    "labels": [
+      "Saint's Dragons",
+      "地形破壞",
+      "龍",
+      "拆樹",
+      "點火"
+    ],
+    "source": "Saint's Dragons 1.20.1 原始碼：DragonDestructionManager、DragonGriefingRules 與各龍類別",
+    "playerTitle": "Saint's Dragons 的地形破壞規則",
+    "playerSummary": "地形破壞受 Minecraft mobGriefing 與模組 dragon griefing 設定共同控制。成年 Ignivorus、Atroxiia、Raevyx、Volitans、Varasuchus 實作 PassiveTreeDestroyer，身體接觸自然樹木時可拆除原木與自然樹葉；結構內的樹木會被保護。Cindervane 與 Stegonaut 沒有實作這個被動拆樹介面，所以不會因『被動撞樹』機制拆樹，但 Cindervane 的火焰能力仍可在允許 griefing/點火時點燃方塊。Ignivorus 除被動拆樹外，火焰吐息還有地形破壞、點火與熔毀機制。DragonEntity 預設成年龍接觸荷葉會破壞荷葉，只有 Nulljaw 明確覆寫為不破壞荷葉。因此『不會撞樹』不等於『完全不會改變任何地形』。"
+  },
+  {
+    "id": "playbook:dragon-terrain-confidence",
+    "title": "龍族地形問題的回答邊界",
+    "category": "dragon-behavior",
+    "search": "哪些龍 不破壞地形 完全不破壞 安全基地 龍 坐騎 比較",
+    "labels": [
+      "龍",
+      "基地安全",
+      "比較"
+    ],
+    "source": "本站目前已查核的 1.20.1 解包資料與 Saint's Dragons 原始碼",
+    "playerTitle": "判斷「不破壞地形」時要分開看",
+    "playerSummary": "比較龍是否安全放在基地時，要分成至少四種行為：被動撞樹拆樹、接觸荷葉、火焰點火、技能直接破壞／熔毀方塊。只有某一項沒有，不代表完全不影響地形。Dragons of Berk 的所有龍目前尚未完成同等程度的程式行為查核，因此若問題要求『整包所有龍』，答案應明確區分已查核與尚未查核，不可把未知當成不會破壞。"
+  },
+  {
+    "id": "playbook:bored-explore",
+    "title": "沒目標時：安排一趟有目的的探索",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 沒事 探索 冒險 地牢 遠征",
+    "labels": [
+      "探索",
+      "地牢",
+      "地圖",
+      "遠征"
+    ],
+    "source": "本站教學：第一次地牢遠征、地圖與路標",
+    "playerTitle": "想冒險：挑一個收藏目標再出門",
+    "playerSummary": "先從首領、特殊裝備、終界眼睛或夥伴收藏挑一個目標，再查它的地點與前置。帶照明、食物、回收裝備，在入口做地圖標記；不必每次都打到底，帶回一批新收藏就算完成一趟。"
+  },
+  {
+    "id": "playbook:bored-factory",
+    "title": "沒目標時：做一條小型自動化",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 工廠 Create 自動化 生產",
+    "labels": [
+      "Create",
+      "工廠",
+      "自動化",
+      "生產"
+    ],
+    "source": "本站教學：第一條工廠、黃銅與精密加工",
+    "playerTitle": "想動腦：把一種常用材料自動化",
+    "playerSummary": "選一個你一直手做的材料，先用 Create 做『一種輸入 → 一種成品』的小產線，確認動力、加工與輸出都穩定後再擴充。很適合短時間玩，因為每完成一小段都能直接看到成果。"
+  },
+  {
+    "id": "playbook:bored-colony",
+    "title": "沒目標時：處理殖民地的一個瓶頸",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 殖民地 MineColonies 居民 建築",
+    "labels": [
+      "MineColonies",
+      "殖民地",
+      "建築",
+      "物流"
+    ],
+    "source": "本站教學：殖民地第一步、工地缺料、倉庫與送貨員",
+    "playerTitle": "想經營：只解一個殖民地瓶頸",
+    "playerSummary": "打開目前卡住的建築或居民需求，只處理一個問題：缺料、路徑、工具、食物、倉庫或送貨。完成後再看下一個瓶頸，避免一次排太多工單。"
+  },
+  {
+    "id": "playbook:bored-collection",
+    "title": "沒目標時：補一頁收藏",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 收藏 圖鑑 裝備 技能 法術 首領 龍",
+    "labels": [
+      "收藏",
+      "裝備",
+      "技能",
+      "法術",
+      "首領",
+      "夥伴"
+    ],
+    "source": "本站收藏冊與成就教學",
+    "playerTitle": "想輕鬆玩：挑一個收藏冊補幾格",
+    "playerSummary": "從裝備、技能與法術、首領、夥伴與坐騎、成就任選一頁，挑 1～3 個目前最接近完成的項目。先補缺的材料或前置，不一定要打大型首領。"
+  },
+  {
+    "id": "playbook:bored-build",
+    "title": "沒目標時：做基地與公共建設",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 蓋家 建築 基地 裝飾 藍圖 鐵路",
+    "labels": [
+      "建築",
+      "基地",
+      "裝飾",
+      "藍圖",
+      "鐵路"
+    ],
+    "source": "本站教學：建築風格、藍圖、鐵路",
+    "playerTitle": "想放鬆：蓋一個真正會用到的小建築",
+    "playerSummary": "做倉庫分區、車站、港口、工坊、酒館或收藏展示間。先決定用途，再用裝飾、藍圖或 Create 鐵路把它接進現有基地，比單純堆裝飾更容易有完成感。"
+  },
+  {
+    "id": "playbook:bored-team",
+    "title": "沒目標時：和隊友開一個小任務",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 朋友 隊友 多人 組隊",
+    "labels": [
+      "隊伍",
+      "多人",
+      "需求板",
+      "遠征"
+    ],
+    "source": "本站教學：發物品需求、約隊友一起出發",
+    "playerTitle": "有人在線：丟一個 20～40 分鐘能完成的小任務",
+    "playerSummary": "可以約一趟短地牢、一起補某種材料、蓋一段鐵路、抓一隻夥伴，或幫殖民地補一批缺料。把目標、集合點和完成條件寫清楚，比只問『要不要玩』更容易直接開始。"
+  },
+  {
+    "id": "playbook:bored-combat",
+    "title": "沒目標時：測一套戰鬥配置",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 戰鬥 武器 配裝 假人 技能 法術",
+    "labels": [
+      "戰鬥",
+      "配裝",
+      "技能",
+      "訓練假人"
+    ],
+    "source": "本站教學：戰鬥、裝備配方強化與實測",
+    "playerTitle": "想打架但不想開大王：去測一套配裝",
+    "playerSummary": "換一把想玩的武器，配一個技能或法術，在訓練假人或低風險怪物上測傷害、後搖、格擋與耐力。只調一個變因，很快就能知道這套值不值得繼續養。"
+  },
+  {
+    "id": "playbook:bored-dragon",
+    "title": "沒目標時：整理與訓練龍／坐騎",
+    "category": "activity",
+    "search": "無聊 幹嘛 做什麼 玩什麼 推薦 下一步 龍 坐騎 夥伴 馴服",
+    "labels": [
+      "龍",
+      "坐騎",
+      "夥伴",
+      "馴服"
+    ],
+    "source": "本站教學：夥伴、坐騎與龍族",
+    "playerTitle": "想玩龍：找一隻還沒收集或沒練熟的坐騎",
+    "playerSummary": "先從坐騎收藏挑一隻未取得的龍或夥伴，查地點、食物與馴服條件；已經有很多坐騎的話，就在基地附近測騎乘、召回、戰鬥能力與地形破壞風險。"
+  }
+]
