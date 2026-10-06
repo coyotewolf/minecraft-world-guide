@@ -7,6 +7,24 @@ function setup(){const storage=new Store(),env={FREE_ONLY_ACK:'true',AI:{run:asy
 const trophyPlan={query:'首領 獎盃 掉落',mode:'list',facet:'bossDrops',focus:['獎盃','trophy'],useHistory:false,progress:'advanced',exclude:[]};
 const trophyCatalog={references:2,scope:'測試資料的直接掉落表，不含伺服器覆寫',rows:['契瑟德','蓋布拉','馬爾庫特'].map((name,i)=>({itemName:name+'獎盃',itemId:'test:'+i+'_trophy',sourceName:name,sourceId:'test:'+i,boss:true,detail:'此掉落表每次執行必出，數量 1。'}))};
 
+test('an evidence gap still reaches chat AI with explicit bounded scope instead of a fixed fallback',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:[]);let calls=0;
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'找不到名字的機器 啟動',mode:'mechanism',facet:'none',focus:[]}};const context=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(context.facts.length,0);assert.equal(context.retrievalCoverage.bounded,true);return {response:{answer:'這台機器的名字還沒確認，你看到的介面標題是什麼？',factIds:[]}}};
+ const result=await service.ask('u','那個機器啟動不了');assert.equal(calls,2);assert.equal(result.body.answer,'這台機器的名字還沒確認，你看到的介面標題是什麼？');
+});
+
+test('recommendation review receives evidence and corrects a generic draft without charging a second question',async()=>{
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.ANSWER_REVIEW='true';let calls=0;
+ env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,mode:'recommendation',facet:'none',query:'魔法之眼',focus:[]}};if(calls===2)return {response:{answer:'挑一種材料做產線。',factIds:['1']}};const p=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(p.draft.answer,'挑一種材料做產線。');assert(p.facts[0].text);return {response:{answer:'這次就去收藏魔法之眼，先查森林豪宅寶箱。',factIds:['1']}}};
+ const result=await service.ask('u','給我一個目標');assert.equal(calls,3);assert.equal(result.body.answer,'這次就去收藏魔法之眼，先查森林豪宅寶箱。');assert.equal(await storage.get('user:'+dayKey()+':u'),1);
+});
+
+test('drop lookup supports source-to-items as well as item-to-sources without assuming conditional reference drops',()=>{
+ const rows=[...trophyCatalog.rows,{itemName:'特殊晶石',itemId:'test:crystal',sourceName:'馬爾庫特',sourceId:'test:2',boss:true,detail:'經引用表列出；不能假設必掉。'}];
+ const bySource=relationEvidence({...trophyCatalog,rows},{...trophyPlan,focus:['馬爾庫特'],relationSide:'source'});assert.equal(bySource.lookup.matches,2);assert.match(bySource.playerSummary,/特殊晶石/);assert.match(bySource.playerSummary,/不能假設必掉/);
+ const byItem=relationEvidence({...trophyCatalog,rows},{...trophyPlan,focus:['獎盃'],relationSide:'item'});assert.equal(byItem.lookup.matches,3);assert(!byItem.playerSummary.includes('特殊晶石'));
+});
+
 test('semantic plan resolves the current list and does not reuse old dragon evidence',async()=>{
  const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';let calls=0,answerInput;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:r.url.endsWith('player-playbook.json')?[{id:'dragon',title:'安全的龍',search:'龍 安全 會飛 獎盃',category:'dragon-behavior',playerSummary:'不要混入清單'}]:[]);

@@ -32,7 +32,8 @@
   "SUPABASE_URL": "https://pfrnxaitloaiemrerhcn.supabase.co",
   "SUPABASE_KEY": "sb_publishable_VbCO9ufRfxSZT8w7N7UtnA_zP5mkFgq",
   "FREE_ONLY_ACK": "true",
-  "CONVERSATION_PLANNER": "true"
+  "CONVERSATION_PLANNER": "true",
+  "ANSWER_REVIEW": "true"
  },
  "preview_urls": false
 }

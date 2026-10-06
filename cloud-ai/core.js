@@ -1,9 +1,10 @@
+import {REVIEW_POLICY} from './answer-review.js';
 import {playerLimit,recordUsage,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v15-multi-source-coverage';
+export const ANSWER_CACHE_VERSION='zh-tw-v16-reviewed-evidence';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -204,8 +205,13 @@ export class GuideService{
    if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
    const requestedConstraints={flying,rideable,buildings,naturalChangesAllowed:/自然.*(?:沒關係|可以|不介意)/.test(q)};
    const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,requestedConstraints,retrievalCoverage:search.coverage,facts:compact});
-   this.stage='provider';const reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
+   this.stage='provider';let reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
    if(!reply){await release();const availability=await this.availability();return {status:503,body:{error:availability.message,code:availability.code,retryAt:availability.retryAt,providers:availability.providers,lastFailures:availability.lastFailures}}}
+   if(this.env.ANSWER_REVIEW==='true'&&plan?.mode==='recommendation'&&compact.length){
+    this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,facts:compact,draft:parseModelValue(reply.value)}),value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)},{maxTokens:700,temperature:0.3});
+    if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
+    reply=reviewed;
+   }
    const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));
    const facts=parsed.facts.map(({search,...f})=>this.localizeFact({...f,id:sent[Number(f.id)-1].id}));
    parsed.answer=this.localize(parsed.answer);
