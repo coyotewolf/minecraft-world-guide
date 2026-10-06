@@ -82,11 +82,22 @@ export class GuideService{
   const contextual=previous.context?await retrieve(this.manifest,previous.context+' '+question,file=>this.read(file)):[];
   await this.loadTranslations();
   this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
-  this.zhTw??=await this.read('zh-tw-core-names.json').then(x=>x?.map||{}).catch(()=>({}));
+  this.zhTw??=await (async()=>{
+    const merged={};
+    try{
+      const index=await this.read('translation-registry-index.json');
+      const shards=await Promise.all((index.shards||[]).map(file=>this.read(file)));
+      for(const shard of shards)Object.assign(merged,shard||{});
+    }catch{}
+    try{Object.assign(merged,(await this.read('zh-tw-core-names.json'))?.map||{})}catch{}
+    const pairs=Object.entries(merged)
+      .filter(([from,to])=>from&&to&&from!==to&&from.length>=2)
+      .sort((a,b)=>b[0].length-a[0].length);
+    return {map:merged,pairs};
+  })();
   const localize=value=>{
     let out=String(value??'');
-    const pairs=Object.entries(this.zhTw).sort((a,b)=>b[0].length-a[0].length);
-    for(const [from,to] of pairs)if(from&&to&&from!==to&&out.includes(from))out=out.split(from).join(to);
+    for(const [from,to] of this.zhTw.pairs)if(out.includes(from))out=out.split(from).join(to);
     return out;
   };
   this.gameplay??=await (async()=>{
