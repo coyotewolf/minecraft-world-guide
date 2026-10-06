@@ -2,7 +2,7 @@ import {retrieve,activityPool} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v10-semantic-conversation';
+export const ANSWER_CACHE_VERSION='zh-tw-v11-semantic-diagnostics';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -202,8 +202,8 @@ export class GuideService{
    const facts=parsed.facts.map(({search,...f})=>this.localizeFact({...f,id:sent[Number(f.id)-1].id}));
    parsed.answer=this.localize(parsed.answer);
    if(!parsed.answer){await release();return {status:200,body:{facts:[],answer:'目前資料不足以可靠回答這題。',message:'目前資料不足以可靠回答這題。'}}}
-   if(!facts.length){await remember([],parsed.answer);return {status:200,body:{facts:[],answer:parsed.answer,message:parsed.answer,provider:reply.provider,version:this.manifest.version,remaining:slot.remaining}}}
-   const body={facts,answer:parsed.answer,provider:reply.provider,version:this.manifest.version,message:parsed.answer};
+   if(!facts.length){await remember([],parsed.answer);return {status:200,body:{facts:[],answer:parsed.answer,message:parsed.answer,provider:reply.provider,version:this.manifest.version,intent:plan,remaining:slot.remaining}}}
+   const body={facts,answer:parsed.answer,provider:reply.provider,version:this.manifest.version,message:parsed.answer,intent:plan};
    await this.storage.put(cacheKey,{body,expires:Date.now()+86400000});await remember(facts,parsed.answer);return {status:200,body:{...body,remaining:slot.remaining}};
   }catch(error){await release();throw error}
  }
