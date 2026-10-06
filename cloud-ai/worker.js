@@ -4,7 +4,7 @@ async function boundedBody(request){if(!request.body)return '';const reader=requ
 export class GuideCoordinator extends DurableObject{
  constructor(ctx,env){super(ctx,env);this.service=new GuideService(ctx.storage,env);this.queue=Promise.resolve()}
  availability(){return this.service.availability()}
- ask(uid,question,conversationId,cloudTurns=[]){const next=this.queue.then(async()=>{if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);return this.service.ask(uid,question,conversationId,cloudTurns)});this.queue=next.catch(()=>{});return next}
+ ask(uid,question,conversationId,cloudTurns=[]){const next=this.queue.then(async()=>{if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);try{return await this.service.ask(uid,question,conversationId,cloudTurns)}catch(error){const m=String(error?.message||'');const diagnostic=/subrequest/i.test(m)?'request_budget':/memory/i.test(m)?'memory':/knowledge_unavailable/.test(m)?'knowledge':/json/i.test(m)?'knowledge_format':'processing';return {status:503,body:{error:'小助手暫時連線不穩，請稍後重試。',code:'server_error',diagnostic,stage:this.service.stage||'unknown'}}}});this.queue=next.catch(()=>{});return next}
  async alarm(){await this.service.cleanup();await this.ctx.storage.setAlarm(Date.now()+86400000)}
 }
 export default {async fetch(request,env){

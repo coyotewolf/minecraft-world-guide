@@ -179,7 +179,7 @@ async function send(ai,retrying=false){
    const session=await snapshot.db.auth.getSession();if(identity!==owner||signal.aborted||state.conversationId!==conversationId)return;
    const token=session.data?.session?.access_token;if(!token||session.data.session.user.id!==owner)throw Error('請重新登入玩家帳號。');
    const response=await fetch(snapshot.cfg.aiEndpoint.replace(/\/$/,'')+'/ask',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({question,conversationId}),signal:AbortSignal.any([signal,AbortSignal.timeout(90000)])});
-   const answer=await response.json();if(!response.ok){if(identity===owner)host.dataset.availability=JSON.stringify({code:answer.code,providers:answer.providers,lastFailures:answer.lastFailures});const e=Error(answer.error||'小助手暫時無法回覆，試試搜尋。');e.retryAt=answer.retryAt;throw e}
+   const answer=await response.json();if(!response.ok){if(identity===owner)host.dataset.availability=JSON.stringify({code:answer.code,diagnostic:answer.diagnostic,stage:answer.stage,providers:answer.providers,lastFailures:answer.lastFailures});const e=Error(answer.error||'小助手暫時無法回覆，試試搜尋。');e.retryAt=answer.retryAt;throw e}
    facts=answer.facts||[];text=answer.answer||answer.message||(facts.length?'我找到相關資料，但目前無法整理成完整回答。':'目前資料不足以可靠回答這題。');
    if(identity===owner)host.dataset.provider=answer.provider||'none';
   }else{
