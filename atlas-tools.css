@@ -46,3 +46,21 @@ html[data-atlas=equipment] .atlas-equipment-controls input.atlas-equipment-searc
 html[data-atlas=equipment] .atlas-equipment-controls{padding:0 18px!important}
 
 html[data-atlas] :is(button.primary,button.active,button[aria-pressed=true],button[aria-selected=true]){background:#52693d!important;color:#fff!important;text-shadow:none!important}#atlas-quickbar .atlas-desktop-modes button.active,#atlas-quickbar .atlas-menu-panel button.active{background:#52693d!important;color:#fff!important;text-shadow:none!important}
+.atlas-shelves>.wishlist-spotlight{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 24px;position:relative;padding:22px 24px;color:#332611;background:#ead9a7;border:3px solid #b58a35;box-shadow:inset 3px 3px #fff0c9,inset -3px -3px #c2a264,5px 5px #21170b;transform:none;overflow:hidden}
+.atlas-shelves>.wishlist-spotlight:hover{color:#332611;text-decoration:none;background:#f2e2b5;border-color:#e3b34b;transform:translateY(-2px)}
+.wishlist-spotlight:after{content:'';position:absolute;top:0;right:0;width:16px;height:16px;background:#b58a35;clip-path:polygon(0 0,100% 0,100% 100%)}
+.wishlist-spotlight-title{display:flex;align-items:center;gap:14px;min-width:0}
+.wishlist-spotlight-title>img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(2px 2px #9e7d36)}
+.wishlist-eyebrow{font-size:12px;color:#725117;display:block;margin-bottom:4px}
+.wishlist-spotlight h2{color:#332611;font-size:22px;line-height:1.5;margin:0;text-shadow:none}
+.wishlist-open{font-size:24px;color:#725117;margin-left:auto}
+.wishlist-spotlight-content{display:flex;align-items:center;gap:24px;justify-content:flex-end}
+.wishlist-count{font-size:14px;white-space:nowrap;margin:0;color:#332611}
+.wishlist-count b{font-size:28px;color:#624011;margin-right:5px}
+.wishlist-preview{display:flex;gap:8px;align-items:center;color:#725117;font-size:12px}
+.wishlist-preview img{width:32px;height:32px;object-fit:contain;image-rendering:pixelated}
+.wishlist-spotlight-progress{grid-column:1/-1;display:flex;align-items:center;gap:16px}
+.wishlist-spotlight-progress .progressbar{flex:1;height:7px;margin:0;border-color:#80652e;background:#d1bc7c}
+.wishlist-spotlight-progress .progressbar>span{background:#628144}
+.wishlist-spotlight-progress small{color:#4a3819;font-size:12px;white-space:nowrap}
+@media(max-width:700px){.atlas-shelves>.wishlist-spotlight{grid-template-columns:minmax(0,1fr);padding:18px;gap:14px}.wishlist-spotlight-content{justify-content:space-between;gap:12px;flex-wrap:wrap}.wishlist-spotlight h2{font-size:20px}.wishlist-count b{font-size:24px}.wishlist-spotlight-title>img{width:40px;height:40px}.wishlist-spotlight-progress{gap:10px}}
