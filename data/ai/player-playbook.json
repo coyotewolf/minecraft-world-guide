@@ -16,18 +16,67 @@
     "playerSummary": "地形破壞受 Minecraft「生物破壞地形」規則與模組的龍族破壞設定共同控制。成年噬焰龍、凜蝮龍、殷雷龍、蓑鮋龍、蜷鱷龍具有被動撞樹拆樹行為，身體接觸自然生成的原木與樹葉時可將其破壞；結構中的樹木則有額外保護。燼翎龍與堅甲龍沒有這種被動撞樹拆樹行為，但燼翎龍的火焰能力在允許地形破壞與點火時仍可點燃方塊。噬焰龍除了撞樹外，火焰吐息還能直接影響地形、點火並熔毀特定方塊。龍類共用行為預設會讓成年龍接觸荷葉時破壞荷葉；虛顎龍則明確不會因接觸而破壞荷葉。因此「不會撞樹」不等於「完全不會改變任何地形」。"
   },
   {
-    "id": "playbook:dragon-terrain-confidence",
-    "title": "龍族地形破壞的判定方式",
+    "id": "playbook:dragon-terrain-berk-safe",
+    "title": "博克島巨龍 1.0.5：完全未實作地形破壞的龍",
     "category": "dragon-behavior",
-    "search": "哪些龍 不破壞地形 完全不破壞 安全基地 龍 坐騎 比較",
+    "search": "哪些龍 不破壞地形 完全不破壞 安全基地 博克島 疾刺龍 疾刺龍領袖 毒刺龍 Speed Stinger Speed Stinger Leader Stinger terrain grief destroy block",
     "labels": [
-      "龍",
+      "博克島巨龍",
+      "地形破壞",
       "基地安全",
-      "比較"
+      "疾刺龍",
+      "毒刺龍"
     ],
-    "source": "目前已查核的《聖徒群龍》1.20.1 程式邏輯；《博克島巨龍》1.0.5 正在依實際 JAR 補做同等層級查核",
-    "playerTitle": "判斷龍是否會破壞地形要分四類",
-    "playerSummary": "判斷龍是否適合放在基地時，應分開檢查四種行為：被動撞樹拆樹、接觸方塊造成破壞、火焰點火，以及技能直接破壞或熔毀方塊。只有其中一項不存在，不能直接推論這隻龍完全不會影響地形。《博克島巨龍》1.0.5 必須以目前整合包實際 JAR 的程式行為完成同等層級查核後，才能列出完整的「不破壞地形」名單。"
+    "source": "使用者實際整合包 dragonsofberk-1.20.1-1.0.5.jar 解包：龍類、投射物與方塊互動程式",
+    "playerTitle": "博克島巨龍中最安全放基地的 3 種龍",
+    "playerSummary": "以 1.20.1-1.0.5 實際 JAR 查核，疾刺龍、疾刺龍領袖、毒刺龍的龍類程式與共用基底都沒有實作吐息、投射物爆炸、點火、呼吸侵蝕或碰撞拆方塊機制；因此就《博克島巨龍》本身的程式行為而言，這 3 種是目前可明確列為不會改變地形的龍。這個結論不包含其他模組額外賦予的能力。"
+  },
+  {
+    "id": "playbook:dragon-terrain-berk-conditional",
+    "title": "博克島巨龍 1.0.5：會受生物破壞地形規則控制的地形效果",
+    "category": "dragon-behavior",
+    "search": "博克島 龍 地形破壞 生物破壞地形 mobGriefing 爆炸 拆樹 夜煞 光煞 夜光龍 葛倫科 喚雷龍 恐怖龍 醜陋雙頭龍 Night Fury Light Fury Night Light Gronckle Skrill Terrible Terror Zippleback",
+    "labels": [
+      "博克島巨龍",
+      "生物破壞地形",
+      "爆炸",
+      "拆樹"
+    ],
+    "source": "dragonsofberk-1.20.1-1.0.5.jar：BaseLinearFlightProjectile、BreathErosion、FuryBolt、LavaBlob、SkrillLightning、ZipBreathProjectile、ZippleBackAOECloud",
+    "playerTitle": "多數遠程龍在開啟生物破壞地形時仍會改變地形",
+    "playerSummary": "所有共用直線投射物在撞到方塊時，都會先依「生物破壞地形」規則呼叫呼吸侵蝕；呼吸侵蝕只作用於原木與樹葉，持續命中同一方塊會累積破壞進度並最終破壞。夜煞、光煞、夜光龍的電漿彈另外會在命中時產生方塊型爆炸；恐怖龍的小型火球也會產生方塊型爆炸，這些都只在允許生物破壞地形時破壞方塊。葛倫科的熔岩彈明確強制使用不破壞方塊的爆炸模式，所以不會炸地形，但它撞到原木或樹葉時仍可能觸發呼吸侵蝕。喚雷龍的閃電投射物不會產生方塊爆炸，但撞到原木或樹葉時仍可能觸發呼吸侵蝕；它的範圍效果本身沒有直接改方塊。醜陋雙頭龍的毒氣彈本身不炸方塊，但會留下毒氣雲；毒氣雲遇到火源或被引爆時，若允許生物破壞地形，會使用 TNT 型爆炸破壞方塊。"
+  },
+  {
+    "id": "playbook:dragon-terrain-berk-fire",
+    "title": "博克島巨龍 1.0.5：火焰吐息直接放火的例外",
+    "category": "dragon-behavior",
+    "search": "博克島 點火 放火 火焰吐息 生物破壞地形 mobGriefing 致命納德 烈焰狂魔 蠍子龍 Deadly Nadder Monstrous Nightmare Triple Stryke fire breath ignite terrain",
+    "labels": [
+      "博克島巨龍",
+      "點火",
+      "火焰吐息",
+      "致命納德",
+      "烈焰狂魔",
+      "蠍子龍"
+    ],
+    "source": "dragonsofberk-1.20.1-1.0.5.jar：ADragonBaseFlyingRideableBreathUser、FireBreathProjectile",
+    "playerTitle": "致命納德、烈焰狂魔、蠍子龍即使關閉生物破壞地形仍要小心火",
+    "playerSummary": "致命納德使用共用火焰吐息；烈焰狂魔與蠍子龍也會生成同一種大型火焰吐息投射物。這個投射物命中後的地形處理會直接在可放置的位置生成火焰方塊，程式中沒有用「生物破壞地形」布林值擋住這段放火邏輯。因此關閉生物破壞地形可以阻止它們的呼吸侵蝕拆樹，但不能保證阻止命中處附近被直接放火。致命納德的尖刺本身則沒有破壞方塊邏輯。"
+  },
+  {
+    "id": "playbook:dragon-terrain-berk-matrix",
+    "title": "博克島巨龍 1.0.5：13 種龍地形安全總表",
+    "category": "dragon-behavior",
+    "search": "所有龍 地形 安全 比較 博克島 13種 致命納德 葛倫科 光煞 烈焰狂魔 夜煞 夜光龍 喚雷龍 疾刺龍 疾刺龍領袖 毒刺龍 恐怖龍 蠍子龍 醜陋雙頭龍",
+    "labels": [
+      "博克島巨龍",
+      "比較",
+      "地形破壞",
+      "完整查核"
+    ],
+    "source": "dragonsofberk-1.20.1-1.0.5.jar 同版本完整類別查核",
+    "playerTitle": "博克島巨龍地形安全結論",
+    "playerSummary": "完全沒有《博克島巨龍》自身地形修改機制：疾刺龍、疾刺龍領袖、毒刺龍。只有在允許生物破壞地形時才會因遠程能力改地形：夜煞、光煞、夜光龍、恐怖龍會有方塊爆炸並可能侵蝕樹木；葛倫科與喚雷龍不會炸方塊，但投射物命中原木或樹葉時可能逐步侵蝕破壞；醜陋雙頭龍會侵蝕樹木，且毒氣雲被火源引爆時可炸地形。即使關閉生物破壞地形仍不能視為完全安全：致命納德、烈焰狂魔、蠍子龍的大型火焰吐息命中時會直接放置火焰方塊。若目標是『放在基地旁完全不用擔心龍本身改地形』，優先選疾刺龍、疾刺龍領袖或毒刺龍。"
   },
   {
     "id": "playbook:bored-explore",
