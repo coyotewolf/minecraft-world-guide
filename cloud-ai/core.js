@@ -38,7 +38,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch){
  return null;
 }
 export class GuideService{
- constructor(storage,env){this.storage=storage;this.env=env;this.manifest=null;this.playbook=null}
+ constructor(storage,env){this.storage=storage;this.env=env;this.manifest=null;this.playbook=null;this.gameplay=null}
  async read(name){const response=await this.env.ASSETS.fetch(new Request('https://knowledge.invalid/'+name));if(!response.ok)throw Error('knowledge_unavailable');return response.json()}
  async cleanup(){for(const prefix of ['conversation:','cache:','user:','global:','neurons:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
  async ask(uid,question,conversationId){
@@ -50,19 +50,37 @@ export class GuideService{
   const current=await retrieve(this.manifest,question,file=>this.read(file));
   const contextual=previous.context?await retrieve(this.manifest,previous.context+' '+question,file=>this.read(file)):[];
   this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
+  this.gameplay??=await (async()=>{
+    try{
+      const index=await this.read('gameplay-knowledge-index.json');
+      const pages=await Promise.all((index.shards||[]).map(x=>this.read(x.file)));
+      return pages.flat();
+    }catch{return []}
+  })();
   const q=(previous.questions.slice(-1).join(' ')+' '+question).toLowerCase();
   const activity=/無聊|幹嘛|做什麼|做啥|做點|能做|有什麼.*做|想.*做|玩什麼|推薦|下一步|沒事|不知道.*做|what.*do|bored/.test(q);
   const dragonTerrain=/(龍|dragon).*(破壞|地形|拆|燒|火|安全|grief|terrain|destroy|break)|(?:破壞|地形|grief|terrain).*(龍|dragon)/i.test(q);
-  const tokens=q.split(/[\s，。！？、,.!?/()]+/).filter(x=>x.length>=2);
-  const supplement=(this.playbook||[]).map(f=>{
-   const hay=(f.title+' '+f.search+' '+(f.labels||[]).join(' ')+' '+f.playerSummary).toLowerCase();
-   let score=tokens.reduce((n,t)=>n+(hay.includes(t)?1:0),0);
-   if(activity&&f.category==='activity')score+=8;
-   if(dragonTerrain&&f.category==='dragon-behavior')score+=12;
-   return {f,score};
-  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f);
+  const queryTerms=(()=>{
+    const out=new Set(q.split(/[\s，。！？、,.!?/()：:；;「」『』【】\[\]]+/).filter(x=>x.length>=2));
+    for(const seq of q.match(/[\u3400-\u9fff]{2,}/g)||[]){
+      const max=Math.min(seq.length,24);
+      for(let n=2;n<=4;n++)for(let i=0;i+n<=max;i++)out.add(seq.slice(i,i+n));
+    }
+    return [...out].slice(0,160);
+  })();
+  const rank=f=>{
+    const hay=(f.title+' '+f.search+' '+(f.labels||[]).join(' ')+' '+f.playerSummary).toLowerCase();
+    let score=0;
+    for(const t of queryTerms)if(hay.includes(t))score+=t.length>=4?3:t.length===3?2:1;
+    if(hay.includes(question.toLowerCase()))score+=20;
+    if(activity&&f.category==='activity')score+=18;
+    if(dragonTerrain&&f.category==='dragon-behavior')score+=24;
+    return score;
+  };
+  const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f);
+  const broad=(this.gameplay||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.f);
   const candidates=[];
-  for(const f of supplement)if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...curated,...broad])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async facts=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1500),expires:Date.now()+86400000})};
   if(!candidates.length)return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}};
