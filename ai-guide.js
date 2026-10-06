@@ -26,8 +26,8 @@ async function loadTranslations(){
   const index=await fetch('data/ai/translation-registry-index.json').then(r=>{if(!r.ok)throw Error();return r.json()});
   const pages=await Promise.all((index.shards||[]).map(file=>fetch('data/ai/'+file).then(r=>{if(!r.ok)throw Error();return r.json()})));
   translationMap=Object.assign({},...pages);
-  const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\const $=s=>host.querySelector(s);
-');
+  const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\  const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\const $=s=>host.querySelector(s);
+');');
   const keys=Object.keys(translationMap).filter(x=>x.length>=2).sort((a,b)=>b.length-a.length);
   translationMatchers=[];
   for(let i=0;i<keys.length;i+=700){const group=keys.slice(i,i+700).map(escape).join('|');translationMatchers.push(new RegExp('(?<![A-Za-z0-9_])(?:'+group+')(?![A-Za-z0-9_])','g'))}
