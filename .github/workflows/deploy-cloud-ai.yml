@@ -56,6 +56,27 @@ jobs:
           console.log('Validated gameplay knowledge records:', total);
           NODE
 
+      - name: Verify Traditional Chinese translation dictionaries
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          function verify(indexFile) {
+            const index = JSON.parse(fs.readFileSync('data/ai/' + indexFile, 'utf8'));
+            if (!Array.isArray(index.shards) || !index.shards.length) throw new Error(indexFile + ' has no shards');
+            let total = 0;
+            for (const shard of index.shards) {
+              const rows = JSON.parse(fs.readFileSync('data/ai/' + shard, 'utf8'));
+              if (!rows || Array.isArray(rows) || typeof rows !== 'object') throw new Error('Invalid translation shard: ' + shard);
+              total += Object.keys(rows).length;
+            }
+            if (total !== index.count) throw new Error(indexFile + ' count mismatch: ' + total + ' != ' + index.count);
+            console.log('Validated', indexFile, total, 'translations');
+          }
+          verify('translation-registry-index.json');
+          verify('translation-zh-tw-index.json');
+          NODE
+
       - name: Install Worker dependencies
         working-directory: cloud-ai
         run: npm ci
