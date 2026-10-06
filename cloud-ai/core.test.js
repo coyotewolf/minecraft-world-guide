@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {GuideService,selectedFacts,approvedUser,providerAnswer,providerFailure,dayKey,questionBody} from './core.js';
+import {GuideService,selectedFacts,approvedUser,providerAnswer,providerFailure,providerMessages,dayKey,questionBody} from './core.js';
 class Store{constructor(){this.values=new Map();this.queue=Promise.resolve()}async get(k){return structuredClone(this.values.get(k))}async put(k,v){this.values.set(k,structuredClone(v))}async delete(keys){for(const key of keys)this.values.delete(key)}async list({prefix,limit,startAfter=''}){return new Map([...this.values].filter(([k])=>k.startsWith(prefix)&&k>startAfter).sort(([a],[b])=>a.localeCompare(b)).slice(0,limit))}transaction(fn){const p=this.queue.then(()=>fn(this));this.queue=p.catch(()=>{});return p}}
 const fact={id:'test-id',title:'魔法之眼',search:'魔法之眼',text:'森林豪宅寶箱',labels:[],shard:'one.json'};
 function setup(){const storage=new Store(),env={FREE_ONLY_ACK:'true',AI:{run:async()=>({response:{answer:'這是根據資料整理的回答。',factIds:['1']}})},ASSETS:{fetch:async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[fact])}};return {storage,env,service:new GuideService(storage,env)}}
@@ -7,6 +7,18 @@ test('only exact supplied facts are returned; fabricated IDs reject the response
 test('approved account check requires active RPC status',async()=>{const request=new Request('https://test',{headers:{Authorization:'Bearer fake'}}),env={SUPABASE_URL:'https://sb',SUPABASE_KEY:'public'};let calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:false})),null);calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:true})),'u')});
 test('Gemini quota failure falls back to Cloudflare',async()=>{let fallback=0;const spent=[];const result=await providerAnswer({GEMINI_API_KEY:'not-real',AI:{run:async()=>{fallback++;return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}}}},'prompt',async()=>true,async(...args)=>spent.push(args),async()=>new Response('{}',{status:429}));assert.equal(result.provider,'cloudflare');assert.equal(fallback,1);assert(spent.some(x=>x[0]==='gemini'&&x[1]===60000))});
 test('no allowed provider returns unavailable without paid route',async()=>{assert.equal(await providerAnswer({AI:{run:()=>assert.fail()}},'prompt',async()=>false,async()=>{}),null)});
+
+test('both providers receive actual conversation roles and separate current evidence',async()=>{
+ const prompt='聊天規則\n'+JSON.stringify({priorTurns:[{user:'想放鬆',assistant:'蓋個小倉庫吧。'}],question:'不要蓋東西，換一個',facts:[{id:'1',text:'烹飪鍋'}]});
+ const messages=providerMessages(prompt);
+ assert.deepEqual(messages.map(m=>m.role),['system','user','assistant','user']);
+ assert.equal(messages[2].content,'蓋個小倉庫吧。');assert(!messages[3].content.includes('priorTurns'));
+ let primary,fallback;
+ await providerAnswer({gemini_api:'test-only'},prompt,async()=>true,async()=>{},async(_,options)=>{primary=JSON.parse(options.body);return Response.json({candidates:[{content:{parts:[{text:'ok'}]}}]})});
+ assert.equal(primary.systemInstruction.parts[0].text,'聊天規則');assert.deepEqual(primary.contents.map(m=>m.role),['user','model','user']);
+ await providerAnswer({AI:{run:async(_,input)=>{fallback=input;return {response:'ok'}}}},prompt,async()=>true,async()=>{});
+ assert.deepEqual(fallback.messages.map(m=>m.role),['system','user','assistant','user']);
+});
 
 test('provider diagnostics distinguish daily quota, short limits and configuration without raw errors',()=>{
  assert.deepEqual(providerFailure(429,{error:{details:[{violations:[{quotaId:'GenerateRequestsPerDayPerProjectPerModel-FreeTier'}]},{retryDelay:'3720s'}]}}),{code:'daily_quota',status:429,delay:3720000});
@@ -19,9 +31,28 @@ test('invalid primary output falls back instead of pretending knowledge is missi
  assert.equal(result.provider,'cloudflare');assert.deepEqual(failures,['invalid_answer']);
 });
 test('cloud transcript restores constraints after worker conversation expiry',async()=>{
- const {service,env}=setup();let prompt='';env.AI.run=async(_,input)=>{prompt=input.messages[0].content;return {response:{answer:'保留會飛條件。',factIds:['1']}}};
+ const {service,env}=setup();let prompt='';env.AI.run=async(_,input)=>{prompt=input.messages.map(m=>m.content).join('\n');return {response:{answer:'保留會飛條件。',factIds:['1']}}};
  await service.ask('u','魔法之眼','00000000-0000-4000-8000-000000000003',[{user:'找會飛又能騎的龍',assistant:'先比較地形效果。'}]);
  assert.match(prompt,/找會飛又能騎的龍/);
+});
+
+test('new topic evidence is not crowded out by flight and building constraints from old turns',async()=>{
+ const {service,env}=setup();let input;
+ const dragons=Array.from({length:8},(_,i)=>({id:'dragon-'+i,category:'dragon-behavior',title:'會飛能騎的龍 '+i,search:'龍 飛行 原木建築 建築安全',playerSummary:'相連原木有風險'}));
+ const food={id:'food',category:'cooking',title:'燉牛肉',search:'燉牛肉 料理 製作',playerSummary:'使用烹飪鍋'};
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'food.json',terms:'燉牛肉'}]}:r.url.endsWith('player-playbook.json')?dragons:r.url.endsWith('food.json')?[food]:[]);
+ env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.map(m=>m.content).join('\n').split('\n').find(line=>line.startsWith('{')));return {response:{answer:'燉牛肉使用烹飪鍋。',factIds:['1']}}};
+ const result=await service.ask('u','換個話題，燉牛肉怎麼做？',undefined,[{user:'推薦會飛能騎又不破壞原木建築的龍',assistant:'比較飛行坐騎。'}]);
+ assert.equal(input.facts[0].title,'燉牛肉');assert.equal(result.body.facts[0].id,'food');
+});
+
+test('conversational replies without citations still remain in the next turn memory',async()=>{
+ const {service,env,storage}=setup(),cid='00000000-0000-4000-8000-000000000007';let input;
+ env.AI.run=async(_,value)=>{input=value.messages.map(m=>m.content).join('\n');return {response:{answer:'那我們先聊魔法之眼吧。',factIds:[]}}};
+ await service.ask('u','魔法之眼',cid);
+ assert.equal((await storage.get('conversation:u:'+cid)).answers[0],'那我們先聊魔法之眼吧。');
+ await service.ask('u','魔法之眼還有呢？',cid);
+ assert(input.includes('那我們先聊魔法之眼吧。'));
 });
 test('all providers cooling down produces retry time, not a missing-data answer',async()=>{
  const {service,storage}=setup();await storage.put('cooldown:cloudflare',Date.now()+60000);const r=await service.ask('u','魔法之眼');assert.equal(r.status,503);assert(r.body.retryAt>Date.now());assert.match(r.body.error,/重試/);assert.equal(await storage.get('user:'+dayKey()+':u'),0);
@@ -33,12 +64,12 @@ test('Free-only acknowledgement is required before activation',async()=>{const {
 test('app day resets at UTC+8 midnight',()=>{assert.equal(dayKey(Date.parse('2026-10-06T15:59:59Z')),'2026-10-06');assert.equal(dayKey(Date.parse('2026-10-06T16:00:00Z')),'2026-10-07')});
 test('concurrent reservations cannot overrun the global daily cap',async()=>{const {service,storage}=setup();await storage.put('global:'+dayKey(),399);const results=await Promise.all([service.ask('a','魔法之眼'),service.ask('b','魔法之眼')]);assert.deepEqual(results.map(r=>r.status).sort(),[200,429]);assert.equal(await storage.get('global:'+dayKey()),400)});
 test('expired answer caches and old counters are deleted, current counters remain',async()=>{const {service,storage}=setup();await storage.put('cache:expired',{expires:0});await storage.put('cache:current',{expires:Date.now()+60000});await storage.put('user:2020-01-01:u',1);await storage.put('user:'+dayKey()+':u',1);await service.cleanup();assert.equal(await storage.get('cache:expired'),undefined);assert.equal(await storage.get('user:2020-01-01:u'),undefined);assert(await storage.get('cache:current'));assert.equal(await storage.get('user:'+dayKey()+':u'),1)});
-test('follow-up uses prior user and assistant turns and cannot access another player conversation',async()=>{const {service,storage,env}=setup(),cid='00000000-0000-4000-8000-000000000001';const prompts=[];env.AI.run=async(_,input)=>{prompts.push(input.messages[0].content);return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}};await service.ask('a','魔法之眼',cid);assert.equal((await service.ask('a','那機率呢？',cid)).body.facts.length,1);assert(prompts[1].includes('"priorTurns"'));assert(prompts[1].includes('"user":"魔法之眼"'));assert(prompts[1].includes('"assistant":"這是根據資料整理的回答。"'));assert.equal((await service.ask('b','那機率呢？',cid)).body.facts.length,0);assert.equal(await storage.get('conversation:b:'+cid),undefined);await storage.put('conversation:a:'+cid,{expires:0,questions:['魔法之眼'],answers:['舊答案'],context:'魔法之眼'});assert.equal((await service.ask('a','那機率呢？',cid)).body.facts.length,0)});
+test('follow-up uses prior user and assistant turns and cannot access another player conversation',async()=>{const {service,storage,env}=setup(),cid='00000000-0000-4000-8000-000000000001';const prompts=[];env.AI.run=async(_,input)=>{prompts.push(input.messages.map(m=>m.content).join('\n'));return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}};await service.ask('a','魔法之眼',cid);assert.equal((await service.ask('a','那機率呢？',cid)).body.facts.length,1);assert(prompts[1].includes('魔法之眼'));assert(prompts[1].includes('魔法之眼'));assert(prompts[1].includes('這是根據資料整理的回答。'));assert.equal((await service.ask('b','那機率呢？',cid)).body.facts.length,0);assert.equal(await storage.get('conversation:b:'+cid),undefined);await storage.put('conversation:a:'+cid,{expires:0,questions:['魔法之眼'],answers:['舊答案'],context:'魔法之眼'});assert.equal((await service.ask('a','那機率呢？',cid)).body.facts.length,0)});
 test('client cannot provide an arbitrary conversation storage path',()=>{assert.throws(()=>questionBody({question:'test',conversationId:'../other-player'}));assert.equal(questionBody({question:'test',conversationId:'00000000-0000-4000-8000-000000000001'}).question,'test')});
 
-test('model input uses player instructions, short IDs and summaries instead of raw JSON',async()=>{const {service,env}=setup();env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[{...fact,text:JSON.stringify({secretRawMarker:'must-stay-in-source'}),playerTitle:'搜尋森林豪宅寶箱',playerSummary:'魔法之眼：每次開箱有 10% 機率取得，數量 1。'}]);env.AI.run=async(_,input)=>{const p=input.messages[0].content;assert(p.includes('玩家'));assert(p.includes('"id":"1"'));assert(!p.includes('must-stay-in-source'));assert(!p.includes('test-id'));return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}};const result=await service.ask('u','魔法之眼');assert.equal(result.body.facts[0].id,'test-id');assert(result.body.facts[0].text.includes('must-stay-in-source'))});
+test('model input uses player instructions, short IDs and summaries instead of raw JSON',async()=>{const {service,env}=setup();env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[{...fact,text:JSON.stringify({secretRawMarker:'must-stay-in-source'}),playerTitle:'搜尋森林豪宅寶箱',playerSummary:'魔法之眼：每次開箱有 10% 機率取得，數量 1。'}]);env.AI.run=async(_,input)=>{const p=input.messages.map(m=>m.content).join('\n');assert(p.includes('玩家'));assert(p.includes('"id":"1"'));assert(!p.includes('must-stay-in-source'));assert(!p.includes('test-id'));return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}};const result=await service.ask('u','魔法之眼');assert.equal(result.body.facts[0].id,'test-id');assert(result.body.facts[0].text.includes('must-stay-in-source'))});
 
-test('conversation prompt prioritizes direct corrections, constraints and non-repetition',async()=>{const {service,env}=setup();let prompt='';env.AI.run=async(_,input)=>{prompt=input.messages[0].content;return {response:{answer:'對，先修正上一輪結論。',factIds:['1']}}};await service.ask('u','魔法之眼怎麼取得？','00000000-0000-4000-8000-000000000002');await service.ask('u','但你剛剛說的真的符合嗎？','00000000-0000-4000-8000-000000000002');assert.match(prompt,/承接上一輪/);assert.match(prompt,/三個、可以飛、基地安全/);assert.match(prompt,/不能把上一輪資料重新完整念一遍/);assert.match(prompt,/剛剛那三隻不符合會飛這個條件/);assert.match(prompt,/"priorTurns"/);assert.match(prompt,/魔法之眼怎麼取得/)});
+test('conversation prompt prioritizes direct corrections, constraints and non-repetition',async()=>{const {service,env}=setup();let prompt='';env.AI.run=async(_,input)=>{prompt=input.messages.map(m=>m.content).join('\n');return {response:{answer:'對，先修正上一輪結論。',factIds:['1']}}};await service.ask('u','魔法之眼怎麼取得？','00000000-0000-4000-8000-000000000002');await service.ask('u','但你剛剛說的真的符合嗎？','00000000-0000-4000-8000-000000000002');assert.match(prompt,/承接上一輪/);assert.match(prompt,/三個、可以飛、基地安全/);assert.match(prompt,/不能把上一輪資料重新完整念一遍/);assert.match(prompt,/剛剛那三隻不符合會飛這個條件/);assert.match(prompt,/魔法之眼/);assert.match(prompt,/魔法之眼怎麼取得/)});
 
 test('broad conversational questions use gameplay playbook instead of dead-end fallback',async()=>{
  const storage=new Store();
@@ -47,7 +78,7 @@ test('broad conversational questions use gameplay playbook instead of dead-end f
   {id:'playbook:dragon',title:'龍的地形破壞',category:'dragon-behavior',search:'龍 破壞地形 拆樹',labels:['龍'],source:'程式查核',playerTitle:'龍的地形破壞',playerSummary:'部分龍會被動拆樹，必須分開看拆樹、點火與技能破壞。'}
  ];
  const prompts=[];
- const env={FREE_ONLY_ACK:'true',AI:{run:async(_,input)=>{prompts.push(input.messages[0].content);const bored=input.messages[0].content.includes('我好無聊');return {response:{answer:bored?'可以先做一條小型自動化產線。':'要分開比較拆樹、點火與技能破壞。',factIds:['1']}}}},ASSETS:{fetch:async r=>{
+ const env={FREE_ONLY_ACK:'true',AI:{run:async(_,input)=>{prompts.push(input.messages.map(m=>m.content).join('\n'));const bored=input.messages.map(m=>m.content).join('\n').includes('我好無聊');return {response:{answer:bored?'可以先做一條小型自動化產線。':'要分開比較拆樹、點火與技能破壞。',factIds:['1']}}}},ASSETS:{fetch:async r=>{
   if(r.url.endsWith('manifest.json'))return Response.json({version:'v1',shards:[]});
   if(r.url.endsWith('player-playbook.json'))return Response.json(playbook);
   return Response.json([]);
@@ -81,7 +112,7 @@ test('whole-pack gameplay layer retrieves Tetra, MineColonies, Create and Valkyr
   const storage=new Store();
   const record={id:'game:'+needle,kind:'article',title,category:'教學',search:question+' '+needle,labels:[needle],source:'整包玩法知識',playerTitle:title,playerSummary:'這是 '+title+' 的玩法與排錯資料。'};
   const env={FREE_ONLY_ACK:'true',AI:{run:async(_,input)=>{
-    const p=input.messages[0].content;
+    const p=input.messages.map(m=>m.content).join('\n');
     assert(p.includes(title));
     return {response:{answer:'已依整包玩法知識整理答案。',factIds:['1']}};
   }},ASSETS:{fetch:async r=>{
