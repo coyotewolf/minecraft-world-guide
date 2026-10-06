@@ -1,23 +1,23 @@
 [
   {
     "id": "playbook:dragon-terrain-saints",
-    "title": "Saint's Dragons：哪些龍會影響地形",
+    "title": "聖者之龍：哪些龍會影響地形",
     "category": "dragon-behavior",
     "search": "龍 破壞地形 地形破壞 拆樹 撞樹 火 點火 燒房子 荷葉 griefing terrain destroy block tree fire Cindervane Ignivorus Atroxiia Raevyx Volitans Varasuchus Stegonaut Nulljaw",
     "labels": [
-      "Saint's Dragons",
+      "聖者之龍",
       "地形破壞",
       "龍",
       "拆樹",
       "點火"
     ],
-    "source": "Saint's Dragons 1.20.1 原始碼：DragonDestructionManager、DragonGriefingRules 與各龍類別",
-    "playerTitle": "Saint's Dragons 的地形破壞規則",
-    "playerSummary": "地形破壞受 Minecraft mobGriefing 與模組 dragon griefing 設定共同控制。成年 Ignivorus、Atroxiia、Raevyx、Volitans、Varasuchus 實作 PassiveTreeDestroyer，身體接觸自然樹木時可拆除原木與自然樹葉；結構內的樹木會被保護。Cindervane 與 Stegonaut 沒有實作這個被動拆樹介面，所以不會因『被動撞樹』機制拆樹，但 Cindervane 的火焰能力仍可在允許 griefing/點火時點燃方塊。Ignivorus 除被動拆樹外，火焰吐息還有地形破壞、點火與熔毀機制。DragonEntity 預設成年龍接觸荷葉會破壞荷葉，只有 Nulljaw 明確覆寫為不破壞荷葉。因此『不會撞樹』不等於『完全不會改變任何地形』。"
+    "source": "《聖者之龍》1.20.1 程式邏輯：龍族地形破壞規則、被動拆樹與火焰地形行為",
+    "playerTitle": "聖者之龍的地形破壞規則",
+    "playerSummary": "地形破壞受 Minecraft「生物破壞地形」規則與模組的龍族破壞設定共同控制。成年噬焰龍、凜蝮龍、殷雷龍、蓑鮋龍、蜷鱷龍具有被動撞樹拆樹行為，身體接觸自然生成的原木與樹葉時可將其破壞；結構中的樹木則有額外保護。燼翎龍與堅甲龍沒有這種被動撞樹拆樹行為，但燼翎龍的火焰能力在允許地形破壞與點火時仍可點燃方塊。噬焰龍除了撞樹外，火焰吐息還能直接影響地形、點火並熔毀特定方塊。龍類共用行為預設會讓成年龍接觸荷葉時破壞荷葉；虛顎龍則明確不會因接觸而破壞荷葉。因此「不會撞樹」不等於「完全不會改變任何地形」。"
   },
   {
     "id": "playbook:dragon-terrain-confidence",
-    "title": "龍族地形問題的回答邊界",
+    "title": "龍族地形破壞的判定方式",
     "category": "dragon-behavior",
     "search": "哪些龍 不破壞地形 完全不破壞 安全基地 龍 坐騎 比較",
     "labels": [
@@ -25,9 +25,9 @@
       "基地安全",
       "比較"
     ],
-    "source": "本站目前已查核的 1.20.1 解包資料與 Saint's Dragons 原始碼",
-    "playerTitle": "判斷「不破壞地形」時要分開看",
-    "playerSummary": "比較龍是否安全放在基地時，要分成至少四種行為：被動撞樹拆樹、接觸荷葉、火焰點火、技能直接破壞／熔毀方塊。只有某一項沒有，不代表完全不影響地形。Dragons of Berk 的所有龍目前尚未完成同等程度的程式行為查核，因此若問題要求『整包所有龍』，答案應明確區分已查核與尚未查核，不可把未知當成不會破壞。"
+    "source": "目前已查核的《聖者之龍》1.20.1 程式邏輯；《博克島之龍》1.0.5 正在依實際 JAR 補做同等層級查核",
+    "playerTitle": "判斷龍是否會破壞地形要分四類",
+    "playerSummary": "判斷龍是否適合放在基地時，應分開檢查四種行為：被動撞樹拆樹、接觸方塊造成破壞、火焰點火，以及技能直接破壞或熔毀方塊。只有其中一項不存在，不能直接推論這隻龍完全不會影響地形。《博克島之龍》1.0.5 必須以目前整合包實際 JAR 的程式行為完成同等層級查核後，才能列出完整的「不破壞地形」名單。"
   },
   {
     "id": "playbook:bored-explore",
