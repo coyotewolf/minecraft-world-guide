@@ -1,8 +1,51 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {GuideService,selectedFacts,approvedUser,providerAnswer,providerFailure,providerMessages,dayKey,questionBody} from './core.js';
+import {validIntent,relationEvidence} from './conversation-intent.js';
 class Store{constructor(){this.values=new Map();this.queue=Promise.resolve()}async get(k){return structuredClone(this.values.get(k))}async put(k,v){this.values.set(k,structuredClone(v))}async delete(keys){for(const key of keys)this.values.delete(key)}async list({prefix,limit,startAfter=''}){return new Map([...this.values].filter(([k])=>k.startsWith(prefix)&&k>startAfter).sort(([a],[b])=>a.localeCompare(b)).slice(0,limit))}transaction(fn){const p=this.queue.then(()=>fn(this));this.queue=p.catch(()=>{});return p}}
 const fact={id:'test-id',title:'魔法之眼',search:'魔法之眼',text:'森林豪宅寶箱',labels:[],shard:'one.json'};
 function setup(){const storage=new Store(),env={FREE_ONLY_ACK:'true',AI:{run:async()=>({response:{answer:'這是根據資料整理的回答。',factIds:['1']}})},ASSETS:{fetch:async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[fact])}};return {storage,env,service:new GuideService(storage,env)}}
+const trophyPlan={query:'首領 獎盃 掉落',mode:'list',facet:'bossDrops',focus:['獎盃','trophy'],useHistory:false,progress:'advanced',exclude:[]};
+const trophyCatalog={references:2,scope:'測試資料的直接掉落表，不含伺服器覆寫',rows:['契瑟德','蓋布拉','馬爾庫特'].map((name,i)=>({itemName:name+'獎盃',itemId:'test:'+i+'_trophy',sourceName:name,sourceId:'test:'+i,boss:true,detail:'此掉落表每次執行必出，數量 1。'}))};
+
+test('semantic plan resolves the current list and does not reuse old dragon evidence',async()=>{
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';let calls=0,answerInput;
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:r.url.endsWith('player-playbook.json')?[{id:'dragon',title:'安全的龍',search:'龍 安全 會飛 獎盃',category:'dragon-behavior',playerSummary:'不要混入清單'}]:[]);
+ env.AI.run=async(_,input)=>{calls++;if(calls===1){assert(input.max_tokens<700);assert(input.messages.some(m=>m.content.includes('龍')));return {response:trophyPlan}}answerInput=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
+ const result=await service.ask('u','欸我記得打王有獎盃？哪些王有獎盃？',undefined,[{user:'有哪些能飛的龍',assistant:'先看龍。'}]);
+ assert.equal(result.status,200);assert.equal(calls,2);assert.equal(await storage.get('user:'+dayKey()+':u'),1);
+ assert(answerInput.facts[0].text.includes('契瑟德'));assert(answerInput.facts[0].text.includes('蓋布拉'));assert(answerInput.facts[0].text.includes('馬爾庫特'));
+ assert(!answerInput.facts.some(f=>f.title==='安全的龍'));assert.equal(answerInput.requestedConstraints.flying,false);
+});
+
+test('other bosses follow-up can exclude the previous example while listing named matches',()=>{
+ const evidence=relationEvidence(trophyCatalog,{...trophyPlan,useHistory:true,exclude:['馬爾庫特']});
+ assert(evidence.playerSummary.includes('契瑟德'));assert(evidence.playerSummary.includes('蓋布拉'));assert(!evidence.playerSummary.includes('馬爾庫特 →'));assert.equal(evidence.lookup.matches,3);
+ assert.equal(relationEvidence({...trophyCatalog,rows:[]},trophyPlan).lookup.matches,0);
+});
+
+test('invalid semantic output is rejected and a spent-out player cannot invoke planning',async()=>{
+ assert(validIntent(trophyPlan));assert(!validIntent({...trophyPlan,query:''}));assert(!validIntent({...trophyPlan,focus:['x'.repeat(41)]}));
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.AI.run=()=>assert.fail('must check cap before planning');await storage.put('user:'+dayKey()+':u',50);
+ assert.equal((await service.ask('u','其他的呢')).status,429);
+});
+
+test('cached semantic plan and answer avoid repeated provider work',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
+ env.AI.run=async()=>({response:++calls===1?{...trophyPlan,query:'魔法之眼',facet:'none',mode:'mechanism'}:{answer:'森林豪宅寶箱。',factIds:['1']}});
+ await service.ask('u','魔法之眼');await service.ask('u','魔法之眼');assert.equal(calls,2);
+});
+
+test('failed planner refunds the question and does not reach answer generation',async()=>{
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.AI.run=async()=>({response:{unexpected:true}});
+ const result=await service.ask('u','哪些王有獎盃');assert.equal(result.status,503);assert.equal(await storage.get('user:'+dayKey()+':u'),0);assert.equal(await storage.get('global:'+dayKey()),0);
+});
+
+test('capture request prioritizes companion acquisition conditions over passive ride instructions',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('gameplay-knowledge-index.json')?{shards:[{file:'companions.json'}]}:r.url.endsWith('companions.json')?[{id:'collection:dragon',category:'companions',kind:'collection',title:'特殊夥伴',search:'馴服 特殊 生物',playerSummary:'野生取得地點：雷暴期間；成年須戰鬥壓制後餵食生羊肉。'}]:r.url.endsWith('player-playbook.json')?[{id:'ride',category:'dragon-behavior',title:'上龍操作',search:'特殊 馴服 生物',playerSummary:'主手不拿食物可以上龍。'}]:[]);
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'特殊生物 馴服',facet:'companions',mode:'acquisition',focus:['馴服']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'雷暴期間找野生個體，壓制後餵食。',factIds:['1']}}};
+ await service.ask('u','都不想，有什麼特殊的東西可以抓嗎');assert(input.facts[0].text.includes('戰鬥壓制後餵食'));assert(!input.facts.some(f=>f.title==='上龍操作'));
+});
 test('only exact supplied facts are returned; fabricated IDs reject the response',()=>{assert.deepEqual(selectedFacts('{"factIds":["unknown"]}',[fact]),[]);assert.deepEqual(selectedFacts({factIds:['test-id','test-id']},[fact]),[fact]);assert.deepEqual(selectedFacts('<script>bad</script>',[fact]),[])});
 test('approved account check requires active RPC status',async()=>{const request=new Request('https://test',{headers:{Authorization:'Bearer fake'}}),env={SUPABASE_URL:'https://sb',SUPABASE_KEY:'public'};let calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:false})),null);calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:true})),'u')});
 test('Gemini quota failure falls back to Cloudflare',async()=>{let fallback=0;const spent=[];const result=await providerAnswer({GEMINI_API_KEY:'not-real',AI:{run:async()=>{fallback++;return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}}}},'prompt',async()=>true,async(...args)=>spent.push(args),async()=>new Response('{}',{status:429}));assert.equal(result.provider,'cloudflare');assert.equal(fallback,1);assert(spent.some(x=>x[0]==='gemini'&&x[1]===60000))});

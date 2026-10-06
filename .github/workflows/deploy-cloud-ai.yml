@@ -10,6 +10,7 @@ on:
       - "data/collections.json"
       - "data/inventory.json"
       - "tools/build_gameplay_knowledge.mjs"
+      - "tools/build_relation_knowledge.mjs"
       - ".github/workflows/deploy-cloud-ai.yml"
   workflow_dispatch:
 
@@ -37,7 +38,9 @@ jobs:
           cache-dependency-path: cloud-ai/package-lock.json
 
       - name: Rebuild whole-pack gameplay knowledge
-        run: node tools/build_gameplay_knowledge.mjs
+        run: |
+          node tools/build_gameplay_knowledge.mjs
+          node tools/build_relation_knowledge.mjs
 
       - name: Verify generated knowledge
         shell: bash

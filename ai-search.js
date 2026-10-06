@@ -4,14 +4,14 @@ export const recommendation=q=>/無聊|幹嘛|做什麼|玩什麼|推薦|下一�
 const expanded=q=>/地形|拆家|毀.*建築|破壞.*(方塊|房子|基地)/.test(q)?q+' 地形與建築破壞':q;
 const intent=q=>/取得|掉落|哪裡|在哪|機率/.test(q)?'取得與掉落':/製作|合成|配方|材料/.test(q)?'製作配方':'';
 export function rank(rows,q,limit=18,anchors=[]){const terms=tokens(q);if(!terms.length&&!anchors.length)return [];const hay=f=>(f.search||f.title||'').toLowerCase(),df=new Map(terms.map(t=>[t,rows.filter(f=>hay(f).includes(t)).length]));return rows.map(f=>{const text=hay(f),names=(f.title+' '+(f.labels||[]).join(' ')).toLowerCase();let score=terms.reduce((n,t)=>n+(text.includes(t)?Math.log(1+rows.length/(1+df.get(t)))*(t.length>2?2:1):0),0);const exact=anchors.some(a=>names.includes(a));if(anchors.length&&!exact)return {f,score:0};if(exact)score+=12;if(anchors.length&&intent(q)==='製作配方'&&f.playerTitle&&f.title.startsWith('製作配方')&&!anchors.some(a=>f.playerTitle.toLowerCase().includes(a)))return {f,score:0};if(score&&intent(q)&&f.title.startsWith(intent(q)))score+=4;return {f,score}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.f.id.localeCompare(b.f.id)).slice(0,limit).map(x=>x.f)}
-export async function activityPool(manifest,q,read){
+export async function activityPool(manifest,q,read,options={}){
  if(!manifest.activities)return [];
  manifest._activities??=await read(manifest.activities);
- const rows=manifest._activities.map((a,i)=>({id:'activity-'+a.article+'-'+i,title:a.title,playerTitle:a.title,playerSummary:a.firstStep,text:a.firstStep,source:'目前模組包已核對的教學',article:a.article,shard:manifest.activities,labels:[a.group],search:a.group+' '+a.title+' '+a.firstStep}));
+ const rows=manifest._activities.map((a,i)=>({id:'activity-'+a.article+'-'+i,title:a.title,playerTitle:a.title,playerSummary:a.firstStep,text:a.firstStep,source:'目前模組包已核對的教學',article:a.article,shard:manifest.activities,labels:[a.group],search:a.group+' '+a.title+' '+a.firstStep})).filter(f=>!options.advanced||!['start','controls','backpack','food','factory','key-search','hud','map','rescue'].includes(f.article));
  const matched=rank(rows.map(f=>({...f,search:f.labels[0]+' '+f.title})),q,8);
  // Individual activities keep their concrete first step. Fill broad questions
  // with a diverse pool instead of concatenating menus of unrelated activities.
- const playable=['food','backpack','factory','decor','companions','trains','ships','magic'];
+ const playable=options.advanced?['space','storage-crafting','artillery','companions','ships','factory-brass','spawners','organs']:['food','backpack','factory','decor','companions','trains','ships','magic'];
  const groups=new Set(),picks=[];
  for(const row of [...playable.slice(0,2).flatMap(article=>rows.filter(f=>f.article===article)),...matched,...playable.slice(2).flatMap(article=>rows.filter(f=>f.article===article)),...rows])if(!groups.has(row.labels[0])){groups.add(row.labels[0]);picks.push(row)}
  for(const row of [...matched,...playable.flatMap(article=>rows.filter(f=>f.article===article))])if(!picks.some(f=>f.id===row.id))picks.push(row);

@@ -6,6 +6,14 @@ const inventory=read('data/inventory.json');
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
 const clip=(v,n)=>clean(v).slice(0,n);
 const knowledge=[];
+// Collection acquisition data lives in nested player-facing sections. Keeping
+// only the old route field silently discarded food, locations and conditions.
+function detailsText(value,path='',out=[]){
+ if(typeof value==='string'||typeof value==='number'){out.push(path+'：'+clip(value,300));return out}
+ if(value&&typeof value==='object')for(const [key,v] of Object.entries(value)){if(!/^(mod|kind|stats|playerStats|method|playerMethod|notes|playerNotes|source|sources|registryId|id)$/.test(key))detailsText(v,path?path+'／'+key:key,out)}
+ return out;
+}
+function uniqueSummary(parts){const kept=[];for(const part of parts.filter(Boolean)){const text=clean(part),value=text.replace(/^[^：]*：/,'');if(value&&!kept.some(x=>x.includes(value)))kept.push(text)}return clip(kept.join('\n'),2200)}
 for(const a of articles){
   knowledge.push({
     id:'article:'+a.id,kind:'article',title:a.title,category:a.group||'教學',
@@ -19,10 +27,10 @@ for(const x of collections){
   const statText=Object.entries(stats).slice(0,12).map(([k,v])=>k+':'+(typeof v==='object'?JSON.stringify(v):v)).join('；');
   knowledge.push({
     id:'collection:'+x.key,kind:'collection',title:x.title,category:x.category||'收藏',
-    search:clip([x.title,x.subtitle,x.id,x.category,x.route,d.mod,d.kind,method,statText].filter(Boolean).join(' '),900),
+    search:clip([x.title,x.subtitle,x.id,x.category,x.route,d.mod,d.kind,method,...detailsText(d),statText].filter(Boolean).join(' '),1500),
     labels:[x.subtitle,x.category,d.mod,d.kind].filter(Boolean),source:'收藏冊：'+(x.sourceGuide||x.category||''),
     playerTitle:[x.title,x.subtitle].filter(Boolean).join(' / '),
-    playerSummary:clip([x.description,method,d.playerNotes||d.notes,statText].filter(Boolean).join('\n'),1500)
+    playerSummary:uniqueSummary([x.description,method,...detailsText(d),d.playerNotes||d.notes,statText])
   });
 }
 for(const pack of inventory)for(const m of pack.mods||[])knowledge.push({
