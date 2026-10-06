@@ -9,3 +9,15 @@ html[data-atlas] .searchbox{display:flex!important;align-items:center!important;
 @media(max-width:420px){.article{padding:22px 18px!important}.article .step{padding:18px 16px!important;gap:12px;grid-template-columns:23px minmax(0,1fr)}.article .panel{padding:18px 16px!important}.article .card{padding:16px!important}.hero .hero-copy{padding:22px 20px!important}}
 .article .step .number{background:transparent!important;border:0!important;box-shadow:none!important;text-shadow:none!important;color:var(--gold)!important}html[data-atlas] :is(.badge,.code,span.route,.tipcondition){background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:var(--muted)!important;padding:0!important}html[data-atlas] .notice{background:transparent!important;box-shadow:none!important}
 .searchbar>.searchbox{flex:1;min-width:0}
+/* Source-backed tutorial references use cards that wrap on narrow screens. */
+.tutorial-reference{margin:24px 0}
+.tutorial-reference-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.tutorial-reference-card{padding:18px;background:var(--surface);border-top:2px solid var(--line);min-width:0}
+.tutorial-reference-heading{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.tutorial-reference-heading h3{margin:0;font-size:18px;color:var(--ink);line-height:1.5}
+.tutorial-reference-icon{padding:4px;background:transparent;border:0;box-shadow:none;min-width:52px;text-shadow:none}
+.tutorial-reference-icon:hover{background:var(--raised)}
+.tutorial-reference-icon img{display:block;image-rendering:pixelated}
+.tutorial-reference-card p{margin:0 0 12px;line-height:1.85;overflow-wrap:anywhere}
+.tutorial-source-files{font-size:12px;overflow-wrap:anywhere;padding-left:20px}
+@media(min-width:900px){.tutorial-reference-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

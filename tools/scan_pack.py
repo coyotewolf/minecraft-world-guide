@@ -2,7 +2,7 @@
 import pathlib,zipfile,json,re,tomllib,hashlib,sys,collections
 sys.path.insert(0,str(pathlib.Path('work/boss_lib').resolve()))
 from bs4 import BeautifulSoup
-ROOT=pathlib.Path(r'D:\Games\MultiMC\instances\1.20.12\.minecraft')
+ROOT=pathlib.Path(r'D:\Games\MultiMC\instances\1.20.1\.minecraft')
 OUT=pathlib.Path(__file__).resolve().parents[1]
 LANG={'en_us':{},'zh_tw':{}}; ADV={};RECIPES={};MODS=[];ERRORS=[];OVERRIDES=[];SOURCES={};FILES={}
 def read_json(z,n):
