@@ -69,7 +69,7 @@ export class GuideService{
  localizeFact(f){
   if(!f)return f;
   const copy={...f};
-  for(const k of ['title','playerTitle','playerSummary','text'])if(typeof copy[k]==='string')copy[k]=this.localize(copy[k]);
+  for(const k of ['title','playerTitle','playerSummary','text','source'])if(typeof copy[k]==='string')copy[k]=this.localize(copy[k]);
   if(Array.isArray(copy.labels))copy.labels=copy.labels.map(x=>this.localize(x));
   return copy;
  }
