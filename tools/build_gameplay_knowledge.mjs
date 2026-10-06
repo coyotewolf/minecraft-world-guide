@@ -27,9 +27,9 @@ for(const x of collections){
 }
 for(const pack of inventory)for(const m of pack.mods||[])knowledge.push({
   id:'mod:'+m.id,kind:'mod',title:m.name||m.id,category:'模組',
-  search:clip([m.id,m.name,m.description].filter(Boolean).join(' '),900),
-  labels:[m.id,m.name].filter(Boolean),source:'目前整合包模組清單',playerTitle:m.name||m.id,
-  playerSummary:clip([m.description,'目前安裝版本：'+(m.version||'未知')].filter(Boolean).join('\n'),900)
+  search:clip([pack.file,m.id,m.name,m.description].filter(Boolean).join(' '),1000),
+  labels:[pack.file,m.id,m.name].filter(Boolean),source:'目前整合包模組清單',playerTitle:m.name||m.id,
+  playerSummary:clip([m.description,'目前安裝版本：'+(m.version||'未知'),'安裝檔：'+pack.file].filter(Boolean).join('\n'),1000)
 });
 const out=new URL('../data/ai/',import.meta.url);
 const shardSize=220,index=[];
