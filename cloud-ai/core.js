@@ -51,7 +51,7 @@ export class GuideService{
   const contextual=previous.context?await retrieve(this.manifest,previous.context+' '+question,file=>this.read(file)):[];
   this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
   const q=(previous.questions.slice(-1).join(' ')+' '+question).toLowerCase();
-  const activity=/無聊|幹嘛|做什麼|玩什麼|推薦|下一步|沒事|不知道.*做|what.*do|bored/.test(q);
+  const activity=/無聊|幹嘛|做什麼|做啥|做點|能做|有什麼.*做|想.*做|玩什麼|推薦|下一步|沒事|不知道.*做|what.*do|bored/.test(q);
   const dragonTerrain=/(龍|dragon).*(破壞|地形|拆|燒|火|安全|grief|terrain|destroy|break)|(?:破壞|地形|grief|terrain).*(龍|dragon)/i.test(q);
   const tokens=q.split(/[\s，。！？、,.!?/()]+/).filter(x=>x.length>=2);
   const supplement=(this.playbook||[]).map(f=>{
