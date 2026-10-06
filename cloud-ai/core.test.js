@@ -25,6 +25,20 @@ test('drop lookup supports source-to-items as well as item-to-sources without as
  const byItem=relationEvidence({...trophyCatalog,rows},{...trophyPlan,focus:['獎盃'],relationSide:'item'});assert.equal(byItem.lookup.matches,3);assert(!byItem.playerSummary.includes('特殊晶石'));
 });
 
+test('named acquisition retains runtime evidence even when the creature is missing from companion cards',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
+ const pages={'manifest.json':{version:'v1',shards:[{file:'runtime.json',terms:'試驗獸 馴服',kinds:['馴服與餵食']}]},'coverage-index.json':{subjects:{'試驗獸':[['runtime.json',['馴服與餵食']]]}},'runtime.json':[{id:'runtime',title:'馴服與餵食 · 試驗獸',search:'試驗獸 tame isFood',runtimeEvidence:true,text:'isFood = test_seed; mustSneak = true;'}],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[{file:'cards.json'}]},'cards.json':[{id:'generic',kind:'collection',category:'companions',title:'普通生物',search:'夥伴 馴服',playerSummary:'不能替代點名的生物'}]};
+ env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'試驗獸 怎麼馴服',mode:'acquisition',facet:'companions',focus:['試驗獸']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert(x.facts.some(f=>f.text.includes('mustSneak')));assert(!x.facts.some(f=>f.title==='普通生物'));return {response:{answer:'拿指定種子蹲下互動。',factIds:['1']}}};
+ assert.equal((await service.ask('u','試驗獸怎麼馴服')).body.answer,'拿指定種子蹲下互動。');
+});
+
+test('review can request one bounded evidence supplement and still consumes only one player question',async()=>{
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.ANSWER_REVIEW='true';let calls=0;
+ env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'魔法之眼',mode:'mechanism',facet:'none',focus:[]}};if(calls===2)return {response:{answer:'還要核對條件。',factIds:['1']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));if(calls===3){assert.equal(x.searchBudgetRemaining,1);return {response:{answer:'先補查定義。',factIds:['1'],searchQueries:['魔法之眼 條件']}}}assert.equal(x.searchBudgetRemaining,0);assert(x.retrievalCoverage.supplemental);return {response:{answer:'已核對目前能確認的條件。',factIds:['1']}}};
+ const result=await service.ask('u','魔法之眼的條件');assert.equal(calls,4);assert.equal(result.status,200);assert.equal(await storage.get('user:'+dayKey()+':u'),1);
+});
+
 test('semantic plan resolves the current list and does not reuse old dragon evidence',async()=>{
  const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';let calls=0,answerInput;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:r.url.endsWith('player-playbook.json')?[{id:'dragon',title:'安全的龍',search:'龍 安全 會飛 獎盃',category:'dragon-behavior',playerSummary:'不要混入清單'}]:[]);

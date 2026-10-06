@@ -1,10 +1,10 @@
-import {REVIEW_POLICY} from './answer-review.js';
+import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
 import {playerLimit,recordUsage,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v16-reviewed-evidence';
+export const ANSWER_CACHE_VERSION='zh-tw-v17-named-source-priority';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -143,7 +143,7 @@ export class GuideService{
   const contextual=!plan&&previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
   // Unnamed conversational requests also get playable facts. The model can
   // infer intent without a growing list of hard-coded recommendation phrases.
-  const hasNamedSubject=Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name));
+  const hasNamedSubject=(search.coverage.subjects||[]).length>0||Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name));
   const playable=hasNamedSubject||plan&&plan.mode!=='recommendation'?[]:await activityPool(this.manifest,normalizedQuestion,file=>this.read(file),{advanced:plan?.progress==='advanced'});
   this.stage='translations';await this.loadTranslations();
   this.stage='playbook';this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
@@ -180,21 +180,22 @@ export class GuideService{
     return score;
   };
   const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f).filter(f=>!flying||!['playbook:dragon-terrain-berk-safe','playbook:dragon-terrain-berk-matrix'].includes(f.id));
-  const broad=(this.gameplay||[]).filter(f=>!plan||plan.facet!=='companions'||f.category==='companions').map(f=>({f,score:rank(f)||(plan?.facet==='companions'?1:0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,plan?.mode==='list'?48:12).map(x=>x.f);
+  const broad=(this.gameplay||[]).filter(f=>!plan||plan.facet!=='companions'||hasNamedSubject||f.category==='companions').filter(f=>!hasNamedSubject||search.coverage.subjects.some(n=>(f.title+' '+f.search+' '+(f.labels||[]).join(' ')).toLowerCase().includes(n))).map(f=>({f,score:rank(f)||(!hasNamedSubject&&plan?.facet==='companions'?1:0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,plan?.mode==='list'?48:12).map(x=>x.f);
   const candidates=[];
   if(plan?.mode==='list'&&!['drops','bossDrops'].includes(plan.facet)&&broad.length>4){
    const names=broad.filter(f=>f.kind==='collection'||f.kind==='inventory');
-   if(names.length)candidates.push({id:'list:gameplay',title:'本輪相關圖鑑條目',playerTitle:'相關圖鑑名稱查核',playerSummary:'本輪依問題比對圖鑑，列出 '+names.length+' 個相關條目；這是搜尋結果，不代表所有項目皆符合玩家要求，操作與效果要依其他證據確認。\n'+names.map(f=>f.playerTitle||f.title).join('、'),source:'目前整合包圖鑑資料',shard:'gameplay-knowledge-index.json',labels:plan.focus});
+   const entries=[];let listBytes=0;for(const f of names){const entry=(f.playerTitle||f.title)+'：'+f.playerSummary;const size=new TextEncoder().encode(entry).length;if(listBytes+size>5500)continue;entries.push(entry);listBytes+=size}
+   if(entries.length)candidates.push({id:'list:gameplay',title:'本輪相關圖鑑條目',playerTitle:'相關圖鑑名稱與條件查核',playerSummary:'本輪搜尋找到 '+names.length+' 個相關圖鑑條目；本次保留 '+entries.length+' 項的完整摘要。相關不代表已符合玩家全部條件，必須逐項核對，未保留的条目不能據此判定不存在。\n'+entries.join('\n'),source:'目前整合包圖鑑資料',shard:'gameplay-knowledge-index.json',labels:plan.focus});
   }
   if(plan&&['drops','bossDrops'].includes(plan.facet)){this.stage='relations';this.relations??=await this.read('relation-knowledge.json');const evidence=relationEvidence(this.relations,plan);if(evidence)candidates.push(evidence)}
-  if(plan?.facet==='companions'&&plan.mode!=='mechanism')for(const f of broad)if(f.playerSummary)candidates.push(f);
+  if(!hasNamedSubject&&plan?.facet==='companions'&&plan.mode!=='mechanism')for(const f of broad)if(f.playerSummary)candidates.push(f);
   const activityGuides=new Map((this.gameplay||[]).filter(f=>f.kind==='article').map(f=>[f.id,f]));
   const completeActivity=f=>{const guide=f.id.startsWith('activity-')&&activityGuides.get('article:'+f.article);return guide?.playerSummary?{...f,playerSummary:guide.playerSummary,source:guide.source}:f};
   const currentPlayer=current.filter(f=>f.playerSummary).map(completeActivity),contextPlayer=contextual.filter(f=>f.playerSummary).map(completeActivity),broadPlayer=broad.filter(f=>f.playerSummary);
   const playablePlayer=playable.map(completeActivity);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
-  for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(!plan||plan.mode==='mechanism')).slice(0,2),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
@@ -207,10 +208,18 @@ export class GuideService{
    const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,requestedConstraints,retrievalCoverage:search.coverage,facts:compact});
    this.stage='provider';let reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
    if(!reply){await release();const availability=await this.availability();return {status:503,body:{error:availability.message,code:availability.code,retryAt:availability.retryAt,providers:availability.providers,lastFailures:availability.lastFailures}}}
-   if(this.env.ANSWER_REVIEW==='true'&&plan?.mode==='recommendation'&&compact.length){
-    this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,facts:compact,draft:parseModelValue(reply.value)}),value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)},{maxTokens:700,temperature:0.3});
-    if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
-    reply=reviewed;
+   if(this.env.ANSWER_REVIEW==='true'&&plan&&plan.mode!=='chat'&&compact.length){
+    const validateReview=value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)&&(x.searchQueries===undefined||Array.isArray(x.searchQueries)&&x.searchQueries.length<=3&&x.searchQueries.every(q=>typeof q==='string'&&q.trim()&&q.length<=100))};
+    for(let pass=0;pass<2;pass++){
+     this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
+     if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
+     reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
+     if(pass||!extra?.length)break;
+     this.stage='supplemental-evidence';const additional=await retrieveMany(this.manifest,extra.map(q=>normalizedQuestion+' '+q),file=>this.read(file));
+     const pool=[...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
+     for(const f of pool){if(ids.has(f.id))continue;ids.add(f.id);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
+     search.coverage.supplemental=additional.coverage;
+    }
    }
    const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));
    const facts=parsed.facts.map(({search,...f})=>this.localizeFact({...f,id:sent[Number(f.id)-1].id}));
