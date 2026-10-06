@@ -1,6 +1,6 @@
 import {retrieve} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v2';
+export const ANSWER_CACHE_VERSION='zh-tw-v3';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:900},factIds:{type:'array',items:{type:'string'},maxItems:6}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -43,19 +43,21 @@ export class GuideService{
  async read(name){const response=await this.env.ASSETS.fetch(new Request('https://knowledge.invalid/'+name));if(!response.ok)throw Error('knowledge_unavailable');return response.json()}
  async loadTranslations(){
   if(this.translations)return this.translations;
+  const merged={};
   try{
    const index=await this.read('translation-registry-index.json');
-   const pages=await Promise.all((index.shards||[]).map(x=>this.read(x)));
-   this.translations=Object.assign({},...pages);
-   const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\ async read(name){const response=await this.env.ASSETS.fetch(new Request('https://knowledge.invalid/'+name));if(!response.ok)throw Error('knowledge_unavailable');return response.json()}
-');
-   const keys=Object.keys(this.translations).filter(x=>x.length>=2).sort((a,b)=>b.length-a.length);
-   this.translationMatchers=[];
-   for(let i=0;i<keys.length;i+=700){
-    const group=keys.slice(i,i+700).map(escape).join('|');
-    this.translationMatchers.push(new RegExp('(?<![A-Za-z0-9_])(?:'+group+')(?![A-Za-z0-9_])','g'));
-   }
-  }catch{this.translations={};this.translationMatchers=[]}
+   const pages=await Promise.all((index.shards||[]).map(file=>this.read(file)));
+   for(const page of pages)Object.assign(merged,page||{});
+  }catch{}
+  try{Object.assign(merged,(await this.read('zh-tw-core-names.json'))?.map||{})}catch{}
+  this.translations=merged;
+  const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const keys=Object.keys(merged).filter(x=>x.length>=2&&merged[x]&&merged[x]!==x).sort((a,b)=>b.length-a.length);
+  this.translationMatchers=[];
+  for(let i=0;i<keys.length;i+=500){
+   const group=keys.slice(i,i+500).map(escape).join('|');
+   this.translationMatchers.push(new RegExp('(?<![A-Za-z0-9_])(?:'+group+')(?![A-Za-z0-9_])','g'));
+  }
   return this.translations;
  }
  localize(text){
@@ -82,24 +84,6 @@ export class GuideService{
   const contextual=previous.context?await retrieve(this.manifest,previous.context+' '+question,file=>this.read(file)):[];
   await this.loadTranslations();
   this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
-  this.zhTw??=await (async()=>{
-    const merged={};
-    try{
-      const index=await this.read('translation-registry-index.json');
-      const shards=await Promise.all((index.shards||[]).map(file=>this.read(file)));
-      for(const shard of shards)Object.assign(merged,shard||{});
-    }catch{}
-    try{Object.assign(merged,(await this.read('zh-tw-core-names.json'))?.map||{})}catch{}
-    const pairs=Object.entries(merged)
-      .filter(([from,to])=>from&&to&&from!==to&&from.length>=2)
-      .sort((a,b)=>b[0].length-a[0].length);
-    return {map:merged,pairs};
-  })();
-  const localize=value=>{
-    let out=String(value??'');
-    for(const [from,to] of this.zhTw.pairs)if(out.includes(from))out=out.split(from).join(to);
-    return out;
-  };
   this.gameplay??=await (async()=>{
     try{
       const index=await this.read('gameplay-knowledge-index.json');
