@@ -1,3 +1,4 @@
+import './build_gameplay_knowledge.mjs';
 import {build} from 'esbuild';
 import fs from 'node:fs/promises';
 await fs.mkdir('assets',{recursive:true});
