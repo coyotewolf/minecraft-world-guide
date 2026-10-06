@@ -6,9 +6,10 @@ export function questionBody(body){if(typeof body?.question!=='string'||!body.qu
 export function selectedFacts(value,candidates){let parsed=value;if(typeof value==='string'){try{parsed=JSON.parse(value.replace(/^\s*<think>[\s\S]*?<\/think>\s*/,''))}catch{return []}}if(!Array.isArray(parsed?.factIds)||parsed.factIds.length>6)return [];const allowed=new Map(candidates.map(f=>[f.id,f]));if(parsed.factIds.some(id=>typeof id!=='string'||!allowed.has(id)))return [];return [...new Set(parsed.factIds)].map(id=>allowed.get(id))}
 export async function approvedUser(request,env,fetcher=fetch){const auth=request.headers.get('Authorization');if(!auth?.startsWith('Bearer ')||auth.length>8192)return null;const headers={Authorization:auth,apikey:env.SUPABASE_KEY};const user=await fetcher(env.SUPABASE_URL+'/auth/v1/user',{headers,signal:AbortSignal.timeout(10000)});if(!user.ok)return null;const data=await user.json();if(!data.id)return null;const status=await fetcher(env.SUPABASE_URL+'/rest/v1/rpc/player_status',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});if(!status.ok)return null;const state=await status.json();return state?.active===true?data.id:null}
 export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch){
+ const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
  const estimate=Math.ceil(new TextEncoder().encode(prompt).length*4625/1e6+160*30475/1e6);
- if(env.GEMINI_API_KEY&&await canUse('gemini',0)){
-  const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:160,responseMimeType:'application/json',responseJsonSchema:SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
+ if(geminiKey&&await canUse('gemini',0)){
+  const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,maxOutputTokens:160,responseMimeType:'application/json',responseJsonSchema:SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
   if(r?.ok){const data=await r.json();return {value:(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join(''),provider:'gemini'}}
   if(r){await r.text();await onSpend('gemini',r.status===429?60000:300000,0)}else await onSpend('gemini',60000,0);
  }
@@ -42,7 +43,7 @@ export class GuideService{
    if(!reply){await release();return {status:503,body:{error:'免費 AI 暫時無法使用，請使用下方解包資料搜尋。'}}}
    const facts=selectedFacts(reply.value,sent).map(({search,...f})=>f);
    if(!facts.length){await release();return {status:200,body:{facts:[],message:'AI 沒有找到足夠的解包依據，請查看搜尋結果。'}}}
-   const body={facts,version:this.manifest.version,message:'以下為模組內的原始資料；伺服器設定可能覆寫。'};
+   const body={facts,provider:reply.provider,version:this.manifest.version,message:'以下為模組內的原始資料；伺服器設定可能覆寫。'};
    await this.storage.put(cacheKey,{body,expires:Date.now()+86400000});return {status:200,body:{...body,remaining:slot.remaining}};
   }catch(error){await release();throw error}
  }

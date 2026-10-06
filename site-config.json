@@ -8,5 +8,6 @@
  "supabaseUrl": "https://pfrnxaitloaiemrerhcn.supabase.co",
  "supabaseKey": "sb_publishable_VbCO9ufRfxSZT8w7N7UtnA_zP5mkFgq",
  "scanDate": "2026-10-06",
- "serverRulesVerified": false
+ "serverRulesVerified": false,
+ "aiEndpoint": "https://aoi-free-guide.aoi-free-cloud-guide.workers.dev"
 }

@@ -12,7 +12,7 @@ export default {async fetch(request,env){
  headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS';headers['Access-Control-Allow-Headers']='Authorization, Content-Type';
  const send=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
- if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!env.GEMINI_API_KEY,fallback:!!env.AI});
+ if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!(env.GEMINI_API_KEY||env.gemini_api),fallback:!!env.AI});
  if(new URL(request.url).pathname!=='/ask'||request.method!=='POST')return send({error:'找不到這個功能。'},404);
  try{if(Number(request.headers.get('Content-Length')||0)>4096)return send({error:'問題過長。'},413);let text;try{text=await boundedBody(request)}catch{return send({error:'問題過長。'},413)}let body;try{body=questionBody(JSON.parse(text))}catch{return send({error:'請輸入 1～600 字的問題。'},400)}
  const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入已通過審核的玩家帳號。'},401);
