@@ -27,6 +27,10 @@ create index if not exists assistant_conversations_user_updated
   on public.assistant_conversations(user_id, updated_at desc);
 create index if not exists assistant_messages_conversation_created
   on public.assistant_messages(conversation_id, created_at desc, id);
+create index if not exists assistant_messages_conversation_user_created
+  on public.assistant_messages(conversation_id, user_id, created_at desc, id);
+create index if not exists assistant_messages_user_idx
+  on public.assistant_messages(user_id);
 
 alter table public.assistant_conversations enable row level security;
 alter table public.assistant_messages enable row level security;
@@ -67,6 +71,6 @@ create policy assistant_messages_self_delete
 on public.assistant_messages for delete to authenticated
 using (private.valid_session() and user_id = (select auth.uid()));
 
-revoke all on public.assistant_conversations, public.assistant_messages from public, anon;
+revoke all on public.assistant_conversations, public.assistant_messages from public, anon, authenticated;
 grant select, insert, update, delete on public.assistant_conversations to authenticated;
 grant select, insert, delete on public.assistant_messages to authenticated;
