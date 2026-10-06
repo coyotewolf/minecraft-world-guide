@@ -31,5 +31,14 @@ for(const pack of inventory)for(const m of pack.mods||[])knowledge.push({
   labels:[m.id,m.name].filter(Boolean),source:'目前整合包模組清單',playerTitle:m.name||m.id,
   playerSummary:clip([m.description,'目前安裝版本：'+(m.version||'未知')].filter(Boolean).join('\n'),900)
 });
-fs.writeFileSync(new URL('../data/ai/gameplay-knowledge.json',import.meta.url),JSON.stringify(knowledge));
-console.log('gameplay knowledge',knowledge.length);
+const out=new URL('../data/ai/',import.meta.url);
+const shardSize=220,index=[];
+for(let i=0;i<knowledge.length;i+=shardSize){
+  const records=knowledge.slice(i,i+shardSize);
+  const file='gameplay-knowledge-'+String(index.length).padStart(2,'0')+'.json';
+  fs.writeFileSync(new URL(file,out),JSON.stringify(records));
+  const terms=[...new Set(records.flatMap(x=>[x.category,...(x.labels||[]),x.title]).filter(Boolean))].join(' ').slice(0,18000);
+  index.push({file,count:records.length,terms});
+}
+fs.writeFileSync(new URL('gameplay-knowledge-index.json',out),JSON.stringify({version:1,count:knowledge.length,shards:index}));
+console.log('gameplay knowledge',knowledge.length,'shards',index.length);
