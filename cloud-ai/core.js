@@ -4,16 +4,23 @@ export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:9
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
 export function questionBody(body){if(typeof body?.question!=='string'||!body.question.trim()||body.question.length>600)throw Error('請輸入 1～600 字的問題。');if(body.conversationId!==undefined&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.conversationId)||typeof body.conversationId!=='string'))throw Error('對話代碼無效。');return {question:body.question.trim(),conversationId:body.conversationId}}
-export function selectedReply(value,candidates){
- let parsed=value;
- if(typeof value==='string'){try{parsed=JSON.parse(value.replace(/^\s*<think>[\s\S]*?<\/think>\s*/,''))}catch{return {answer:'',facts:[]}}}
- if(typeof parsed?.answer!=='string'||parsed.answer.trim().length<1||parsed.answer.length>900||!Array.isArray(parsed?.factIds)||parsed.factIds.length>6)return {answer:'',facts:[]};
+function parseModelValue(value){
+ if(typeof value!=='string')return value;
+ try{return JSON.parse(value.replace(/^\s*<think>[\s\S]*?<\/think>\s*/,''))}catch{return null}
+}
+export function selectedFacts(value,candidates){
+ const parsed=parseModelValue(value);
+ if(!Array.isArray(parsed?.factIds)||parsed.factIds.length>6)return [];
  const allowed=new Map(candidates.map(f=>[f.id,f]));
  const ids=parsed.factIds.map(id=>Number.isInteger(id)&&id>=1&&id<=8?String(id):id);
- if(ids.some(id=>typeof id!=='string'||!allowed.has(id)))return {answer:'',facts:[]};
- return {answer:parsed.answer.trim(),facts:[...new Set(ids)].map(id=>allowed.get(id))};
+ if(ids.some(id=>typeof id!=='string'||!allowed.has(id)))return [];
+ return [...new Set(ids)].map(id=>allowed.get(id));
 }
-export function selectedFacts(value,candidates){return selectedReply(value,candidates).facts}
+export function selectedReply(value,candidates){
+ const parsed=parseModelValue(value);
+ if(typeof parsed?.answer!=='string'||parsed.answer.trim().length<1||parsed.answer.length>900)return {answer:'',facts:[]};
+ return {answer:parsed.answer.trim(),facts:selectedFacts(parsed,candidates)};
+}
 export async function approvedUser(request,env,fetcher=fetch){const auth=request.headers.get('Authorization');if(!auth?.startsWith('Bearer ')||auth.length>8192)return null;const headers={Authorization:auth,apikey:env.SUPABASE_KEY};const user=await fetcher(env.SUPABASE_URL+'/auth/v1/user',{headers,signal:AbortSignal.timeout(10000)});if(!user.ok)return null;const data=await user.json();if(!data.id)return null;const status=await fetcher(env.SUPABASE_URL+'/rest/v1/rpc/player_status',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});if(!status.ok)return null;const state=await status.json();return state?.active===true?data.id:null}
 export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch){
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
