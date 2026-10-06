@@ -1,7 +1,7 @@
 import {retrieve} from './ai-search.js';
 import {playerEvidence} from './ai-evidence.js';
 
-let auth,identity,host,controller,manifest,state,busy=false,cloudReady=false,history=[];
+let auth,identity,host,controller,manifest,state,busy=false,cloudReady=false,history=[],translationMap=null,translationMatchers=[];
 const storageKey=uid=>'aoi-assistant:'+uid;
 const migrationKey=uid=>'aoi-assistant-cloud-migrated:'+uid;
 function newConversationId(){if(crypto.randomUUID)return crypto.randomUUID();const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=bytes[6]&15|64;bytes[8]=bytes[8]&63|128;const hex=[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join('-')}
@@ -20,7 +20,23 @@ function save(){
  catch{state.messages=state.messages.slice(-20);try{localStorage.setItem(storageKey(identity),JSON.stringify(state))}catch{}}
 }
 const $=s=>host.querySelector(s);
-function factsView(facts){const {h}=auth;return (facts||[]).map(f=>`<article class="assistant-fact"><h3>${h(playerEvidence(f).title)}</h3><p>${h(playerEvidence(f).text)}</p><details><summary>查看來源</summary><p>${h(f.source)}</p><pre>${h(f.text)}</pre>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</details></article>`).join('')}
+async function loadTranslations(){
+ if(translationMap)return translationMap;
+ try{
+  const index=await fetch('data/ai/translation-registry-index.json').then(r=>{if(!r.ok)throw Error();return r.json()});
+  const pages=await Promise.all((index.shards||[]).map(file=>fetch('data/ai/'+file).then(r=>{if(!r.ok)throw Error();return r.json()})));
+  translationMap=Object.assign({},...pages);
+  const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\const $=s=>host.querySelector(s);
+');
+  const keys=Object.keys(translationMap).filter(x=>x.length>=2).sort((a,b)=>b.length-a.length);
+  translationMatchers=[];
+  for(let i=0;i<keys.length;i+=700){const group=keys.slice(i,i+700).map(escape).join('|');translationMatchers.push(new RegExp('(?<![A-Za-z0-9_])(?:'+group+')(?![A-Za-z0-9_])','g'))}
+ }catch{translationMap={};translationMatchers=[]}
+ return translationMap;
+}
+function localizeText(text){if(typeof text!=='string'||!translationMap)return text;let out=text;for(const re of translationMatchers)out=out.replace(re,m=>translationMap[m]||m);return out}
+function localizeFact(f){if(!f)return f;const copy={...f};for(const k of ['title','playerTitle','playerSummary','text'])if(typeof copy[k]==='string')copy[k]=localizeText(copy[k]);if(Array.isArray(copy.labels))copy.labels=copy.labels.map(localizeText);return copy}
+function factsView(facts){const {h}=auth;return (facts||[]).map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact"><h3>${h(shown.title)}</h3><p>${h(shown.text)}</p><details><summary>查看來源</summary><p>${h(localizeText(f.source))}</p><pre>${h(localizeText(f.text))}</pre>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</details></article>`}).join('')}
 function updateHistoryControl(){
  const select=$('#assistant-history');
  if(!select)return;
@@ -139,7 +155,7 @@ export function syncAssistant(options){
  $('#assistant-search').onclick=()=>send(false);
  $('#assistant-input').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();if(!$('#assistant-send').disabled)send(true)}};
  host.onkeydown=e=>{if(e.key==='Escape'&&!$('#assistant-window').hidden)closeAssistant()};
- paint();void hydrateCloud();
+ paint();void hydrateCloud();void loadTranslations().then(()=>paint());
 }
 export function mountAiGuide(){openAssistant()}
 async function send(ai){
@@ -160,7 +176,7 @@ async function send(ai){
    if(identity===owner)host.dataset.provider=answer.provider||'none';
   }else{
    const read=async file=>{const r=await fetch('data/ai/'+file,{signal});if(!r.ok)throw Error('資料暫時無法讀取。');return r.json()};
-   manifest??=await read('manifest.json');facts=await retrieve(manifest,question,read);facts=facts.slice(0,5);text=facts.length?'搜尋到這些資料：':'沒有找到資料，試試物品中文名或原文名。';
+   manifest??=await read('manifest.json');await loadTranslations();facts=await retrieve(manifest,question,read);facts=facts.slice(0,5).map(localizeFact);text=facts.length?'搜尋到這些資料：':'沒有找到資料，試試物品中文名或原文名。';
   }
   if(identity!==owner||signal.aborted||state.conversationId!==conversationId)return;
   const assistantMessage=normalizeMessage({role:'assistant',text,facts,created_at:nowIso()});state.messages.push(assistantMessage);state.messages=state.messages.slice(-60);save();
