@@ -48,3 +48,30 @@ test('unfamiliar conversational prompts are not limited to exact item-name looku
   assert.notEqual(result.body.answer,'');assert.notMatch(result.body.answer||'',/換個名稱問問看/);
  }
 });
+
+test('whole-pack gameplay layer retrieves Tetra, MineColonies, Create and Valkyrien-style topics',async()=>{
+ const cases=[
+  ['tetra 最強武器怎麼做','tetra','Tetra 模組化武器'],
+  ['殖民地農夫為什麼不工作','minecolonies','MineColonies 農夫'],
+  ['create 機械手怎麼安排產線','create','Create 自動化'],
+  ['Valkyrien Skies 的船為什麼會抖','valkyrienskies','Valkyrien Skies 載具']
+ ];
+ for(const [question,needle,title] of cases){
+  const storage=new Store();
+  const record={id:'game:'+needle,kind:'article',title,category:'教學',search:question+' '+needle,labels:[needle],source:'整包玩法知識',playerTitle:title,playerSummary:'這是 '+title+' 的玩法與排錯資料。'};
+  const env={FREE_ONLY_ACK:'true',AI:{run:async(_,input)=>{
+    const p=input.messages[0].content;
+    assert(p.includes(title));
+    return {response:{answer:'已依整包玩法知識整理答案。',factIds:['1']}};
+  }},ASSETS:{fetch:async r=>{
+    if(r.url.endsWith('manifest.json'))return Response.json({version:'v1',shards:[]});
+    if(r.url.endsWith('player-playbook.json'))return Response.json([]);
+    if(r.url.endsWith('gameplay-knowledge-index.json'))return Response.json({version:1,count:1,shards:[{file:'gameplay-knowledge-00.json'}]});
+    if(r.url.endsWith('gameplay-knowledge-00.json'))return Response.json([record]);
+    return Response.json([]);
+  }}};
+  const result=await new GuideService(storage,env).ask('u',question);
+  assert.equal(result.body.facts[0].id,'game:'+needle);
+  assert.match(result.body.answer,/整包玩法知識/);
+ }
+});
