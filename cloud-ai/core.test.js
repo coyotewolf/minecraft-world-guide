@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {GuideService,selectedFacts,approvedUser,providerAnswer,dayKey,questionBody} from './core.js';
+import {GuideService,selectedFacts,approvedUser,providerAnswer,providerFailure,dayKey,questionBody} from './core.js';
 class Store{constructor(){this.values=new Map();this.queue=Promise.resolve()}async get(k){return structuredClone(this.values.get(k))}async put(k,v){this.values.set(k,structuredClone(v))}async delete(keys){for(const key of keys)this.values.delete(key)}async list({prefix,limit,startAfter=''}){return new Map([...this.values].filter(([k])=>k.startsWith(prefix)&&k>startAfter).sort(([a],[b])=>a.localeCompare(b)).slice(0,limit))}transaction(fn){const p=this.queue.then(()=>fn(this));this.queue=p.catch(()=>{});return p}}
 const fact={id:'test-id',title:'魔法之眼',search:'魔法之眼',text:'森林豪宅寶箱',labels:[],shard:'one.json'};
 function setup(){const storage=new Store(),env={FREE_ONLY_ACK:'true',AI:{run:async()=>({response:{answer:'這是根據資料整理的回答。',factIds:['1']}})},ASSETS:{fetch:async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[fact])}};return {storage,env,service:new GuideService(storage,env)}}
@@ -7,9 +7,28 @@ test('only exact supplied facts are returned; fabricated IDs reject the response
 test('approved account check requires active RPC status',async()=>{const request=new Request('https://test',{headers:{Authorization:'Bearer fake'}}),env={SUPABASE_URL:'https://sb',SUPABASE_KEY:'public'};let calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:false})),null);calls=0;assert.equal(await approvedUser(request,env,async()=>Response.json(++calls===1?{id:'u'}:{active:true})),'u')});
 test('Gemini quota failure falls back to Cloudflare',async()=>{let fallback=0;const spent=[];const result=await providerAnswer({GEMINI_API_KEY:'not-real',AI:{run:async()=>{fallback++;return {response:{answer:'這是根據資料整理的回答。',factIds:['1']}}}}},'prompt',async()=>true,async(...args)=>spent.push(args),async()=>new Response('{}',{status:429}));assert.equal(result.provider,'cloudflare');assert.equal(fallback,1);assert(spent.some(x=>x[0]==='gemini'&&x[1]===60000))});
 test('no allowed provider returns unavailable without paid route',async()=>{assert.equal(await providerAnswer({AI:{run:()=>assert.fail()}},'prompt',async()=>false,async()=>{}),null)});
+
+test('provider diagnostics distinguish daily quota, short limits and configuration without raw errors',()=>{
+ assert.deepEqual(providerFailure(429,{error:{details:[{violations:[{quotaId:'GenerateRequestsPerDayPerProjectPerModel-FreeTier'}]},{retryDelay:'3720s'}]}}),{code:'daily_quota',status:429,delay:3720000});
+ assert.equal(providerFailure(429,{error:{details:[{retryDelay:'9s'}]}}).delay,9000);
+ assert.equal(providerFailure(403,{error:{message:'private-key-never-store'}}).code,'configuration');
+ assert(!JSON.stringify(providerFailure(403,{error:{message:'private-key-never-store'}})).includes('private-key'));
+});
+test('invalid primary output falls back instead of pretending knowledge is missing',async()=>{
+ const failures=[];const result=await providerAnswer({GEMINI_API_KEY:'test-only',AI:{run:async()=>({response:'{"answer":"有依據的回答","factIds":["1"]}'})}},'prompt',async()=>true,async()=>{},async()=>Response.json({candidates:[{content:{parts:[{text:'truncated {'}]}}]}),async(p,f)=>failures.push(f.code),v=>{try{return !!JSON.parse(v).answer}catch{return false}});
+ assert.equal(result.provider,'cloudflare');assert.deepEqual(failures,['invalid_answer']);
+});
+test('cloud transcript restores constraints after worker conversation expiry',async()=>{
+ const {service,env}=setup();let prompt='';env.AI.run=async(_,input)=>{prompt=input.messages[0].content;return {response:{answer:'保留會飛條件。',factIds:['1']}}};
+ await service.ask('u','魔法之眼','00000000-0000-4000-8000-000000000003',[{user:'找會飛又能騎的龍',assistant:'先比較地形效果。'}]);
+ assert.match(prompt,/找會飛又能騎的龍/);
+});
+test('all providers cooling down produces retry time, not a missing-data answer',async()=>{
+ const {service,storage}=setup();await storage.put('cooldown:cloudflare',Date.now()+60000);const r=await service.ask('u','魔法之眼');assert.equal(r.status,503);assert(r.body.retryAt>Date.now());assert.match(r.body.error,/重試/);assert.equal(await storage.get('user:'+dayKey()+':u'),0);
+});
 test('existing gemini_api secret alias uses Gemini without exposing the secret',async()=>{const result=await providerAnswer({gemini_api:'test-only'},'prompt',async()=>true,async()=>{},async(url,options)=>{assert.equal(options.headers['x-goog-api-key'],'test-only');return Response.json({candidates:[{content:{parts:[{text:'{"factIds":["test-id"]}'}]}}]})});assert.equal(result.provider,'gemini');assert.equal(selectedFacts(result.value,[fact]).length,1)});
 test('successful answer, cache, user cap and site cap',async()=>{const {service,storage}=setup();assert.equal((await service.ask('u','魔法之眼')).body.remaining,49);assert.equal((await service.ask('u','魔法之眼')).body.remaining,48);await storage.put('user:'+dayKey()+':u',50);assert.equal((await service.ask('u','魔法之眼')).status,429);await storage.put('global:'+dayKey(),400);assert.equal((await service.ask('other','魔法之眼')).status,429)});
-test('failed or ungrounded answers release daily reservation',async()=>{const {service,storage,env}=setup();env.AI.run=async()=>({response:{answer:'沒有可靠依據。',factIds:['invented']}});assert.equal((await service.ask('u','魔法之眼')).body.facts.length,0);assert.equal(await storage.get('user:'+dayKey()+':u'),0);assert.equal(await storage.get('global:'+dayKey()),0)});
+test('failed or ungrounded answers release daily reservation',async()=>{const {service,storage,env}=setup();env.AI.run=async()=>({response:{answer:'沒有可靠依據。',factIds:['invented']}});assert.equal((await service.ask('u','魔法之眼')).status,503);assert.equal(await storage.get('user:'+dayKey()+':u'),0);assert.equal(await storage.get('global:'+dayKey()),0)});
 test('Free-only acknowledgement is required before activation',async()=>{const {service,env}=setup();env.FREE_ONLY_ACK='false';assert.equal((await service.ask('u','魔法之眼')).status,503)});
 test('app day resets at UTC+8 midnight',()=>{assert.equal(dayKey(Date.parse('2026-10-06T15:59:59Z')),'2026-10-06');assert.equal(dayKey(Date.parse('2026-10-06T16:00:00Z')),'2026-10-07')});
 test('concurrent reservations cannot overrun the global daily cap',async()=>{const {service,storage}=setup();await storage.put('global:'+dayKey(),399);const results=await Promise.all([service.ask('a','魔法之眼'),service.ask('b','魔法之眼')]);assert.deepEqual(results.map(r=>r.status).sort(),[200,429]);assert.equal(await storage.get('global:'+dayKey()),400)});
