@@ -22,7 +22,7 @@ Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json',{cache:'no
   const paths=Object.fromEntries(Object.entries(inventory).map(([id,path])=>[id,'../'+path]));
   if(slug==='equipment'&&typeof D!=='undefined'&&D.icons){for(const [id,path]of Object.entries(paths))if(!D.icons[id])D.icons[id]=path;if(typeof current!=='undefined'&&current&&typeof drawDetail==='function')drawDetail(current,false);}
   const labels=new Map();for(const [id,label]of Object.entries(names))if(paths[id]&&label.length>=2&&!label.includes('§'))labels.set(label,id);
-  for(const [label,id]of Object.entries({'合成台':'minecraft:crafting_table','工作臺':'minecraft:crafting_table','工作台':'minecraft:crafting_table','鐵砧':'minecraft:anvil'}))if(paths[id])labels.set(label,id);
+  for(const [label,id]of Object.entries({'合成臺':'minecraft:crafting_table','工作臺':'minecraft:crafting_table','工作臺':'minecraft:crafting_table','鐵砧':'minecraft:anvil'}))if(paths[id])labels.set(label,id);
   function addItemPictures(root){for(const p of root.querySelectorAll('p.method,.processnote,.assemblystep h4,.fields td p')){
     const walker=document.createTreeWalker(p,NodeFilter.SHOW_TEXT),nodes=[];let node;
     while(node=walker.nextNode())if(!node.parentElement.closest('button,a'))nodes.push(node);
@@ -314,7 +314,7 @@ const saintTaming={
   egg:'雌性燼翎龍死亡時有 12% 機率掉落燼翎龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下燼翎龍蛋。'
  },
  'saintsdragons:varasuchus':{
-  conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率才是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。',
+  conditions:'目前預設 Legacy Taming 關閉：成年蜷鱷龍要主手空手、不要蹲下，右鍵騎上野生個體並完成騎乘馴服；餵食只會補血，不會直接馴服。只有伺服器把 Legacy Taming 打開時，食物馴服率纔是一般食物 16.67%、生牛肉 16.67%、熱帶魚 25%。',
   egg:'雌性蜷鱷龍死亡時有 12% 機率掉落蜷鱷龍蛋；另外，已馴服、進入繁殖狀態且異性的同種成龍成功繁殖時，雌性會在附近產下蜷鱷龍蛋。'
  },
  'saintsdragons:stegonaut':{
@@ -328,7 +328,7 @@ const saintTaming={
 const saintSpawn={
  'saintsdragons:raevyx':'主世界・草甸、風襲丘陵、櫻花樹林、風襲森林、雪林、雪原、莽原高地等指定生態域；0.9.51 預設自訂生成只在雷暴且可見天空時出現。',
  'saintsdragons:stegonaut':'主世界・繁茂洞穴；0.9.51 預設自訂生成只在地下、不可見天空的位置出現。',
- 'saintsdragons:cindervane':'主世界・山地／丘陵／惡地／沙漠類生態域；原版明確包含裸岩山峰、尖峭山峰、冰封山峰、雪林、櫻花樹林、草甸與沙漠。',
+ 'saintsdragons:cindervane':'主世界・山地／丘陵／惡地／沙漠類生態域；原版明確包含裸岩山峯、尖峭山峯、冰封山峯、雪林、櫻花樹林、草甸與沙漠。',
  'saintsdragons:atroxiia':'主世界・寒冷生態域；原版明確包含雪原與冰刺之地。',
  'saintsdragons:volitans':'主世界・海洋類生態域水下；涵蓋所有原版海洋變體，0.9.51 預設自訂生成要求至少 3 格連續水柱。',
  'saintsdragons:nulljaw':'終界・終界荒地。',
@@ -358,7 +358,7 @@ function berkTameText(p){
 }
 function berkFuryBreedText(id){
  if(id==='dragonsofberk:night_fury')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。夜煞不能和另一隻純夜煞配對，可與光煞或夜光龍配對。夜煞×光煞、夜煞×夜光龍：每次有 3% 產光煞蛋、96% 產夜光龍蛋；另有 1% 的稀有結果，只有兩隻親代各自累積的稀有後代次數都少於 10 次時才會產夜煞蛋，達到門檻後這 1% 也改為夜光龍蛋。';
- if(id==='dragonsofberk:light_fury')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。光煞可與夜煞、光煞或夜光龍配對。光煞×光煞會產光煞蛋；光煞×夜煞時為 3% 光煞、96% 夜光龍，另有 1% 稀有夜煞結果，但只有兩隻親代各自累積的稀有後代次數都少於 10 次時才成立，達到門檻後這 1% 也改成夜光龍。光煞×夜光龍時，稀有判定尚未達門檻才可能產光煞，其餘產夜光龍。';
+ if(id==='dragonsofberk:light_fury')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。光煞可與夜煞、光煞或夜光龍配對。光煞×光煞會產光煞蛋；光煞×夜煞時為 3% 光煞、96% 夜光龍，另有 1% 稀有夜煞結果，但只有兩隻親代各自累積的稀有後代次數都少於 10 次時才成立，達到門檻後這 1% 也改成夜光龍。光煞×夜光龍時，稀有判定尚未達門檻纔可能產光煞，其餘產夜光龍。';
  if(id==='dragonsofberk:night_light')return '把兩隻已馴服、成年且符合配對條件的龍帶到蜂巢附近，用蜂巢啟動繁殖。夜光龍不在自然生成表中，主要靠夜煞、光煞與夜光龍之間的繁殖取得。夜光龍×夜光龍會產夜光龍蛋；與夜煞或光煞配對時，蛋種依上述稀有繁殖規則決定，其中夜煞×夜光龍和夜煞×光煞使用相同機率。';
  return '';
 }
@@ -374,18 +374,18 @@ function berkHatchText(p){
 }
 
 const berkSpawn={
- 'dragonsofberk:stinger':'主世界自然生成：向日葵平原、莽原、莽原高地（預設權重 5，每群 2–3）；惡地、疏林惡地、風蝕惡地（權重 1，每群 1–2）。',
- 'dragonsofberk:terrible_terror':'主世界自然生成：石岸、河流、海灘（預設權重 1，每群 1–3）；叢林、竹林、黑森林（權重 2，每群 2–3）。',
- 'dragonsofberk:deadly_nadder':'主世界自然生成：雪原、草甸（權重 1，每群 2–3）；風襲丘陵、風襲礫質丘陵、風襲森林（權重 2，每群 2–3）；稀疏叢林、莽原、莽原高地（權重 3，每群 2–3）；雪林、森林、繁花森林、樺木森林、原始樺木森林、風襲莽原（權重 4，每群 1–3）。',
- 'dragonsofberk:gronckle':'主世界自然生成：雪原、沼澤、草甸（權重 1，每群 1–2）；原始樺木森林、莽原高地、風襲莽原（權重 2，每群 2–3）；平原、雪林、向日葵平原、莽原（權重 3，每群 1–2）。',
- 'dragonsofberk:zippleback':'主世界自然生成：稀疏叢林（權重 3，每群 2–3）；冰刺之地、雪原、沼澤（權重 1，每群 1–2）。',
- 'dragonsofberk:light_fury':'主世界自然生成：雪原、雪坡、雪地針葉林、雪林、冰封山峰、尖峭山峰、冰刺之地（權重 1，每群 1）。',
- 'dragonsofberk:night_fury':'終界自然生成：終界、終界高地、終界中型島嶼（權重 1，每群 1）。',
- 'dragonsofberk:monstrous_nightmare':'主世界自然生成：惡地、疏林惡地、風蝕惡地，以及風襲丘陵、風襲礫質丘陵、風襲森林（各組權重 1，每群 1–2）。',
- 'dragonsofberk:skrill':'主世界自然生成：雪坡、尖峭山峰、冰封山峰、裸岩山峰（權重 2，每群 1–2）。',
- 'dragonsofberk:triple_stryke':'主世界自然生成：疏林惡地、惡地（權重 1，每群 1–2）；雪地針葉林、針葉林、原始松木針葉林、原始雲杉針葉林（權重 2，每群 1–3）。',
- 'dragonsofberk:speed_stinger':'主世界疾刺龍巢穴：石峰／尖峭山峰／草甸的洞穴巢、深海冰洋／冰封海洋／冰刺之地／雪原的冰巢、叢林／稀疏叢林／竹林的叢林巢、針葉林／原始松木針葉林／原始雲杉針葉林的針葉林巢。四種結構預設 spacing 25、separation 8；結構生成覆寫每群 1–4 隻疾刺龍。',
- 'dragonsofberk:speed_stinger_leader':'主世界疾刺龍四種巢穴結構內：洞穴巢（石峰、尖峭山峰、草甸）、冰巢（深海冰洋、冰封海洋、冰刺之地、雪原）、叢林巢（叢林、稀疏叢林、竹林）、針葉林巢（針葉林、原始松木針葉林、原始雲杉針葉林）。巢穴 NBT 明確放置疾刺龍領袖；結構預設 spacing 25、separation 8。'
+ 'dragonsofberk:stinger':'主世界自然生成：向日葵平原、莽原、莽原高地（預設權重 5，每羣 2–3）；惡地、疏林惡地、風蝕惡地（權重 1，每羣 1–2）。',
+ 'dragonsofberk:terrible_terror':'主世界自然生成：石岸、河流、海灘（預設權重 1，每羣 1–3）；叢林、竹林、黑森林（權重 2，每羣 2–3）。',
+ 'dragonsofberk:deadly_nadder':'主世界自然生成：雪原、草甸（權重 1，每羣 2–3）；風襲丘陵、風襲礫質丘陵、風襲森林（權重 2，每羣 2–3）；稀疏叢林、莽原、莽原高地（權重 3，每羣 2–3）；雪林、森林、繁花森林、樺木森林、原始樺木森林、風襲莽原（權重 4，每羣 1–3）。',
+ 'dragonsofberk:gronckle':'主世界自然生成：雪原、沼澤、草甸（權重 1，每羣 1–2）；原始樺木森林、莽原高地、風襲莽原（權重 2，每羣 2–3）；平原、雪林、向日葵平原、莽原（權重 3，每羣 1–2）。',
+ 'dragonsofberk:zippleback':'主世界自然生成：稀疏叢林（權重 3，每羣 2–3）；冰刺之地、雪原、沼澤（權重 1，每羣 1–2）。',
+ 'dragonsofberk:light_fury':'主世界自然生成：雪原、雪坡、雪地針葉林、雪林、冰封山峯、尖峭山峯、冰刺之地（權重 1，每羣 1）。',
+ 'dragonsofberk:night_fury':'終界自然生成：終界、終界高地、終界中型島嶼（權重 1，每羣 1）。',
+ 'dragonsofberk:monstrous_nightmare':'主世界自然生成：惡地、疏林惡地、風蝕惡地，以及風襲丘陵、風襲礫質丘陵、風襲森林（各組權重 1，每羣 1–2）。',
+ 'dragonsofberk:skrill':'主世界自然生成：雪坡、尖峭山峯、冰封山峯、裸岩山峯（權重 2，每羣 1–2）。',
+ 'dragonsofberk:triple_stryke':'主世界自然生成：疏林惡地、惡地（權重 1，每羣 1–2）；雪地針葉林、針葉林、原始松木針葉林、原始雲杉針葉林（權重 2，每羣 1–3）。',
+ 'dragonsofberk:speed_stinger':'主世界疾刺龍巢穴：石峯／尖峭山峯／草甸的洞穴巢、深海冰洋／冰封海洋／冰刺之地／雪原的冰巢、叢林／稀疏叢林／竹林的叢林巢、針葉林／原始松木針葉林／原始雲杉針葉林的針葉林巢。四種結構預設 spacing 25、separation 8；結構生成覆寫每羣 1–4 隻疾刺龍。',
+ 'dragonsofberk:speed_stinger_leader':'主世界疾刺龍四種巢穴結構內：洞穴巢（石峯、尖峭山峯、草甸）、冰巢（深海冰洋、冰封海洋、冰刺之地、雪原）、叢林巢（叢林、稀疏叢林、竹林）、針葉林巢（針葉林、原始松木針葉林、原始雲杉針葉林）。巢穴 NBT 明確放置疾刺龍領袖；結構預設 spacing 25、separation 8。'
 };
 function enhanceBerkDragons(){
  for(const pet of document.querySelectorAll('.pet-card[data-pet-id^="dragonsofberk:"]')){

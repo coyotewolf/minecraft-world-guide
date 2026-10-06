@@ -3,5 +3,5 @@ export function tutorialReference(article,{h,image,tutorialText}){
 }
 export function tutorialSourceFiles(article,{h}){
  const files=[...(article.sourceFiles||[]),...(article.unpackedSources||[])];
- return files.length?`<p>本機解包查核：${h(article.unpackedAt||'2026-10-06')}</p><ul class="tutorial-source-files">${files.slice(0,24).map(file=>`<li>${h(file)}</li>`).join('')}</ul>${files.length>24?`<p>另含 ${files.length-24} 個相關資源檔，完整清單保存於教學資料。</p>`:''}`:'';
+ return files.length?`<p>本機解包查覈：${h(article.unpackedAt||'2026-10-06')}</p><ul class="tutorial-source-files">${files.slice(0,24).map(file=>`<li>${h(file)}</li>`).join('')}</ul>${files.length>24?`<p>另含 ${files.length-24} 個相關資源檔，完整清單保存於教學資料。</p>`:''}`:'';
 }
