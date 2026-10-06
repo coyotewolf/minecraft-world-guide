@@ -77,15 +77,16 @@ html[data-atlas] .navigation button.active,html[data-atlas] .viewmodes button.ac
 
 /* Collection-state visual parity 2026-10-06 */
 .atlas-state-icon{border:1px solid var(--line);border-radius:4px;background:var(--surface)}
-.atlas-done-icon:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff!important}
+.atlas-done-icon:has(input:checked){background:#52693d;border-color:#344328;color:#fff!important}
 .atlas-wish-icon span{font-size:0}
 .atlas-wish-icon span::after{content:'☆';font-size:17px}
 .atlas-wish-icon:has(input:checked) span::after{content:'★'}
-.collection-state-button{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:8px 11px;cursor:pointer}
+.collection-state-button{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);padding:8px 11px;cursor:pointer}
 .collection-state-button input{position:absolute;opacity:0;width:1px!important;height:1px!important;pointer-events:none}
 .collection-state-button .wishlist-symbol::after{content:'☆';font-size:18px}
 .collection-state-button:has(input[data-wish]:checked) .wishlist-symbol::after{content:'★';color:var(--accent)}
-.collection-done-button:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+.collection-done-button:has(input:checked){background:#52693d;border-color:#344328;color:#fff}
+.collection-state-button:focus-within{outline:2px solid var(--green);outline-offset:3px}
 
 
 /* Team notification bell 2026-10-06 */
