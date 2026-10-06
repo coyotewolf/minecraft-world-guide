@@ -59,7 +59,7 @@ function paint(forceScroll=false){
  $('#assistant-retry').hidden=!retryQuestion;
  $('#assistant-retry').disabled=busy;
 }
-export function openAssistant(){if(!host)return;$('#assistant-window').hidden=false;$('#assistant-launcher').setAttribute('aria-expanded','true');$('#assistant-input').focus();if(!busy&&cloudEnabled())void hydrateCloud()}
+export function openAssistant(){if(!host)return;$('#assistant-window').hidden=false;$('#assistant-launcher').setAttribute('aria-expanded','true');$('#assistant-input').focus();$('#assistant-messages').scrollTop=$('#assistant-messages').scrollHeight;if(!busy&&cloudEnabled())void hydrateCloud()}
 function closeAssistant(){$('#assistant-window').hidden=true;$('#assistant-launcher').setAttribute('aria-expanded','false');$('#assistant-launcher').focus()}
 function cloudEnabled(){return identity!=='guest'&&auth?.active&&auth?.db}
 async function refreshHistory(){
@@ -102,7 +102,7 @@ async function migrateLocal(){
  }
  localStorage.setItem(migrationKey(owner),'1');
 }
-async function loadCloudConversation(id,prepend=false){
+async function loadCloudConversation(id,prepend=false,preserveView=false){
  if(!cloudEnabled())return;
  const owner=identity,epoch=++historyEpoch;
  let query=auth.db.from('assistant_messages').select('id,role,text,facts,created_at').eq('user_id',owner).eq('conversation_id',id).order('created_at',{ascending:false}).limit(30);
@@ -110,6 +110,7 @@ async function loadCloudConversation(id,prepend=false){
  const {data,error}=await query;
  if(error)throw error;
  if(identity!==owner||busy||epoch!==historyEpoch)return;
+ const log=$('#assistant-messages'),oldHeight=log.scrollHeight,oldScroll=log.scrollTop;
  const batch=(data||[]).reverse().map(m=>normalizeMessage({...m,synced:true}));
  if(prepend){
   const known=new Set(state.messages.map(m=>m.id));
@@ -119,7 +120,7 @@ async function loadCloudConversation(id,prepend=false){
  }
  state.oldestAt=state.messages[0]?.created_at||null;
  state.hasEarlier=(data||[]).length===30;
- save();paint();
+ save();paint(!prepend&&!preserveView);if(prepend)log.scrollTop=oldScroll+log.scrollHeight-oldHeight;
 }
 async function hydrateCloud(){
  if(hydrating||busy)return;hydrating=true;
@@ -134,7 +135,7 @@ async function hydrateCloud(){
   if(identity!==owner||state.conversationId!==cid||busy)return;
   const exists=history.find(c=>c.id===state.conversationId);
   if(!exists&&history[0]&&!cloudReady&&!state.messages.length)await loadCloudConversation(history[0].id);
-  else if(exists)await loadCloudConversation(exists.id);
+  else if(exists)await loadCloudConversation(exists.id,false,true);
   cloudReady=true;syncWarning=false;paint();
  }catch(e){
   if(identity===owner){cloudReady=false;syncWarning=true;paint()}
