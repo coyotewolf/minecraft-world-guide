@@ -64,16 +64,43 @@ jobs:
         working-directory: cloud-ai
         run: npm run check
 
+      - name: Resolve Cloudflare account ID
+        id: cloudflare-account
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             -H "Content-Type: application/json"             "https://api.cloudflare.com/client/v4/accounts?per_page=50")"
+          success="$(jq -r '.success // false' <<<"$response")"
+          if [ "$success" != "true" ]; then
+            echo "::error::Cloudflare API token could not list accounts."
+            jq -r '.errors // []' <<<"$response"
+            exit 1
+          fi
+          count="$(jq '.result | length' <<<"$response")"
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected exactly one Cloudflare account for this token, got $count. Scope the token to one account."
+            exit 1
+          fi
+          account_id="$(jq -r '.result[0].id' <<<"$response")"
+          if ! [[ "$account_id" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::Cloudflare returned an invalid account ID."
+            exit 1
+          fi
+          echo "account_id=$account_id" >> "$GITHUB_OUTPUT"
+          echo "Resolved Cloudflare account successfully."
+
       - name: Validate Cloudflare deployment
         working-directory: cloud-ai
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cloudflare-account.outputs.account_id }}
         run: npm run preview-deploy
 
       - name: Deploy Worker
         working-directory: cloud-ai
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cloudflare-account.outputs.account_id }}
         run: npm run deploy
