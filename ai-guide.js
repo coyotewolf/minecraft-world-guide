@@ -36,7 +36,7 @@ async function loadTranslations(){
 }
 function localizeText(text){if(typeof text!=='string'||!translationMap)return text;let out=text;for(const re of translationMatchers)out=out.replace(re,m=>translationMap[m]||m);return out}
 function localizeFact(f){if(!f)return f;const copy={...f};for(const k of ['title','playerTitle','playerSummary','text'])if(typeof copy[k]==='string')copy[k]=localizeText(copy[k]);if(Array.isArray(copy.labels))copy.labels=copy.labels.map(localizeText);return copy}
-function factsView(facts){const {h}=auth;return (facts||[]).map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact"><h3>${h(shown.title)}</h3><p>${h(shown.text)}</p><details><summary>查看來源</summary><p>${h(localizeText(f.source))}</p><pre>${h(localizeText(f.text))}</pre>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</details></article>`}).join('')}
+function factsView(facts){const {h}=auth;if(!(facts||[]).length)return '';return `<div class="assistant-sources"><details><summary>查看來源${facts.length>1?`（${facts.length}）`:''}</summary>${facts.map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact assistant-fact-compact"><h3>${h(shown.title)}</h3><p class="assistant-source-label">${h(localizeText(f.source)||'本站查核資料')}</p><p>${h(shown.text)}</p>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</article>`}).join('')}</details></div>`}
 function updateHistoryControl(){
  const select=$('#assistant-history');
  if(!select)return;
