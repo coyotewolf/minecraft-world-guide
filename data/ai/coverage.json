@@ -1,0 +1,4643 @@
+{
+ "scannedAt": "2026-10-06T08:23:42.790959+00:00",
+ "scope": "每個已安裝 JAR 的資源；211 個保留模組及其內附套件的 Java bytecode 全面反編譯。47 個純效能或共用函式庫另列排除原因。",
+ "mods": [
+  {
+   "file": "[forge]ctov-3.4.14.jar",
+   "sha256": "c4b0326efa655b180cc2b9d87994ca639ee4415debbf45788f665e9f4f864d3c",
+   "key": "c4b0326efa655b18",
+   "ids": [
+    "ctov"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1408,
+   "classes": 3,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 3,
+   "representedClasses": 3,
+   "missingClasses": []
+  },
+  {
+   "file": "adorablehamsterpets-3.7.0-1.20.1+forge.jar",
+   "sha256": "4c555289a9fc039db54be509272602092c1cf76e84f64a56f3f05c2b03c5c4a3",
+   "key": "4c555289a9fc039d",
+   "ids": [
+    "adorablehamsterpets"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 616,
+   "classes": 504,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 504,
+   "representedClasses": 504,
+   "missingClasses": []
+  },
+  {
+   "file": "ae2omnicells-1.20.1-forge-1.1.6.jar",
+   "sha256": "c3222ad905ddb0a0517bbd76b48722bfe5a2e5770375f1e393b427d4a26fd5e7",
+   "key": "c3222ad905ddb0a0",
+   "ids": [
+    "ae2omnicells"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 782,
+   "classes": 65,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 65,
+   "representedClasses": 65,
+   "missingClasses": []
+  },
+  {
+   "file": "ae2wtlib-15.3.3-forge.jar",
+   "sha256": "39e5cede37d5c6a07592d6c1e83398791e037f3d434bc44f7460cd085a4de5f4",
+   "key": "39e5cede37d5c6a0",
+   "ids": [
+    "ae2wtlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 48,
+   "classes": 116,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "alexsmobs-1.22.9.jar",
+   "sha256": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+   "key": "16bc5bcc19db9029",
+   "ids": [
+    "alexsmobs"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2653,
+   "classes": 1118,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1118,
+   "representedClasses": 1118,
+   "missingClasses": []
+  },
+  {
+   "file": "AmbientSounds_FORGE_v6.3.8_mc1.20.1.jar",
+   "sha256": "41688a2ba90e5b07beb0e1844cfd0b21a4294b1073de144ae0a7f519b336a18b",
+   "key": "41688a2ba90e5b07",
+   "ids": [
+    "ambientsounds"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 87,
+   "classes": 64,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 64,
+   "representedClasses": 64,
+   "missingClasses": []
+  },
+  {
+   "file": "appliedcreate-1.20.1-1.1.6.jar",
+   "sha256": "62ac7127481d7a60789692572332bd0aebc7203185d3af4fe24180efb1e9cca9",
+   "key": "62ac7127481d7a60",
+   "ids": [
+    "appliedcreate"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 117,
+   "classes": 94,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 94,
+   "representedClasses": 94,
+   "missingClasses": []
+  },
+  {
+   "file": "ApricityUI-forge-1.20.1-1.2.4-hotfix.jar",
+   "sha256": "0a25210a84c22fd52b0a13f868d28ed151d4c2a75a360e0187357ab27e7359ec",
+   "key": "0a25210a84c22fd5",
+   "ids": [
+    "apricityui"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 39,
+   "classes": 810,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 810,
+   "representedClasses": 810,
+   "missingClasses": []
+  },
+  {
+   "file": "aquamirae-forge-1.20.1-7.1.13.jar",
+   "sha256": "720330ca529ed7cbe0af2fb38b82205764be2e0aba28e2ab8a2619ccb7830fba",
+   "key": "720330ca529ed7cb",
+   "ids": [
+    "aquamirae"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 311,
+   "classes": 404,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 404,
+   "representedClasses": 404,
+   "missingClasses": []
+  },
+  {
+   "file": "ares_hud-2.0.5-forge-1.20.1.jar",
+   "sha256": "c9871f17bb2ccbae3fdbbf83da41cd4eb9249cb3dddf9ace9786c7620c7352ba",
+   "key": "c9871f17bb2ccbae",
+   "ids": [
+    "ares_hud"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 7,
+   "classes": 246,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar",
+    "META-INF/jarjar/mixinsquared-forge-0.2.0-beta.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 252,
+   "representedClasses": 252,
+   "missingClasses": []
+  },
+  {
+   "file": "balm-forge-1.20.1-7.3.44.jar",
+   "sha256": "ad11d968770bb1ce73377626b6f1dcd4ae6f8be1ef6f37cee9b872b8176aebd3",
+   "key": "ad11d968770bb1ce",
+   "ids": [
+    "balm"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 41,
+   "classes": 403,
+   "nestedJars": [
+    "META-INF/jarjar/kuma-api-forge-20.1.12+1.20.1.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "banana-colony-client-TW-translation-1.20.1-v1.0.11.jar",
+   "sha256": "db2200472ab626e3b881ffa911e56527bbad3fd2a6098a6493cf10903fdbe8e5",
+   "key": "db2200472ab626e3",
+   "ids": [
+    "banana_colony"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 49,
+   "classes": 13,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 13,
+   "representedClasses": 13,
+   "missingClasses": []
+  },
+  {
+   "file": "better-party-forge-1.20.1-1.1.7.jar",
+   "sha256": "5ff5a298fc84b300a4fc48a711cae90c7fb195320d4517f4fbad08c9d030ab99",
+   "key": "5ff5a298fc84b300",
+   "ids": [
+    "better_party"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 9,
+   "classes": 111,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 111,
+   "representedClasses": 111,
+   "missingClasses": []
+  },
+  {
+   "file": "better-party-x-xaeros-world-map-forge-1.20.1-1.0.2.jar",
+   "sha256": "f83a195b43d126c5ef49259559391530403fc486109c73fe3f4ac2e7c819ae68",
+   "key": "f83a195b43d126c5",
+   "ids": [
+    "better_party_x_xaeros_world_map"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 22,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 22,
+   "representedClasses": 22,
+   "missingClasses": []
+  },
+  {
+   "file": "bettervillage-forge-1.20.1-3.3.1-all.jar",
+   "sha256": "9e8b26db627f1eaa6f4daa3a771c5ac844ec29249bc251273df394736451d3f2",
+   "key": "9e8b26db627f1eaa",
+   "ids": [
+    "bettervillage"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 12,
+   "classes": 7,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 9,
+   "representedClasses": 9,
+   "missingClasses": []
+  },
+  {
+   "file": "blockui-1.20.1-1.0.194-snapshot.jar",
+   "sha256": "b8ec6ea580a1fe3c5b2fa2e101ff632a485cc854eaa55c2f852370f8b42a65b9",
+   "key": "b8ec6ea580a1fe3c",
+   "ids": [
+    "blockui"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 8,
+   "classes": 121,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "Bonfires-1.20.1-1.2.20d-5d9820a.jar",
+   "sha256": "e7d50b4416aadf101dd084806bd410d7dd0723aa686605b385235d1cd55574ca",
+   "key": "e7d50b4416aadf10",
+   "ids": [
+    "bonfires"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 62,
+   "classes": 99,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 99,
+   "representedClasses": 99,
+   "missingClasses": []
+  },
+  {
+   "file": "booneforgeapi-1.20.1-1.2.jar",
+   "sha256": "0b765ea0b4d9c102df1ddeeb37cba175b72106e2fe4115eac8f9be916258659c",
+   "key": "0b765ea0b4d9c102",
+   "ids": [
+    "booneforgeapi"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 13,
+   "classes": 76,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "botarium-forge-1.20.1-2.3.4.jar",
+   "sha256": "470810a364ff4ad4d4fcd4e55798263938fc893970eacecc58e8b741a392b1cf",
+   "key": "470810a364ff4ad4",
+   "ids": [
+    "botarium"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 2,
+   "classes": 90,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "butchercraft-2.4.1.jar",
+   "sha256": "8e71f27de6603f6ced5bc961fba42a424f33edf71bcd1a688800c8ea4140897e",
+   "key": "8e71f27de6603f6c",
+   "ids": [
+    "butchercraft"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1457,
+   "classes": 166,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 166,
+   "representedClasses": 166,
+   "missingClasses": []
+  },
+  {
+   "file": "CameraOverhaul-v2.1.1-forge+mc[1.20-1.20.5].jar",
+   "sha256": "af4f381a19c7ce39e019025955c2a9767b8b5c0d8b826d2975e60d9da466e492",
+   "key": "af4f381a19c7ce39",
+   "ids": [
+    "cameraoverhaul"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 12,
+   "classes": 57,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 57,
+   "representedClasses": 57,
+   "missingClasses": []
+  },
+  {
+   "file": "carryon-forge-1.20.1-2.1.2.7.jar",
+   "sha256": "aeb0ae457933a4e75a48af39d583f9bd3b9b3254203169da734dee036c0d2a6c",
+   "key": "aeb0ae457933a4e7",
+   "ids": [
+    "carryon"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 21,
+   "classes": 79,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.2.0-beta.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 81,
+   "representedClasses": 81,
+   "missingClasses": []
+  },
+  {
+   "file": "cbc_at_Forge_1.20.1_0.1.4b.jar",
+   "sha256": "1922ad0c3380b0bb19d2f3ad5f66ffc3e363d82271ec34b63e95692834cdde03",
+   "key": "1922ad0c3380b0bb",
+   "ids": [
+    "cbc_at"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1466,
+   "classes": 231,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 231,
+   "representedClasses": 231,
+   "missingClasses": []
+  },
+  {
+   "file": "certain_questing_additions-forge-1.1.6+mc1.20.1.jar",
+   "sha256": "681948a5b0fb212d574df38f3c81dbd7121a737288af6ff1e5816880d5e15858",
+   "key": "681948a5b0fb212d",
+   "ids": [
+    "certain_questing_additions"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 8,
+   "classes": 50,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 51,
+   "representedClasses": 51,
+   "missingClasses": []
+  },
+  {
+   "file": "chestcavity-1.20.1-2.17.1.1.jar",
+   "sha256": "5ea7b55fc41543809dc45c911e4bfb735cdbab5bbc60bb586638fa9f36f6b952",
+   "key": "5ea7b55fc4154380",
+   "ids": [
+    "chestcavity"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 673,
+   "classes": 113,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 113,
+   "representedClasses": 113,
+   "missingClasses": []
+  },
+  {
+   "file": "citadel-2.6.3-1.20.1.jar",
+   "sha256": "1f977969c30ecb7234c8f3c434d1952c81608e349687f316da68ddde28070d90",
+   "key": "1f977969c30ecb72",
+   "ids": [
+    "citadel"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 27,
+   "classes": 1419,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "cloth-config-11.1.136-forge (2).jar",
+   "sha256": "1e895e85cf5b1e1905ef3178ec155c8badfe22a1577b92c09143a5aa1f4ce0f2",
+   "key": "1e895e85cf5b1e19",
+   "ids": [
+    "cloth_config"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 29,
+   "classes": 633,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "CodeChickenLib-1.20.1-4.4.0.528-universal.jar",
+   "sha256": "754240e1cd05caaf511a808ddf6fc74ece68a8fca7d94548d9ac967287f7960d",
+   "key": "754240e1cd05caaf",
+   "ids": [
+    "codechickenlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 43,
+   "classes": 704,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "colorwheel-forge-1.3.0-beta3+mc1.20.1.jar",
+   "sha256": "8a1b02d76d56e0ce24debd807d305ec123092c872c40f1f004cc561a71122f73",
+   "key": "8a1b02d76d56e0ce",
+   "ids": [
+    "colorwheel"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 9,
+   "classes": 224,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.4.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "ContingameIME-1.0.7-1.20.1-forge.jar",
+   "sha256": "59772b70da09de5de5026892b9993e16204dc8bfc4fbb0383fed0278385deaf0",
+   "key": "59772b70da09de5d",
+   "ids": [
+    "ingameime"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 8,
+   "classes": 76,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 76,
+   "representedClasses": 76,
+   "missingClasses": []
+  },
+  {
+   "file": "copycats-3.0.10+mc.1.20.1-forge.jar",
+   "sha256": "684a7a65a576d84bee4250b3cc10ddcaa66958cee05b541b1cd99df8bdc0185e",
+   "key": "684a7a65a576d84b",
+   "ids": [
+    "copycats"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 434,
+   "classes": 412,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 414,
+   "representedClasses": 414,
+   "missingClasses": []
+  },
+  {
+   "file": "corpse-forge-1.20.1-1.0.23.jar",
+   "sha256": "8d77c5fc8dc981c750a8e66d4665f055457f748f0ce49a303d9bc50347bdbf7c",
+   "key": "8d77c5fc8dc981c7",
+   "ids": [
+    "corpse"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 23,
+   "classes": 123,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 123,
+   "representedClasses": 123,
+   "missingClasses": []
+  },
+  {
+   "file": "cosmeticarmorreworked-1.20.1-v1a.jar",
+   "sha256": "c790e8671625b05ec0aa19272e0ea74ea95619f953e3c6f39a6736af0d386804",
+   "key": "c790e8671625b05e",
+   "ids": [
+    "cosmeticarmorreworked"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 13,
+   "classes": 40,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 40,
+   "representedClasses": 40,
+   "missingClasses": []
+  },
+  {
+   "file": "create-balancedflight-1.20.1_v2.4.5.jar",
+   "sha256": "c2f9d3416c8f1a97b2c04325ea62b39af90e827cd4e0c8e94861e6b980d81ed7",
+   "key": "c2f9d3416c8f1a97",
+   "ids": [
+    "balancedflight"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 27,
+   "classes": 53,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 53,
+   "representedClasses": 53,
+   "missingClasses": []
+  },
+  {
+   "file": "create-new-age-1.2.0+forge-mc1.20.1.jar",
+   "sha256": "4020388be67c4f13e2fcf28f630f5cb66e04421f0373deea6732423604f2d80e",
+   "key": "4020388be67c4f13",
+   "ids": [
+    "create_new_age"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 366,
+   "classes": 183,
+   "nestedJars": [
+    "META-INF/jars/esl-forge-1.20.1-1.1.3+forge-mc1.20.1.jar",
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 210,
+   "representedClasses": 210,
+   "missingClasses": []
+  },
+  {
+   "file": "create-stuff-additions1.20.1_v2.1.1.jar",
+   "sha256": "84cdaa5765a4413123757494ab80d3210e8ee280a56cef55f302e754e5a4a624",
+   "key": "84cdaa5765a44131",
+   "ids": [
+    "create_sa"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 237,
+   "classes": 454,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 454,
+   "representedClasses": 454,
+   "missingClasses": []
+  },
+  {
+   "file": "create_compatible_storage-2.11.0-all.jar",
+   "sha256": "c559d9a536f5aa5fe10e9540ea8afa10d39c8635643c2dc7e24e2c5f769be0b8",
+   "key": "c559d9a536f5aa5f",
+   "ids": [
+    "create_compatible_storage"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 49,
+   "classes": 49,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 50,
+   "representedClasses": 50,
+   "missingClasses": []
+  },
+  {
+   "file": "create_connected-1.2.3-mc1.20.1-all.jar",
+   "sha256": "5f584f118f2bda3dfeed8b8fc9198ea143c6988e2f6f04eb63f42c0da8b50e63",
+   "key": "5f584f118f2bda3d",
+   "ids": [
+    "create_connected"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1066,
+   "classes": 381,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 383,
+   "representedClasses": 383,
+   "missingClasses": []
+  },
+  {
+   "file": "create_enchantment_industry-1.4.1-for-create-6.0.8.jar",
+   "sha256": "7f7889ba19518e16221b410ae4e1e9fba4c4ee1acaae85c5a3c4b866c97e6198",
+   "key": "7f7889ba19518e16",
+   "ids": [
+    "create_enchantment_industry"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 99,
+   "classes": 146,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 146,
+   "representedClasses": 146,
+   "missingClasses": []
+  },
+  {
+   "file": "create_enhanced_schematicannon-1.0.3-6.0+.jar",
+   "sha256": "00e2c4289b1f711a9e133219810fcf6729739ab073aad425b27b50fbc1e9516d",
+   "key": "00e2c4289b1f711a",
+   "ids": [
+    "create_enhanced_schematicannon"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 81,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 81,
+   "representedClasses": 81,
+   "missingClasses": []
+  },
+  {
+   "file": "create_fantasizing-1.20.1-1.1.1.jar",
+   "sha256": "654be87c476022d6c222042a28dc533397b6cd7396766f7cda4cb94ee2bddb04",
+   "key": "654be87c476022d6",
+   "ids": [
+    "create_fantasizing"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 171,
+   "classes": 105,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 105,
+   "representedClasses": 105,
+   "missingClasses": []
+  },
+  {
+   "file": "create_jetpack-forge-4.4.6.jar",
+   "sha256": "6a746d1278696924eec33152a391c9c073b627c4a224e9b45d99cb42c5206337",
+   "key": "6a746d1278696924",
+   "ids": [
+    "create_jetpack"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 35,
+   "classes": 17,
+   "nestedJars": [
+    "META-INF/jarjar/flightlib-forge-2.2.2.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 66,
+   "representedClasses": 66,
+   "missingClasses": []
+  },
+  {
+   "file": "create_mechanical_spawner-1.20.1-0.1.7-6.0.6.jar",
+   "sha256": "b77c0ef42a05dde1ae119a634112a30d31c8ffd34e17ad027f64612bf203aff8",
+   "key": "b77c0ef42a05dde1",
+   "ids": [
+    "create_mechanical_spawner"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 219,
+   "classes": 59,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 59,
+   "representedClasses": 59,
+   "missingClasses": []
+  },
+  {
+   "file": "create_pattern_schematics-1.3.3.jar",
+   "sha256": "ec4d03deabf676980738b60a1e6de198c205d71255d9f91a51842fc0a285fe74",
+   "key": "ec4d03deabf67698",
+   "ids": [
+    "create_pattern_schematics"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 17,
+   "classes": 57,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 57,
+   "representedClasses": 57,
+   "missingClasses": []
+  },
+  {
+   "file": "create_power_loader-2.0.3-mc1.20.1.jar",
+   "sha256": "749b9cf51715f3db110f026db3fb2d004a4dc6b5301691ae53b8196a5dff6766",
+   "key": "749b9cf51715f3db",
+   "ids": [
+    "create_power_loader"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 48,
+   "classes": 63,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 63,
+   "representedClasses": 63,
+   "missingClasses": []
+  },
+  {
+   "file": "create_wizardry-1.20.1-0.4.2.jar",
+   "sha256": "90f386c1cde88153ded8a3b4597e58737b4ca367ac9abffccef8b9a3aec330f5",
+   "key": "90f386c1cde88153",
+   "ids": [
+    "create_wizardry"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 272,
+   "classes": 48,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 48,
+   "representedClasses": 48,
+   "missingClasses": []
+  },
+  {
+   "file": "createaddition-1.20.1-1.3.3.jar",
+   "sha256": "9bf3ae15d86ec95d128542caf10e4b5498e49ca02f725b9302d6daecd5eae1db",
+   "key": "9bf3ae15d86ec95d",
+   "ids": [
+    "createaddition"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 382,
+   "classes": 186,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 186,
+   "representedClasses": 186,
+   "missingClasses": []
+  },
+  {
+   "file": "createadditionallogistics-1.20.1-1.4.5.jar",
+   "sha256": "d45120d6c1fef30ccf393925d9a60eeece43c35f1c9834f523fd46979559c9f9",
+   "key": "d45120d6c1fef30c",
+   "ids": [
+    "createadditionallogistics"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 950,
+   "classes": 227,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 227,
+   "representedClasses": 227,
+   "missingClasses": []
+  },
+  {
+   "file": "createappliedkinetics-1.5.1-1.20.1.jar",
+   "sha256": "b130d2792ff05d3702672281c9565538062c8cfc1bfc1b567f781b59ab86ae4a",
+   "key": "b130d2792ff05d37",
+   "ids": [
+    "createappliedkinetics"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 45,
+   "classes": 14,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 14,
+   "representedClasses": 14,
+   "missingClasses": []
+  },
+  {
+   "file": "createbigcannons-5.11.4-mc.1.20.1-forge.jar",
+   "sha256": "679b66d5f3766b92e073925e995a6c35ee1f4501839f04e0c35a0a10375f95e9",
+   "key": "679b66d5f3766b92",
+   "ids": [
+    "createbigcannons"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1672,
+   "classes": 912,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 914,
+   "representedClasses": 914,
+   "missingClasses": []
+  },
+  {
+   "file": "CreateCyberGoggles-1.20.1-7.2.2-Forge.jar",
+   "sha256": "c68c9143e8117a309d7d05bef48decb3c0b64da55d9c3fd1233345143822de3e",
+   "key": "c68c9143e8117a30",
+   "ids": [
+    "create_cyber_goggles"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 10,
+   "classes": 176,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 176,
+   "representedClasses": 176,
+   "missingClasses": []
+  },
+  {
+   "file": "createdeco-2.0.3-1.20.1-forge.jar",
+   "sha256": "7d6dd0094d18d6bab64fcd7de680ea736015d1a1ffc472d3fe03122bc7aa0864",
+   "key": "7d6dd0094d18d6ba",
+   "ids": [
+    "createdeco"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5686,
+   "classes": 68,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 68,
+   "representedClasses": 68,
+   "missingClasses": []
+  },
+  {
+   "file": "createdieselgenerators-1.20.1-1.3.12.jar",
+   "sha256": "808e87b98ea9d42a43096a113a7fa1a89c65bee95608855c6cfe2914d6f1f642",
+   "key": "808e87b98ea9d42a",
+   "ids": [
+    "createdieselgenerators"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 660,
+   "classes": 222,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 222,
+   "representedClasses": 222,
+   "missingClasses": []
+  },
+  {
+   "file": "createfluidstuffs-1.2.1-all.jar",
+   "sha256": "fd6d11ac0fb1a2f6537953a66f25a2415521c362e9903453d7077b52657a1dc9",
+   "key": "fd6d11ac0fb1a2f6",
+   "ids": [
+    "createfluidstuffs"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 39,
+   "classes": 26,
+   "nestedJars": [
+    "META-INF/jarjar/create_dragon_lib-1.20.1-1.4.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 68,
+   "representedClasses": 68,
+   "missingClasses": []
+  },
+  {
+   "file": "createimmersivetacz-1.4-1.20.1.jar",
+   "sha256": "8f1e8b58afba0aaa53becef2f4de41184aca10b901c835faeffbdc03db975f7a",
+   "key": "8f1e8b58afba0aaa",
+   "ids": [
+    "createimmersivetacz"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 76,
+   "classes": 9,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 9,
+   "representedClasses": 9,
+   "missingClasses": []
+  },
+  {
+   "file": "createliquidfuel-2.2.0-1.20.1.jar",
+   "sha256": "9179da1f47bc73d20676251cc9cf4b177e1c95b0618a4429219d09fd226e455b",
+   "key": "9179da1f47bc73d2",
+   "ids": [
+    "createliquidfuel"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 8,
+   "classes": 11,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 11,
+   "representedClasses": 11,
+   "missingClasses": []
+  },
+  {
+   "file": "createmetallurgy-1.0.1-1.20.1.jar",
+   "sha256": "1f0507f5c42e3c19a4d331be86eada7ba5264d39922969769ed9b11d09100258",
+   "key": "1f0507f5c42e3c19",
+   "ids": [
+    "createmetallurgy"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1165,
+   "classes": 235,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 236,
+   "representedClasses": 236,
+   "missingClasses": []
+  },
+  {
+   "file": "createoreexcavation-1.20-1.6.5.jar",
+   "sha256": "fcd8f81ad8e8e56cdd0fe5bc75cd946003fa3edc188a8c23ec36979d2722b27b",
+   "key": "fcd8f81ad8e8e56c",
+   "ids": [
+    "createoreexcavation"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 92,
+   "classes": 131,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 131,
+   "representedClasses": 131,
+   "missingClasses": []
+  },
+  {
+   "file": "createrailwaysnavigator-forge-1.20.1-beta-0.9.1-C6.jar",
+   "sha256": "af2425223fb3f2e2cc3acf78a14b8f3725520faae00ba5764140a8d5d6541b3f",
+   "key": "af2425223fb3f2e2",
+   "ids": [
+    "createrailwaysnavigator"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 135,
+   "classes": 540,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 540,
+   "representedClasses": 540,
+   "missingClasses": []
+  },
+  {
+   "file": "createstockbridge-1.20-0.2.0.jar",
+   "sha256": "5eda896c93997d5920c8721f52c577c5195c25b0cb043840ed181dec2a4ecab7",
+   "key": "5eda896c93997d59",
+   "ids": [
+    "createstockbridge"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 20,
+   "classes": 41,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 41,
+   "representedClasses": 41,
+   "missingClasses": []
+  },
+  {
+   "file": "createtransmission-1.1.0+forge-create6-1.20.1.jar",
+   "sha256": "19e51889d804e4655e5ed27abf8d6574b9c2ea929e16d46407f1806178387d84",
+   "key": "19e51889d804e465",
+   "ids": [
+    "createtransmission"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 57,
+   "classes": 33,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 34,
+   "representedClasses": 34,
+   "missingClasses": []
+  },
+  {
+   "file": "createultimine-1.20.1-forge-1.3.1.jar",
+   "sha256": "31d75d1f68019e923d92e36e89740fe3174ecccc35cdc2db80ba2573fb13be83",
+   "key": "31d75d1f68019e92",
+   "ids": [
+    "createultimine"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 5,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 5,
+   "representedClasses": 5,
+   "missingClasses": []
+  },
+  {
+   "file": "createutilities-0.3.2+1.20.1.jar",
+   "sha256": "1ce5d1376c9cf4a7525e4d02d731e16765cb874475f181404c998e5aec85ac7e",
+   "key": "1ce5d1376c9cf4a7",
+   "ids": [
+    "createutilities"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 105,
+   "classes": 64,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 64,
+   "representedClasses": 64,
+   "missingClasses": []
+  },
+  {
+   "file": "CreativeCore_FORGE_v2.12.39_mc1.20.1.jar",
+   "sha256": "4bc19d145c55022314140f413c6e3d83805237c6a148504fb60bfe6567a83c7d",
+   "key": "4bc19d145c550223",
+   "ids": [
+    "creativecore"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 17,
+   "classes": 642,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "cupboard-1.20.1-4.2.jar",
+   "sha256": "6a384b880c2429e017f83657438e1fc00d091592cc2860d6d2986094bac5d48f",
+   "key": "6a384b880c2429e0",
+   "ids": [
+    "cupboard"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 5,
+   "classes": 18,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "curiouslanterns-1.20.1-1.3.7.jar",
+   "sha256": "41231ccafb467b76fcf1ddd163925e66366844b190d72d4d36c7133903a25f92",
+   "key": "41231ccafb467b76",
+   "ids": [
+    "curiouslanterns"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 11,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 11,
+   "representedClasses": 11,
+   "missingClasses": []
+  },
+  {
+   "file": "CustomStartingGear-1.20-2.0.3.jar",
+   "sha256": "7c50129c62cd5f6298a5ba4e5ff15cc147f809bde961c7ef646fc5efd6588ec7",
+   "key": "7c50129c62cd5f62",
+   "ids": [
+    "customstartinggear"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2,
+   "classes": 7,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 7,
+   "representedClasses": 7,
+   "missingClasses": []
+  },
+  {
+   "file": "daffas_arsenal-3.6.0.jar",
+   "sha256": "cf71cdd687a3511744cd500e42c4cdbf01d74e9e630102b3afd6e25e8a86d287",
+   "key": "cf71cdd687a35117",
+   "ids": [
+    "daffas_arsenal"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 446,
+   "classes": 3,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 3,
+   "representedClasses": 3,
+   "missingClasses": []
+  },
+  {
+   "file": "defaultoptions-forge-1.20.1-18.0.5.jar",
+   "sha256": "28a34106f7dc91015bc202924593e7a375c9d4dd2681aec58f5abd06fa5eaeee",
+   "key": "28a34106f7dc9101",
+   "ids": [
+    "defaultoptions"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 36,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 36,
+   "representedClasses": 36,
+   "missingClasses": []
+  },
+  {
+   "file": "deltaboxlib-forge-2.2.0+1.20.1.jar",
+   "sha256": "610ea0d84d7f97c1c9a2ca7b2090214198f099e64e70006e2afc0ddf1f709cc0",
+   "key": "610ea0d84d7f97c1",
+   "ids": [
+    "deltaboxlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 26,
+   "classes": 287,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "DisenchantmentEditTable-1.20-1.1.2.jar",
+   "sha256": "fda071b58ee9e2ff5f8944e654727fb800321f25af252b92a9f749ecac70b33e",
+   "key": "fda071b58ee9e2ff",
+   "ids": [
+    "editenchanting"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 14,
+   "classes": 45,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 45,
+   "representedClasses": 45,
+   "missingClasses": []
+  },
+  {
+   "file": "domum_ornamentum-1.20.1-1.0.304-snapshot-universal.jar",
+   "sha256": "e46035ff58cc91bd6dbb4993a67abfb88cc445f2cdd096bd1d6fe75036c56a9b",
+   "key": "e46035ff58cc91bd",
+   "ids": [
+    "domum_ornamentum"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 947,
+   "classes": 288,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 288,
+   "representedClasses": 288,
+   "missingClasses": []
+  },
+  {
+   "file": "dragonfight-1.20.1-4.7.jar",
+   "sha256": "d24cbc74f1257e3f6fba2057c2c7537c8424ac9b73a5b7b044660a32ed5f4231",
+   "key": "d24cbc74f1257e3f",
+   "ids": [
+    "dragonfight"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 14,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 14,
+   "representedClasses": 14,
+   "missingClasses": []
+  },
+  {
+   "file": "dragonlib-forge-1.20.1-beta-3.0.28.jar",
+   "sha256": "1894e875a248e8b5527c3e6806af75cbb797ab8888ed0b0c7a5b186fe661c7bb",
+   "key": "1894e875a248e8b5",
+   "ids": [
+    "dragonlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 15,
+   "classes": 583,
+   "nestedJars": [
+    "META-INF/jars/architectury-forge-9.1.12.jar",
+    "META-INF/jars/mixinextras-forge-0.5.3.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "dragonsofberk-1.20.1-1.0.5.jar",
+   "sha256": "1fbda8d51bbf14c5defe604c3d8851451001403885ea6cd1b58a7302b12720ad",
+   "key": "1fbda8d51bbf14c5",
+   "ids": [
+    "dragonsofberk"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 232,
+   "classes": 291,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 291,
+   "representedClasses": 291,
+   "missingClasses": []
+  },
+  {
+   "file": "effortlessbuilding-1.20.1-3.11 (2).jar",
+   "sha256": "c40ee9a5b49fb4721e6e6a629d6236a640b6da76f95e3f636c77db8f2eb92dc2",
+   "key": "c40ee9a5b49fb472",
+   "ids": [
+    "effortlessbuilding"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 28,
+   "classes": 303,
+   "nestedJars": [
+    "META-INF/jarjar/Ponder-Forge-1.20.1-1.0.91.jar",
+    "META-INF/jarjar/flywheel-forge-1.20.1-1.0.6-beta-266.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1300,
+   "representedClasses": 1300,
+   "missingClasses": []
+  },
+  {
+   "file": "efiscompat-2.6.0 (1).jar",
+   "sha256": "c5eef935e534139209e5bf002685c885662bc809d1c4e05ad1309bda8eea07ab",
+   "key": "c5eef935e5341392",
+   "ids": [
+    "efiscompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 183,
+   "classes": 32,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 32,
+   "representedClasses": 32,
+   "missingClasses": []
+  },
+  {
+   "file": "empire-key-search-1.20.1-1.0.0.jar",
+   "sha256": "6e4aaeddb1a50966a445571642e156d8d8781a8fa988ff9330dc318499fa91e3",
+   "key": "6e4aaeddb1a50966",
+   "ids": [
+    "empire_key_search"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 5,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 5,
+   "representedClasses": 5,
+   "missingClasses": []
+  },
+  {
+   "file": "EnderStorage-1.20.1-2.11.0.188-universal.jar",
+   "sha256": "cb6d1c4594f61e89fab2b9e16daffecfab8bab25936684a2d75f2f0fe6eb028f",
+   "key": "cb6d1c4594f61e89",
+   "ids": [
+    "enderstorage"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 89,
+   "classes": 52,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 52,
+   "representedClasses": 52,
+   "missingClasses": []
+  },
+  {
+   "file": "endrem_forge-5.3.3-R-1.20.1.jar",
+   "sha256": "92c1e404771fa7e52acacd7d67b047cdc76451c412a1246bd089fbe15d5a22a8",
+   "key": "92c1e404771fa7e5",
+   "ids": [
+    "endrem"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 113,
+   "classes": 23,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 23,
+   "representedClasses": 23,
+   "missingClasses": []
+  },
+  {
+   "file": "entityculling-forge-1.10.5-mc1.20.1.jar",
+   "sha256": "db0ee6aaf7e78d758885969e1d237e6efef07109195d4bb81fa06b304ddc12aa",
+   "key": "db0ee6aaf7e78d75",
+   "ids": [
+    "entityculling"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 25,
+   "classes": 32,
+   "nestedJars": [
+    "META-INF/jars/TRansition-1.0.21-1.20.1-forge-SNAPSHOT.jar",
+    "META-INF/jars/TRender-1.0.15-1.20.1-forge-SNAPSHOT.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "epic_fight_avalon-20.12.6.5.jar",
+   "sha256": "2520f6e9693ba81faf8ab6083f1bd98bef9658886578482a6896ec7e4029939e",
+   "key": "2520f6e9693ba81f",
+   "ids": [
+    "epic_fight_avalon"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 19,
+   "classes": 98,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 98,
+   "representedClasses": 98,
+   "missingClasses": []
+  },
+  {
+   "file": "EpicColonies-Forge-EFM-20.14.17-20.0.91.jar",
+   "sha256": "3cc95f73b9b56a28bda71470ea4a075c20c9ad19bfa6d6762a3360b42aa2a6d2",
+   "key": "3cc95f73b9b56a28",
+   "ids": [
+    "epic_colonies"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 170,
+   "classes": 104,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 104,
+   "representedClasses": 104,
+   "missingClasses": []
+  },
+  {
+   "file": "epicysm-1.20.1-1.1.4.jar",
+   "sha256": "1e2bf697483f99a12dd83d4a09e30ce611f3da60c51499ae76b21247bdb44e17",
+   "key": "1e2bf697483f99a1",
+   "ids": [
+    "epicysm"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 110,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 110,
+   "representedClasses": 110,
+   "missingClasses": []
+  },
+  {
+   "file": "ExtendedAE-1.20-1.4.20-forge.jar",
+   "sha256": "83bcdee0fc7120bb04e020f3ad28bf486ba9124491a717eb8d2d592d946c100f",
+   "key": "83bcdee0fc7120bb",
+   "ids": [
+    "expatternprovider"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 552,
+   "classes": 381,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 381,
+   "representedClasses": 381,
+   "missingClasses": []
+  },
+  {
+   "file": "extra_gauges-2.0.7.jar",
+   "sha256": "8d45dc713998e5b8690b8a6d98af7260dfe4b5febffd0b391538a7bac2037f3d",
+   "key": "8d45dc713998e5b8",
+   "ids": [
+    "extra_gauges"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 52,
+   "classes": 96,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 97,
+   "representedClasses": 97,
+   "missingClasses": []
+  },
+  {
+   "file": "fragmentum-forge-1.20.1-1.5.2.jar",
+   "sha256": "ae8ebc0b405e78fb5df578b70e40d5269d13cfef7dc28d58c1a1fcf3d5882b30",
+   "key": "ae8ebc0b405e78fb",
+   "ids": [
+    "fragmentum"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 9,
+   "classes": 213,
+   "nestedJars": [
+    "META-INF/jarjar/luaj-core-3.0.8-figura.jar",
+    "META-INF/jarjar/luaj-jse-3.0.8-figura.jar",
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar",
+    "META-INF/jarjar/yet-another-config-lib-3.6.6+1.20.1-forge.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "FramedBlocks-9.4.3.jar",
+   "sha256": "127b8e4103eae98cda499796e0de62962c35cfd4e5f6e4214a178a8d5fe8b39e",
+   "key": "127b8e4103eae98c",
+   "ids": [
+    "framedblocks"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1405,
+   "classes": 1298,
+   "nestedJars": [
+    "META-INF/jarjar/caffeine-3.2.1.jar",
+    "META-INF/jarjar/mixinextras-forge-0.2.0-rc.4.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 2008,
+   "representedClasses": 2008,
+   "missingClasses": []
+  },
+  {
+   "file": "ftb-chunks-forge-2001.3.8.jar",
+   "sha256": "783f7aa42089b6f72500801284796f7cc8eb641ecddcf76f65bf586c017efb02",
+   "key": "783f7aa42089b6f7",
+   "ids": [
+    "ftbchunks"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 39,
+   "classes": 200,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 202,
+   "representedClasses": 202,
+   "missingClasses": []
+  },
+  {
+   "file": "ftb-quests-forge-2001.4.22.jar",
+   "sha256": "9ea9d159a78a2724cfe0457b024680fdb52a2126eff9cfa5280a30578f647a68",
+   "key": "9ea9d159a78a2724",
+   "ids": [
+    "ftbquests"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 110,
+   "classes": 389,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 389,
+   "representedClasses": 389,
+   "missingClasses": []
+  },
+  {
+   "file": "ftb-teams-forge-2001.3.2.jar",
+   "sha256": "b1cb4d82ea9f137a87e12a7aaf3329619294b56f7d70337dfd557a76e10b6e07",
+   "key": "b1cb4d82ea9f137a",
+   "ids": [
+    "ftbteams"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 15,
+   "classes": 122,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 122,
+   "representedClasses": 122,
+   "missingClasses": []
+  },
+  {
+   "file": "ftb-xmod-compat-forge-2.1.3.jar",
+   "sha256": "16a8eb9de88d5c33d29cb076cc39dfb337b2c54348e1ef1efe9dd60cf85e5f72",
+   "key": "16a8eb9de88d5c33",
+   "ids": [
+    "ftbxmodcompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 83,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 83,
+   "representedClasses": 83,
+   "missingClasses": []
+  },
+  {
+   "file": "ftbxaerocompat-forge-1.1.3.jar",
+   "sha256": "9fd97d805979477f97dff63e9b35aff34482dd79fca125509c3ba576dad327d5",
+   "key": "9fd97d805979477f",
+   "ids": [
+    "ftbxaerocompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 16,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 17,
+   "representedClasses": 17,
+   "missingClasses": []
+  },
+  {
+   "file": "functionalstorage-1.20.1-1.2.14.jar",
+   "sha256": "b627f558ae16352ca4988834c5397d10b9de8541188ff0d99121fff0f5ecf5f7",
+   "key": "b627f558ae16352c",
+   "ids": [
+    "functionalstorage"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 346,
+   "classes": 142,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 142,
+   "representedClasses": 142,
+   "missingClasses": []
+  },
+  {
+   "file": "fzzy_config-0.7.7+1.20.1+forge.jar",
+   "sha256": "c4acf6fd3ce66ff28050dd9fdbff25c407f98a4911311ff3f59d651acccc9575",
+   "key": "c4acf6fd3ce66ff2",
+   "ids": [
+    "fzzy_config"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 28,
+   "classes": 758,
+   "nestedJars": [
+    "META-INF/jars/jankson-1.2.3.jar",
+    "META-INF/jars/tomlkt-jvm-0.3.7.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "gd656lightcore-0.0.4-1.20.1-forge.jar",
+   "sha256": "6e021fdd0593bb21a7365084f2aee9ff0e1a5ed3a2047939bcb083b113d91c79",
+   "key": "6e021fdd0593bb21",
+   "ids": [
+    "gd656lightcore"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 4,
+   "classes": 20,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "Glodium-1.20-1.5-forge.jar",
+   "sha256": "fc419cb5bf511750c0a2da498b925f5122ac4f78617aca6630fe80abf0b6f460",
+   "key": "fc419cb5bf511750",
+   "ids": [
+    "glodium"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 2,
+   "classes": 36,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "GokiSkills-forge-1.1.3-1.20.1.jar",
+   "sha256": "e684d3547ac19ffe04554f786046808711334cc3e9eb78ae914a4a34c082664f",
+   "key": "e684d3547ac19ffe",
+   "ids": [
+    "gokiskills"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 10,
+   "classes": 54,
+   "nestedJars": [
+    "META-INF/jars/max-health-fix-12.0.3-forge.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 59,
+   "representedClasses": 59,
+   "missingClasses": []
+  },
+  {
+   "file": "guccivuitton-1.20.1-0.2.2.jar",
+   "sha256": "c21c66ba36a5cb3603decfbe08e17ca2c5fac8f70dd4e43182a0ae8965ffc206",
+   "key": "c21c66ba36a5cb36",
+   "ids": [
+    "guccivuitton"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 323,
+   "classes": 1,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1,
+   "representedClasses": 1,
+   "missingClasses": []
+  },
+  {
+   "file": "HammerLib-1.20.1-20.1.50.jar",
+   "sha256": "cd634bc7c76bcab3d4ff289fc43588e4186bb9f7a07a7df092be2285fdf262c5",
+   "key": "cd634bc7c76bcab3",
+   "ids": [
+    "hammerlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 30,
+   "classes": 993,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "hourglass-1.20-1.2.1.1.jar",
+   "sha256": "cd5d1275ab8965b4a5d70647e4878ae5c55933214abac573b97ac1bdf6659900",
+   "key": "cd5d1275ab8965b4",
+   "ids": [
+    "hourglass"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 39,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 39,
+   "representedClasses": 39,
+   "missingClasses": []
+  },
+  {
+   "file": "idas_forge-1.13.0+1.20.1.jar",
+   "sha256": "5cd376424034f824c06361a31d4941fc1c9e2135613efbd2e69e69457cfc4e3b",
+   "key": "5cd376424034f824",
+   "ids": [
+    "idas"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 670,
+   "classes": 19,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 19,
+   "representedClasses": 19,
+   "missingClasses": []
+  },
+  {
+   "file": "ImmediatelyFast-Forge-1.5.5+1.20.4.jar",
+   "sha256": "82db19cc65b5c11a444498fb4b8cbcb0393c043e794cb5bf368631a0af765035",
+   "key": "82db19cc65b5c11a",
+   "ids": [
+    "immediatelyfast"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 6,
+   "classes": 86,
+   "nestedJars": [
+    "META-INF/jars/Reflect-1.6.2.jar",
+    "META-INF/jars/mixinextras-forge-0.3.6.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "immersive_ballistic-forge-1.4-ALPHA-8+1.20.1.jar",
+   "sha256": "09f292abe5701ed32a14e7291f0cbb902fa8f4f757ac7ac5cd541f28709e02e7",
+   "key": "09f292abe5701ed3",
+   "ids": [
+    "immersive_ballistic"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 208,
+   "classes": 54,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.3.jar",
+    "META-INF/jars/mixinsquared-forge-0.3.7-beta.2.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 58,
+   "representedClasses": 58,
+   "missingClasses": []
+  },
+  {
+   "file": "immersive_paintings-0.6.13+1.20.1-forge.jar",
+   "sha256": "069d5dffa4060d965899e607fad725c4d80a8086cef64f1d7563259b0a070633",
+   "key": "069d5dffa4060d96",
+   "ids": [
+    "immersive_paintings"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 281,
+   "classes": 93,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 93,
+   "representedClasses": 93,
+   "missingClasses": []
+  },
+  {
+   "file": "ImprovableSkills-1.20.1-20.1.13.jar",
+   "sha256": "c910c3937cfce73de5b6d7348f9886c1e941edb460ad2de55ad8f4d033599295",
+   "key": "c910c3937cfce73d",
+   "ids": [
+    "improvableskills"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 19,
+   "classes": 202,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 202,
+   "representedClasses": 202,
+   "missingClasses": []
+  },
+  {
+   "file": "Industrial Platform-1.20.1-1.8.0.jar",
+   "sha256": "fc5dd068999aa4c90e3f58ea648dd1abb6312224db693af50cfb8e62146bced0",
+   "key": "fc5dd068999aa4c9",
+   "ids": [
+    "industrial_platform"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 37,
+   "classes": 40,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 40,
+   "representedClasses": 40,
+   "missingClasses": []
+  },
+  {
+   "file": "item-filters-forge-2001.1.0-build.59.jar",
+   "sha256": "99417b1342ba51ccb9611b17ab01fc1299971aa34e8f9d2a8b3c63df5713eb49",
+   "key": "99417b1342ba51cc",
+   "ids": [
+    "itemfilters"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 42,
+   "classes": 57,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 57,
+   "representedClasses": 57,
+   "missingClasses": []
+  },
+  {
+   "file": "ItemPhysicLite_FORGE_v1.6.13_mc1.20.1.jar",
+   "sha256": "f30d7bdc9410bb1b38b5e18e7c3051e0df8b8f883932f49d0b9aa23a146ac1fa",
+   "key": "f30d7bdc9410bb1b",
+   "ids": [
+    "itemphysiclite"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 6,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 6,
+   "representedClasses": 6,
+   "missingClasses": []
+  },
+  {
+   "file": "Jade-1.20.1-Forge-11.13.3.jar",
+   "sha256": "a632c77975e5aedff6322b0072f8b0db3f5d4bf914df6bdcc87d1aea4d5f55f4",
+   "key": "a632c77975e5aedf",
+   "ids": [
+    "jade"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 21,
+   "classes": 242,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 242,
+   "representedClasses": 242,
+   "missingClasses": []
+  },
+  {
+   "file": "JadeAddons-1.20.1-Forge-5.5.1.jar",
+   "sha256": "faf39cd0326e5127004be0b0c96ba7d52fa40cf9c7f85854bd47e3ebfc402f4c",
+   "key": "faf39cd0326e5127",
+   "ids": [
+    "jadeaddons"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 31,
+   "classes": 35,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 35,
+   "representedClasses": 35,
+   "missingClasses": []
+  },
+  {
+   "file": "jei-1.20.1-forge-15.58.0.209.jar",
+   "sha256": "e39f3794233d16455217984592744fa8eb350a5f898f1002ed721659b77fdd97",
+   "key": "e39f3794233d1645",
+   "ids": [
+    "jei"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 38,
+   "classes": 1048,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1048,
+   "representedClasses": 1048,
+   "missingClasses": []
+  },
+  {
+   "file": "kaleidoscope_compat-2.6.5-forge+mc1.20.1.jar",
+   "sha256": "845548b2f22be4b0dde8496a1b14acfc542f94b748c77a68ce3e75ee09283d20",
+   "key": "845548b2f22be4b0",
+   "ids": [
+    "kaleidoscope_compat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 846,
+   "classes": 62,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 62,
+   "representedClasses": 62,
+   "missingClasses": []
+  },
+  {
+   "file": "kaleidoscope_immersiveEating-forge1.20.1-1.4.2-create-ecosystem-bypass.jar",
+   "sha256": "f75df400d2f41adad0115b7161cd88f99eca313ba3509735dc362f97bd6d7cea",
+   "key": "f75df400d2f41ada",
+   "ids": [
+    "food"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 69,
+   "classes": 42,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 42,
+   "representedClasses": 42,
+   "missingClasses": []
+  },
+  {
+   "file": "kaleidoscopecookery-1.4.1-forge+mc1.20.1.jar",
+   "sha256": "cf99f12875fee3fa915d06fa8aa62705c2fd55577fd1ddd459350fba1abbff9f",
+   "key": "cf99f12875fee3fa",
+   "ids": [
+    "kaleidoscope_cookery"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2914,
+   "classes": 444,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 444,
+   "representedClasses": 444,
+   "missingClasses": []
+  },
+  {
+   "file": "leawind_third_person-3.0.3-beta+forge-1.20.1 (1).jar",
+   "sha256": "2cc4e24ffee0df874fe6ecf23a35934d9dfb24409a252f17832bd6606fe6c378",
+   "key": "2cc4e24ffee0df87",
+   "ids": [
+    "leawind_third_person"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 11,
+   "classes": 163,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 163,
+   "representedClasses": 163,
+   "missingClasses": []
+  },
+  {
+   "file": "libraryferret-forge-1.20.1-4.0.0.jar",
+   "sha256": "355f5000b56d6f355338bd494fcdb822f36e29cf9e3c27ebcc7720402a804510",
+   "key": "355f5000b56d6f35",
+   "ids": [
+    "libraryferret"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 66,
+   "classes": 39,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "lithostitched-forge-1.20.1-1.4.11.jar",
+   "sha256": "c19a5a36c0e6cb3782cf7ca5b9648fb1bce5fc41fd737bed423a1f4971bccf75",
+   "key": "c19a5a36c0e6cb37",
+   "ids": [
+    "lithostitched"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 18,
+   "classes": 163,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "lootselect-1.1.15+1.20.1.jar",
+   "sha256": "bc117e25c92e0fe233f9a080b719e951247289ec5e4ec19e2a6b113311fed269",
+   "key": "bc117e25c92e0fe2",
+   "ids": [
+    "lootselect"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 7,
+   "classes": 18,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 18,
+   "representedClasses": 18,
+   "missingClasses": []
+  },
+  {
+   "file": "M3H-1.5.3-1.20.1.jar",
+   "sha256": "0258a11303ad7b82dae982338af38d16fc52fc1be4b4395061b218da34b087a7",
+   "key": "0258a11303ad7b82",
+   "ids": [
+    "mhheavenandhell"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 629,
+   "classes": 1438,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1438,
+   "representedClasses": 1438,
+   "missingClasses": []
+  },
+  {
+   "file": "mcef-forge-2.1.6-1.20.1 (1).jar",
+   "sha256": "5c462342264ac89597891d5d4bcdf6b8134ce4cc5dd97894dbd87ecc197f0cb3",
+   "key": "5c462342264ac895",
+   "ids": [
+    "mcef"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 186,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 186,
+   "representedClasses": 186,
+   "missingClasses": []
+  },
+  {
+   "file": "mcpitanlibarch-1.6.10-1.20.1-forge.jar",
+   "sha256": "9374a4c2dde0794b231bfc351faac883375448d0f1ee6ca7824854d745293689",
+   "key": "9374a4c2dde0794b",
+   "ids": [
+    "mcpitanlibarch"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 7,
+   "classes": 407,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "megacells-forge-2.4.6-1.20.1.jar",
+   "sha256": "19f59cc793950a3fa80dc1b29ef3bdad587344cd5efe25c5e010f4db1ea4a79c",
+   "key": "19f59cc793950a3f",
+   "ids": [
+    "megacells"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 395,
+   "classes": 77,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 77,
+   "representedClasses": 77,
+   "missingClasses": []
+  },
+  {
+   "file": "minecolonies-1.20.1-1.1.1282-snapshot.jar",
+   "sha256": "699247b7be2ef3b026c5a6c288f76adb68d0110b479b4a83c03ac8b2896f46e3",
+   "key": "699247b7be2ef3b0",
+   "ids": [
+    "minecolonies"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2141,
+   "classes": 2546,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 2546,
+   "representedClasses": 2546,
+   "missingClasses": []
+  },
+  {
+   "file": "monsterexpansion-1.20.1-v0.7.6.jar",
+   "sha256": "21dbb9109b87182161b8407af51d0ae0dc7ffcff9027348497ced66589c0d980",
+   "key": "21dbb9109b871821",
+   "ids": [
+    "monsterexpansion"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 388,
+   "classes": 1064,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1064,
+   "representedClasses": 1064,
+   "missingClasses": []
+  },
+  {
+   "file": "music_disc_maker-3.0.5+forge-1.20.1.jar",
+   "sha256": "310084620c575274bfa11f62f4624b6f6a3b4710dbd58f6bab40e0a27f84e2ff",
+   "key": "310084620c575274",
+   "ids": [
+    "music_disc_maker"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 98,
+   "classes": 377,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 377,
+   "representedClasses": 377,
+   "missingClasses": []
+  },
+  {
+   "file": "musicbox-forge-2.0.2+1.20.1.jar",
+   "sha256": "9b67a77f7457c058a17c42b355eaace56229583051237051b8196eb37e40ae23",
+   "key": "9b67a77f7457c058",
+   "ids": [
+    "musicbox"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 55,
+   "classes": 45,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 45,
+   "representedClasses": 45,
+   "missingClasses": []
+  },
+  {
+   "file": "mutil-1.20.1-6.2.0.jar",
+   "sha256": "7222976219f6279ca2d3ee91b3ca1f0e11fad9b665bd632316ff9dd4c967c7c1",
+   "key": "7222976219f6279c",
+   "ids": [
+    "mutil"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 3,
+   "classes": 71,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "noplayernametags-1.1.2.jar",
+   "sha256": "b1a59e5f921fdb21af995dac75d59433b238d96acc590d4a783f68ba6320b915",
+   "key": "b1a59e5f921fdb21",
+   "ids": [
+    "noplayernametags"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2,
+   "classes": 22,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 22,
+   "representedClasses": 22,
+   "missingClasses": []
+  },
+  {
+   "file": "Northstar-0.6.5+1.20.1.jar",
+   "sha256": "10674d9c841fd5f4de466b46816385ff863300ee7da69c6cb65f97f6449ce1ce",
+   "key": "10674d9c841fd5f4",
+   "ids": [
+    "northstar"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2926,
+   "classes": 725,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 726,
+   "representedClasses": 726,
+   "missingClasses": []
+  },
+  {
+   "file": "onekick-1.20.1-1.0.0.jar",
+   "sha256": "61012f652216e4ffea8179271e674b80830a8f979fcbf106bb0fe3cea0314027",
+   "key": "61012f652216e4ff",
+   "ids": [
+    "onekick"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 27,
+   "classes": 70,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 70,
+   "representedClasses": 70,
+   "missingClasses": []
+  },
+  {
+   "file": "particular-1.20.1-Forge-1.5.7.jar",
+   "sha256": "1793f562a98f064b0f824f3d67f817488e249ca13699321ec84d8ab035c4d088",
+   "key": "1793f562a98f064b",
+   "ids": [
+    "particular"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 53,
+   "classes": 87,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 89,
+   "representedClasses": 89,
+   "missingClasses": []
+  },
+  {
+   "file": "Patchouli-1.20.1-85-FORGE.jar",
+   "sha256": "05f7b5d52f6b8f0fd7f8b4822fa07a192d1394d83a264309c9d221d6d4fd21c5",
+   "key": "05f7b5d52f6b8f0f",
+   "ids": [
+    "patchouli"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 28,
+   "classes": 196,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 196,
+   "representedClasses": 196,
+   "missingClasses": []
+  },
+  {
+   "file": "perspective_api-1.5.0-beta+forge-1.20.1.jar",
+   "sha256": "23513a22f549006c83167a8eea80548bf93e93227152f60dbfe3f73aa37b4a8b",
+   "key": "23513a22f549006c",
+   "ids": [
+    "perspective_api"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 13,
+   "classes": 160,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.4.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "PlayerRevive_FORGE_v2.0.31_mc1.20.1.jar",
+   "sha256": "beeb560232c8ee691ea446d53194358902eed8ed38d198515906ac724bdde1fb",
+   "key": "beeb560232c8ee69",
+   "ids": [
+    "playerrevive"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 17,
+   "classes": 24,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 24,
+   "representedClasses": 24,
+   "missingClasses": []
+  },
+  {
+   "file": "polymorph-forge-0.49.11+1.20.1.jar",
+   "sha256": "cb633f3a3220ccfd00efbb57fb37bf7be44b5266195103af26add462fa71d86a",
+   "key": "cb633f3a3220ccfd",
+   "ids": [
+    "polymorph"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 19,
+   "classes": 93,
+   "nestedJars": [
+    "META-INF/jarjar/spectrelib-forge-0.13.17+1.20.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 146,
+   "representedClasses": 146,
+   "missingClasses": []
+  },
+  {
+   "file": "PresenceFootsteps-1.20.1-1.9.1-beta.1.jar",
+   "sha256": "447dd543e178a9454ccf3bf0d9d7bd7957b1af6da9d74f2cd3d9b5fbe8548e98",
+   "key": "447dd543e178a945",
+   "ids": [
+    "presencefootsteps"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 22,
+   "classes": 84,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 84,
+   "representedClasses": 84,
+   "missingClasses": []
+  },
+  {
+   "file": "protection_pixel-2.2.1-forge-1.20.1.jar",
+   "sha256": "d94b944dce3a4cc0d88c167366bf9e95efa5e58212403df7fec463d490f36592",
+   "key": "d94b944dce3a4cc0",
+   "ids": [
+    "protection_pixel"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 294,
+   "classes": 695,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 696,
+   "representedClasses": 696,
+   "missingClasses": []
+  },
+  {
+   "file": "quantified api-omni-2.2.3.jar",
+   "sha256": "dfeb10230b3d5d50094744a385625fe26db388e31fd0da27c5faeef2c70fca2d",
+   "key": "dfeb10230b3d5d50",
+   "ids": [
+    "quantified"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 5,
+   "classes": 529,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "questsadditions-1.4.7.jar",
+   "sha256": "c0914e53b3545972f1b81511a00363d724da209af290a0fda301836bc5b3f2ba",
+   "key": "c0914e53b3545972",
+   "ids": [
+    "questsadditions"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 8,
+   "classes": 49,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 49,
+   "representedClasses": 49,
+   "missingClasses": []
+  },
+  {
+   "file": "radiantgear-forge-2.2.0+1.20.1.jar",
+   "sha256": "2a6c7e0825c69bd38dc1bb1ce8a8d6b097cac835e16e46afaa0f207fb819bb96",
+   "key": "2a6c7e0825c69bd3",
+   "ids": [
+    "radiantgear"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 15,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 15,
+   "representedClasses": 15,
+   "missingClasses": []
+  },
+  {
+   "file": "ritchiesprojectilelib-2.1.1-mc.1.20.1-forge.jar",
+   "sha256": "5531ec454792f98993fa29d55f8810444ba3e9ef8f04331c5811b84ec8d0c3dc",
+   "key": "5531ec454792f989",
+   "ids": [
+    "ritchiesprojectilelib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 6,
+   "classes": 34,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "ShyGuy-forge-1.20.1-3.7.jar",
+   "sha256": "497b01d73c814e225d36c597e50943755917d8c298ae71e1e12f7b97c085c148",
+   "key": "497b01d73c814e22",
+   "ids": [
+    "shy_guy"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 14,
+   "classes": 104,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 104,
+   "representedClasses": 104,
+   "missingClasses": []
+  },
+  {
+   "file": "SimpleTrashcan-1.20.1-1.0.1.jar",
+   "sha256": "61ff4ab40ed336c87dcca62bd8ff314ba71aae6281a4c1362d03a9b147a20ce5",
+   "key": "61ff4ab40ed336c8",
+   "ids": [
+    "simple_trashcan"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 18,
+   "classes": 9,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 9,
+   "representedClasses": 9,
+   "missingClasses": []
+  },
+  {
+   "file": "skarrier_mobs-1.0.6-forge-1.20.1.jar",
+   "sha256": "94ddc82df4c49b3d1d1eb7fed92d8153af843e4bd65621f47eb55adacc17ef4a",
+   "key": "94ddc82df4c49b3d",
+   "ids": [
+    "skarrier_mobs"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 497,
+   "classes": 641,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 641,
+   "representedClasses": 641,
+   "missingClasses": []
+  },
+  {
+   "file": "SLUClientPonderFix-1.20.1-1.0.2.jar",
+   "sha256": "ed942352006f9ed3af9162aa036578cb377b1f4dc9c139aedaa36c5bf6b1105b",
+   "key": "ed942352006f9ed3",
+   "ids": [
+    "sluclientponderfix"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 1,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1,
+   "representedClasses": 1,
+   "missingClasses": []
+  },
+  {
+   "file": "SLUDarknessFix-1.20.1-1.2.0.jar",
+   "sha256": "800e7597f5bc32fe9bd8cedbad1634eb8a38251091d6bc71930aad0f5b70c129",
+   "key": "800e7597f5bc32fe",
+   "ids": [
+    "sludarknessfix"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 3,
+   "classes": 1,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1,
+   "representedClasses": 1,
+   "missingClasses": []
+  },
+  {
+   "file": "sodiumdynamiclights-forge-1.0.10-1.20.1.jar",
+   "sha256": "dff5325abb58c0c8526dffb80e764188bde045fd02ca6ed5e2bb76f0897d46f4",
+   "key": "dff5325abb58c0c8",
+   "ids": [
+    "sodiumdynamiclights"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 60,
+   "classes": 44,
+   "nestedJars": [
+    "META-INF/jars/fabric-api-base-0.4.31+ef105b4977.jar",
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 66,
+   "representedClasses": 66,
+   "missingClasses": []
+  },
+  {
+   "file": "sophisticatedbackpacks-1.20.1-3.26.0.2119.jar",
+   "sha256": "32b88a2e14304d3d6f79d7becc7de7d1eb9bdf2771949ca63f195fc68b109c8b",
+   "key": "32b88a2e14304d3d",
+   "ids": [
+    "sophisticatedbackpacks"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 365,
+   "classes": 378,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 378,
+   "representedClasses": 378,
+   "missingClasses": []
+  },
+  {
+   "file": "sophisticatedcore-1.20.1-1.5.0.2316.jar",
+   "sha256": "dfdd382e43967ec1c719bafebef5ab4bf586c6de9b87f3391bf6253e4c095e25",
+   "key": "dfdd382e43967ec1",
+   "ids": [
+    "sophisticatedcore"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 31,
+   "classes": 797,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "sound-physics-remastered-forge-1.20.1-1.5.1.jar",
+   "sha256": "591fa317c4e462039dae01967bf370acb284d5118cf5839a33f1d01b6c0def3c",
+   "key": "591fa317c4e46203",
+   "ids": [
+    "sound_physics_remastered"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 14,
+   "classes": 91,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 91,
+   "representedClasses": 91,
+   "missingClasses": []
+  },
+  {
+   "file": "spawnermod-1.20.1-1.9.3+Forge.jar",
+   "sha256": "12ab8677f0c4feccb58da6d413b928ad7e7f0a1663369b9695239a50c8e10f3a",
+   "key": "12ab8677f0c4fecc",
+   "ids": [
+    "spawnermod"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 11,
+   "classes": 16,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 16,
+   "representedClasses": 16,
+   "missingClasses": []
+  },
+  {
+   "file": "Steam_Rails-1.7.3+forge-mc1.20.1.jar",
+   "sha256": "0e98b72472ff78464f6e69025bb47f942e7f66a976382fbb87ceff765a8b00cf",
+   "key": "0e98b72472ff7846",
+   "ids": [
+    "railways"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 18647,
+   "classes": 959,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 960,
+   "representedClasses": 960,
+   "missingClasses": []
+  },
+  {
+   "file": "stepitup-2.0.1-1.20.1-forge.jar",
+   "sha256": "023095d9a03d14f9b0fd83411cbff22e6a9f304e14844f242d50dd8b91eaf6af",
+   "key": "023095d9a03d14f9",
+   "ids": [
+    "stepitup"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 5,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 5,
+   "representedClasses": 5,
+   "missingClasses": []
+  },
+  {
+   "file": "structurize-1.20.1-1.0.818.jar",
+   "sha256": "91c623bc74f9221c9bcc8f77fae9f8c6aa2469eb17712bfea9d6b0666d9298ec",
+   "key": "91c623bc74f9221c",
+   "ids": [
+    "structurize"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 49,
+   "classes": 314,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 314,
+   "representedClasses": 314,
+   "missingClasses": []
+  },
+  {
+   "file": "sword_soaring-20.14.2.8-mc1.20.1-forge (1).jar",
+   "sha256": "286359a3546b6cd87c58e2ed01fda8cd9d854868e08a6d096ec10e3a84a41765",
+   "key": "286359a3546b6cd8",
+   "ids": [
+    "sword_soaring"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 182,
+   "classes": 155,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 155,
+   "representedClasses": 155,
+   "missingClasses": []
+  },
+  {
+   "file": "tacz-tweaks-2.14.2-all.jar",
+   "sha256": "d5603b4dc826ca7add2cc481af08c007ac7457a89edac1998f8f80df5dfbaa7b",
+   "key": "d5603b4dc826ca7a",
+   "ids": [
+    "tacztweaks"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 10,
+   "classes": 797,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar",
+    "META-INF/jarjar/mixinsquared-forge-0.3.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 802,
+   "representedClasses": 802,
+   "missingClasses": []
+  },
+  {
+   "file": "tacz_c-1.0.2-forge-1.20.1.jar",
+   "sha256": "31dce4d848c5be8c99bd32babf2ead50616387ecd0527c882cf9bdd8b6b44ee6",
+   "key": "31dce4d848c5be8c",
+   "ids": [
+    "tacz_c"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 196,
+   "classes": 98,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 98,
+   "representedClasses": 98,
+   "missingClasses": []
+  },
+  {
+   "file": "tacz_presence-1.4.jar",
+   "sha256": "30d80fab54d981eddba17003ba22a7d48fa388fbefffe928696c01af1e81625a",
+   "key": "30d80fab54d981ed",
+   "ids": [
+    "tacz_presence"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 51,
+   "classes": 82,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 82,
+   "representedClasses": 82,
+   "missingClasses": []
+  },
+  {
+   "file": "tetra-1.20.1-6.12.0.jar",
+   "sha256": "797ec75788fa776f6e7716f5d9baecc6890a305032c680d49c4a6e869663e11c",
+   "key": "797ec75788fa776f",
+   "ids": [
+    "tetra"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1485,
+   "classes": 906,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 906,
+   "representedClasses": 906,
+   "missingClasses": []
+  },
+  {
+   "file": "tetra_spell_book-1.1.9.jar",
+   "sha256": "176ade311617f41edb999b2919bb5321f682d84b4782d2365fc8a31d6f84b0f6",
+   "key": "176ade311617f41e",
+   "ids": [
+    "tetra_spell_book"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 310,
+   "classes": 27,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 27,
+   "representedClasses": 27,
+   "missingClasses": []
+  },
+  {
+   "file": "tetracelium-1.20.1-1.3.1.jar",
+   "sha256": "57bb32d7eb25a609232658bfe0b66810e43545e8b6f3a1c63029a016a8997a3f",
+   "key": "57bb32d7eb25a609",
+   "ids": [
+    "tetracelium"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 188,
+   "classes": 33,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 33,
+   "representedClasses": 33,
+   "missingClasses": []
+  },
+  {
+   "file": "tetracompat-1.0.0-all.jar",
+   "sha256": "9b3f7d27d3ddb6a62602d3e358710a7a75befe7c367a5f33830905960286b580",
+   "key": "9b3f7d27d3ddb6a6",
+   "ids": [
+    "tetracompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 17,
+   "classes": 13,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 15,
+   "representedClasses": 15,
+   "missingClasses": []
+  },
+  {
+   "file": "tinyredstone-1.20-5.0.3.jar",
+   "sha256": "63cf85536d439c5c7bee81bad9aa581a1a879b3b5916fe89d29cec76f79a0f37",
+   "key": "63cf85536d439c5c",
+   "ids": [
+    "tinyredstone"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 73,
+   "classes": 110,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 110,
+   "representedClasses": 110,
+   "missingClasses": []
+  },
+  {
+   "file": "titanium-1.20.1-3.8.35.jar",
+   "sha256": "c7851205ace26b28afe332b9257f0f13d9ac52a89e4ae79a76156a8c91e7a282",
+   "key": "c7851205ace26b28",
+   "ids": [
+    "titanium"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 23,
+   "classes": 329,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "ToolBelt-1.20.1-1.20.01.jar",
+   "sha256": "c756c70330cee2f4152fe327fd50fb5a5752783d5f2a16653bf3632edc35f6e3",
+   "key": "c756c70330cee2f4",
+   "ids": [
+    "toolbelt"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 46,
+   "classes": 106,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 106,
+   "representedClasses": 106,
+   "missingClasses": []
+  },
+  {
+   "file": "ToolLevelingRework-lexforge-1.2.2.jar",
+   "sha256": "86459c7446271038362a10f2ee6fddb07226ec660da937f45e52d586bf63adf6",
+   "key": "86459c7446271038",
+   "ids": [
+    "tlr"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 13,
+   "classes": 18,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 18,
+   "representedClasses": 18,
+   "missingClasses": []
+  },
+  {
+   "file": "translations_extractor-1.3.jar",
+   "sha256": "17dc41aa16ec3458f81bde6d25ddb0d46bb0cd720790a1ab1bad218035ee0d35",
+   "key": "17dc41aa16ec3458",
+   "ids": [
+    "translations_extractor"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 11,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 11,
+   "representedClasses": 11,
+   "missingClasses": []
+  },
+  {
+   "file": "uchicraftana-1.0.1-forge-1.20.1 (1).jar",
+   "sha256": "266d78634c5e44d9bf7017150aa918e9471687c5df9c0773ea81b69dea383eef",
+   "key": "266d78634c5e44d9",
+   "ids": [
+    "uchicraftana"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 21,
+   "classes": 5,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 5,
+   "representedClasses": 5,
+   "missingClasses": []
+  },
+  {
+   "file": "UncraftingTable-forge-1.2.6.jar",
+   "sha256": "7b75b1f7ed3c1fdb34906723e47e1bad23e330ad43f2897a9b964f0da75d177d",
+   "key": "7b75b1f7ed3c1fdb",
+   "ids": [
+    "uncraftingtable76"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 12,
+   "classes": 15,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 15,
+   "representedClasses": 15,
+   "missingClasses": []
+  },
+  {
+   "file": "vintage-1.20.1-1.6.1.jar",
+   "sha256": "940ecba34a52890ce59c8b98cb7f2bde076c2a388f74c51932df7768b6b06ea6",
+   "key": "940ecba34a52890c",
+   "ids": [
+    "vintage"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1022,
+   "classes": 217,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 217,
+   "representedClasses": 217,
+   "missingClasses": []
+  },
+  {
+   "file": "vss-0.2.12-forge-1.20.1.jar",
+   "sha256": "b9236a805aa1d02d09d3df0bfbf8183ff64777b2886cc6e85583175f9bf40f2e",
+   "key": "b9236a805aa1d02d",
+   "ids": [
+    "vss"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 7,
+   "classes": 267,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 267,
+   "representedClasses": 267,
+   "missingClasses": []
+  },
+  {
+   "file": "WaT 0.4.0.jar",
+   "sha256": "e3828a7d7eea42334f7ff932ca9ecae1b80256fc835939eefc520dac4e8f96c4",
+   "key": "e3828a7d7eea4233",
+   "ids": [
+    "ronmc"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 621,
+   "classes": 0,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 0,
+   "representedClasses": 0,
+   "missingClasses": []
+  },
+  {
+   "file": "webdisplaystogether-1.08 (1).jar",
+   "sha256": "ea7ee7f7581c030965f2f16b9e5e188e47f64b85b1e4669c26f949e3a356582a",
+   "key": "ea7ee7f7581c0309",
+   "ids": [
+    "webdisplaystogether"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 202,
+   "classes": 714,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 714,
+   "representedClasses": 714,
+   "missingClasses": []
+  },
+  {
+   "file": "Wolf要玩的appliedenergistics2-forge-15.4.10.jar",
+   "sha256": "fbfee05c6674cb6b00fe425e945ca4818d41eb34069b60dcb4a36221a0390fcc",
+   "key": "fbfee05c6674cb6b",
+   "ids": [
+    "ae2"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2207,
+   "classes": 1873,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1873,
+   "representedClasses": 1873,
+   "missingClasses": []
+  },
+  {
+   "file": "xaerominimap-forge-1.20.1-26.5.0.jar",
+   "sha256": "b21e1b4a13de533d0cf57d55969d5c83b3da78e8be44b93e76cddea9f6503d19",
+   "key": "b21e1b4a13de533d",
+   "ids": [
+    "xaerominimap"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 79,
+   "classes": 689,
+   "nestedJars": [
+    "META-INF/jarjar/xaerolib-forge-1.20.1-1.7.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1028,
+   "representedClasses": 1028,
+   "missingClasses": []
+  },
+  {
+   "file": "XaeroPlus-2.36.2+forge-1.20.1-WM1.46.0-MM26.5.0.jar",
+   "sha256": "2510085f9edeba3df39dd9ac8ad7488645207937903b28874808a35ed17d8ff2",
+   "key": "2510085f9edeba3d",
+   "ids": [
+    "xaeroplus"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 26,
+   "classes": 1300,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.5.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1301,
+   "representedClasses": 1301,
+   "missingClasses": []
+  },
+  {
+   "file": "xaeroworldmap-forge-1.20.1-1.46.0.jar",
+   "sha256": "e00bd87a949cfa8c31d571f4d9646db038e3b98f8cdbb7bd217f3fb9c3780c9e",
+   "key": "e00bd87a949cfa8c",
+   "ids": [
+    "xaeroworldmap"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 10,
+   "classes": 370,
+   "nestedJars": [
+    "META-INF/jarjar/xaerolib-forge-1.20.1-1.7.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 709,
+   "representedClasses": 709,
+   "missingClasses": []
+  },
+  {
+   "file": "ysm-2.6.5-forge+mc1.20.1-release.jar",
+   "sha256": "25b5e902b96f4c298690208f8b433cbc31737c23f87590354dbd86f00207bc8f",
+   "key": "25b5e902b96f4c29",
+   "ids": [
+    "yes_steve_model"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 383,
+   "classes": 955,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.3.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 957,
+   "representedClasses": 957,
+   "missingClasses": []
+  },
+  {
+   "file": "中世紀建築ATi Structures V1.4.6.jar",
+   "sha256": "689c3ad54b321f1988572a68b850b664d335fdcdd9f7edb64af6723e434a4cd3",
+   "key": "689c3ad54b321f19",
+   "ids": [
+    "mr_ati_structuresfabricforge"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 222,
+   "classes": 0,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 0,
+   "representedClasses": 0,
+   "missingClasses": []
+  },
+  {
+   "file": "中世紀建築grim-kingdoms-lost-structures-ruins-v1.0.3 1.20.jar",
+   "sha256": "22cfcccc043b6f83b51d29c76a94a099773fc14e615d673b4b3a21f753d81602",
+   "key": "22cfcccc043b6f83",
+   "ids": [
+    "mr_grim_kingdomsloststructuresruins"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 52,
+   "classes": 0,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 0,
+   "representedClasses": 0,
+   "missingClasses": []
+  },
+  {
+   "file": "伺服器必備packetfixer-3.3.2-1.18-1.20.4-merged.jar",
+   "sha256": "12f96ecb8e61e0b3d3f0ca5701f479904904501dd251aa7bb60205afdf6bc2ce",
+   "key": "12f96ecb8e61e0b3",
+   "ids": [
+    "packetfixer"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 23,
+   "classes": 177,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "傳奇怪物legendarymonsters-2.2.2 MC 1.20.1.jar",
+   "sha256": "81d797e9c6158fe9a3f36137e49151fa01bb78e2d9052cddf8e9796371a3f9d6",
+   "key": "81d797e9c6158fe9",
+   "ids": [
+    "legendary_monsters"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 939,
+   "classes": 1325,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1325,
+   "representedClasses": 1325,
+   "missingClasses": []
+  },
+  {
+   "file": "優化ferritecore-6.0.1-forge.jar",
+   "sha256": "9c2c9396a49e796d88497758caa4637d2bcbb433c318e2dd9cebcffbaf0f6c54",
+   "key": "9c2c9396a49e796d",
+   "ids": [
+    "ferritecore"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 12,
+   "classes": 81,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "優化memoryleakfix-forge-1.17+-1.1.5.jar",
+   "sha256": "925c3db4e1d085a43c4d2beaa4eec18367c22abc90c2ce8594b8a129fd3f28dd",
+   "key": "925c3db4e1d085a4",
+   "ids": [
+    "memoryleakfix"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 5,
+   "classes": 132,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "優化modernfix-forge-5.27.83+mc1.20.1.jar",
+   "sha256": "54bbc29ec9ca71dbcbbe10f49870b23ec4c87811d658976499ddde606b4fda51",
+   "key": "54bbc29ec9ca71db",
+   "ids": [
+    "modernfix"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 16,
+   "classes": 411,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "光影xenon-0.3.31+mc1.20.1.jar",
+   "sha256": "3f87d53d2615ead5960e203a43ab7d737b79a9224b019572dbb472fbcacb3bcc",
+   "key": "3f87d53d2615ead5",
+   "ids": [
+    "xenon",
+    "rubidium",
+    "embeddium"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 21,
+   "classes": 668,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.3.5.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "列尼奧達斯epicfight_leonidas-1.0.1.jar",
+   "sha256": "10fb0359ef1615159c6b994f654aca1670bc4a0a529dd0da9dcec7295475747e",
+   "key": "10fb0359ef161515",
+   "ids": [
+    "epicfight_leonidas"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 45,
+   "classes": 29,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 29,
+   "representedClasses": 29,
+   "missingClasses": []
+  },
+  {
+   "file": "劍光zylob-forge1.20.1-20.14.11.jar",
+   "sha256": "c76e2ae5e8dc4e267aa8f2c9d2a94e9e19902b41abdc56a690ecec2b0f0bf4ab",
+   "key": "c76e2ae5e8dc4e26",
+   "ids": [
+    "zylob"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 20,
+   "classes": 103,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 103,
+   "representedClasses": 103,
+   "missingClasses": []
+  },
+  {
+   "file": "叢林YungsBetterJungleTemples-1.20-Forge-2.0.5.jar",
+   "sha256": "7eac1b4c01fc2811c1d3a38a513b327b150ad7b1e1c37cc786b7dae4dc5dbd35",
+   "key": "7eac1b4c01fc2811",
+   "ids": [
+    "betterjungletemples"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 37,
+   "classes": 38,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 38,
+   "representedClasses": 38,
+   "missingClasses": []
+  },
+  {
+   "file": "史詩戰鬥epic-fight-20.14.17-mc1.20.1-forge.jar",
+   "sha256": "fd4418c5513309d76e841149d5768cee6bd43b566ad3d7f84803721c8e9e50d9",
+   "key": "fd4418c5513309d7",
+   "ids": [
+    "epicfight"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 915,
+   "classes": 1301,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1301,
+   "representedClasses": 1301,
+   "missingClasses": []
+  },
+  {
+   "file": "史詩戰鬥夜幕EpicFight Nightfall-3.4.1-all.jar",
+   "sha256": "b3a6de7d64ddca5f7a44f77cd6941a5d14c89b897127144757fada527ba3c712",
+   "key": "b3a6de7d64ddca5f",
+   "ids": [
+    "efn"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1229,
+   "classes": 786,
+   "nestedJars": [
+    "META-INF/jarjar/epicarclib-1.0.0.jar",
+    "META-INF/jarjar/geckolib-388172-7025129.jar",
+    "META-INF/jarjar/guhaos-vix-1531111-8258354.jar",
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar",
+    "META-INF/jarjar/mixinsquared-forge-0.2.0-beta.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1123,
+   "representedClasses": 1123,
+   "missingClasses": []
+  },
+  {
+   "file": "史詩戰鬥畫面impactful-20.14.2.jar",
+   "sha256": "77a978c3eae4f516a519dadb933613181c47f24a8291f729b1020a35e513b8f5",
+   "key": "77a978c3eae4f516",
+   "ids": [
+    "impactful"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 20,
+   "classes": 42,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 42,
+   "representedClasses": 42,
+   "missingClasses": []
+  },
+  {
+   "file": "地牢YungsBetterDungeons-1.20-Forge-4.0.4.jar",
+   "sha256": "1711ff9dbee44abf8ab1f8b204e607c9a6a955f0d26c787981a3f56a00b9962e",
+   "key": "1711ff9dbee44abf",
+   "ids": [
+    "betterdungeons"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 89,
+   "classes": 70,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 70,
+   "representedClasses": 70,
+   "missingClasses": []
+  },
+  {
+   "file": "地牢浮IDA v2.1.1-1.20.1.jar",
+   "sha256": "4ecd5613a33bbace341c76641a411ed0aaf5cbeb5f30617ffe3f53f83d9833ba",
+   "key": "4ecd5613a33bbace",
+   "ids": [
+    "integrated_dungeons_arise"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 339,
+   "classes": 0,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 0,
+   "representedClasses": 0,
+   "missingClasses": []
+  },
+  {
+   "file": "地牢浮附屬integrated_api-forge-1.20.1-1.8.0.jar",
+   "sha256": "2195d741d635457af2d49221fe2716d16846f1e0c64cd15952128821c4a89086",
+   "key": "2195d741d635457a",
+   "ids": [
+    "integrated_api"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 57,
+   "classes": 202,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.2.0-beta.7.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 204,
+   "representedClasses": 204,
+   "missingClasses": []
+  },
+  {
+   "file": "地牢浮附屬LostArchitects-forge-1.0.4.jar",
+   "sha256": "561c73170f4e9a549212b47bcab413616315f766ae3643d37ad3586a93a6f1c2",
+   "key": "561c73170f4e9a54",
+   "ids": [
+    "lost_architects"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 35,
+   "classes": 3,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 3,
+   "representedClasses": 3,
+   "missingClasses": []
+  },
+  {
+   "file": "地牢海洋DungeonsAriseSevenSeas-1.20.x-1.0.2-forge.jar",
+   "sha256": "4d8b2ee057d08cf13be96d05a08fc933e835d6c36395c692662871d4a1319be2",
+   "key": "4d8b2ee057d08cf1",
+   "ids": [
+    "dungeons_arise_seven_seas"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 42,
+   "classes": 1,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1,
+   "representedClasses": 1,
+   "missingClasses": []
+  },
+  {
+   "file": "地獄YungsBetterNetherFortresses-1.20-Forge-2.0.6.jar",
+   "sha256": "35492a0b9d166471eed9d5f01b0eb484e91634e1f7e3a7bb5c789aa3b579ab6a",
+   "key": "35492a0b9d166471",
+   "ids": [
+    "betterfortresses"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 41,
+   "classes": 31,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 31,
+   "representedClasses": 31,
+   "missingClasses": []
+  },
+  {
+   "file": "夜幕入侵nightfall_invade-1.3.2.jar",
+   "sha256": "bc0579c0b1edb55fd92ee88eec14140b60f8ae67a214a16849ab31b9b7f3d9a5",
+   "key": "bc0579c0b1edb55f",
+   "ids": [
+    "nightfall_invade"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 45,
+   "classes": 70,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 70,
+   "representedClasses": 70,
+   "missingClasses": []
+  },
+  {
+   "file": "夜幕附加epicfight-extra-1.2.1-mc1.20.1-forge-all.jar",
+   "sha256": "2a2d09dfe68c45beab41790e21be87f02c2bd335ce9b7ca47068f321247a5b5e",
+   "key": "2a2d09dfe68c45be",
+   "ids": [
+    "epicfightx"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 993,
+   "classes": 94,
+   "nestedJars": [
+    "META-INF/jarjar/epic-fight-invincible-lib-20.14.7.5-mc1.20.1-forge.jar",
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar",
+    "META-INF/jarjar/mixinsquared-forge-0.2.0-beta.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 190,
+   "representedClasses": 190,
+   "missingClasses": []
+  },
+  {
+   "file": "夸克Quark-4.0-462.jar",
+   "sha256": "c90b96f049d92825c4a103721988c80d72e5ad380d17be46a0f53e114874c478",
+   "key": "c90b96f049d92825",
+   "ids": [
+    "quark"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6163,
+   "classes": 936,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 936,
+   "representedClasses": 936,
+   "missingClasses": []
+  },
+  {
+   "file": "奇蹟武器WeaponsOfMiracles-2.0.171-mc1.20.1-forge.jar",
+   "sha256": "383556afbfdf590ac8d0a25d827f6c2e06fc60cc99f7fb68ad56563f1ddb57c7",
+   "key": "383556afbfdf590a",
+   "ids": [
+    "wom"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1046,
+   "classes": 332,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 332,
+   "representedClasses": 332,
+   "missingClasses": []
+  },
+  {
+   "file": "履帶trackwork-1.20.1-1.2.4.jar",
+   "sha256": "d5533a05e6a471828ca7f8fe954965c9ca0bcd2dc609fdb5e4d13c1c4245db3f",
+   "key": "d5533a05e6a47182",
+   "ids": [
+    "trackwork"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 114,
+   "classes": 103,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 103,
+   "representedClasses": 103,
+   "missingClasses": []
+  },
+  {
+   "file": "怪物mowziesmobs-1.8.2.jar",
+   "sha256": "0df06ab321c1076042defe5c79d22bbfa4890767f6f0d0c507331dcaa4c43504",
+   "key": "0df06ab321c10760",
+   "ids": [
+    "mowziesmobs"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 364,
+   "classes": 794,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 794,
+   "representedClasses": 794,
+   "missingClasses": []
+  },
+  {
+   "file": "怪物skarrier_mobs-1.0.6-forge-1.20.1.jar",
+   "sha256": "cd833edf0c64ce70304f46a6f3057f5f2500bd47bee8ef6e1ca3abd05bd6b50b",
+   "key": "cd833edf0c64ce70",
+   "ids": [
+    "skarrier_mobs"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 497,
+   "classes": 641,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 641,
+   "representedClasses": 641,
+   "missingClasses": []
+  },
+  {
+   "file": "挖礦ftb-ultimine-forge-2001.1.8.jar",
+   "sha256": "2bab32fd4ed112ad2f0602c46a1554f4903cae4d7fef60fa8927ed6a0ab39386",
+   "key": "2bab32fd4ed112ad",
+   "ids": [
+    "ftbultimine"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 17,
+   "classes": 73,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 73,
+   "representedClasses": 73,
+   "missingClasses": []
+  },
+  {
+   "file": "更好粒子aaa_particles-forge-1.20.1-2.2.3.jar",
+   "sha256": "2d9e540e61feb5b7795c77014662f1556c73aee063391f1b0297ad60e62424fc",
+   "key": "2d9e540e61feb5b7",
+   "ids": [
+    "aaa_particles"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 7,
+   "classes": 88,
+   "nestedJars": [
+    "META-INF/jarjar/architectury-forge-9.2.14.jar",
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 472,
+   "representedClasses": 472,
+   "missingClasses": []
+  },
+  {
+   "file": "核心amendments-1.20-2.2.6.jar",
+   "sha256": "46c7e1276bc77a0843267a6aeee381af61f16bedc7949447fff49eeb7aeb7917",
+   "key": "46c7e1276bc77a08",
+   "ids": [
+    "amendments"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 259,
+   "classes": 254,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 256,
+   "representedClasses": 256,
+   "missingClasses": []
+  },
+  {
+   "file": "核心architectury-9.2.14-forge.jar",
+   "sha256": "218b471d0b8a1f6cda14cfc1beb9eeb0df54304500acc6c5613d9b88ec65d9af",
+   "key": "218b471d0b8a1f6c",
+   "ids": [
+    "architectury"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 8,
+   "classes": 382,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心AttributeFix-Forge-1.20.1-21.0.5.jar",
+   "sha256": "43ccfd91c1a24d1b3c9d3ccf2dd6a86e9f0c2ba442b111a2238fbff3cf88af11",
+   "key": "43ccfd91c1a24d1b",
+   "ids": [
+    "attributefix"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 9,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 9,
+   "representedClasses": 9,
+   "missingClasses": []
+  },
+  {
+   "file": "核心clockwork-0.5.6.jar",
+   "sha256": "0b615700e22ed8f8dfbb578fd6df90c974b8950efc8833eef2eaae2187225a2f",
+   "key": "0b615700e22ed8f8",
+   "ids": [
+    "vs_clockwork"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 707,
+   "classes": 830,
+   "nestedJars": [
+    "META-INF/jars/architectury-forge-9.1.12.jar",
+    "META-INF/jars/kelvin-forge-1.20.1-0.5.0+5c1c62c654.jar",
+    "META-INF/jars/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1317,
+   "representedClasses": 1317,
+   "missingClasses": []
+  },
+  {
+   "file": "核心CombatEvolution-2.2.6.jar",
+   "sha256": "81fbf2793ae4dbd1ce3e08b29ada732436f67a06a0096a087e0f794c00426427",
+   "key": "81fbf2793ae4dbd1",
+   "ids": [
+    "combat_evolution"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 29,
+   "classes": 187,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 187,
+   "representedClasses": 187,
+   "missingClasses": []
+  },
+  {
+   "file": "核心Connector-1.0.0+1.20.1.jar",
+   "sha256": "caf19c97c0fce9158e03e354d4ebf556e8f1745c868da5dc4f6b7498727ab29f",
+   "key": "caf19c97c0fce915",
+   "ids": [],
+   "excluded": false,
+   "reason": "",
+   "resources": 7,
+   "classes": 1111,
+   "nestedJars": [
+    "fabric-mixin.jar",
+    "META-INF/jarjar/Connector-1.0.0-beta.49+1.20.1-mod.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 2156,
+   "representedClasses": 2156,
+   "missingClasses": []
+  },
+  {
+   "file": "核心epic-fight-invincible-lib-20.14.8.2-mc1.20.1-forge.jar",
+   "sha256": "f7c018a4fa5d5cac517c43d8d965f28eafa271919bb78e3ae792daaef40617a5",
+   "key": "f7c018a4fa5d5cac",
+   "ids": [
+    "invincible"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 17,
+   "classes": 91,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 91,
+   "representedClasses": 91,
+   "missingClasses": []
+  },
+  {
+   "file": "核心fabric-api-0.92.6+1.11.15+1.20.1.jar",
+   "sha256": "ffb61c81b9025297048fd647902f4c67c016073c0e94da100125e9aa1168c194",
+   "key": "ffb61c81b9025297",
+   "ids": [
+    "fabric_api"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 2,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar",
+    "META-INF/jarjar/fabric-transitive-access-wideners-v1-4.3.2+1880499877.jar",
+    "META-INF/jarjar/fabric-transfer-api-v1-3.3.6+25eff73b77.jar",
+    "META-INF/jarjar/fabric-sound-api-v1-1.0.14+4f23bd8477.jar",
+    "META-INF/jarjar/fabric-screen-handler-api-v1-1.3.33+561530ec77.jar",
+    "META-INF/jarjar/fabric-screen-api-v1-2.0.9+45a670a577.jar",
+    "META-INF/jarjar/fabric-resource-loader-v0-0.11.12+4b4151c077.jar",
+    "META-INF/jarjar/fabric-resource-conditions-api-v1-2.3.9+996d00b277.jar",
+    "META-INF/jarjar/fabric-rendering-v1-3.0.9+66e9a48f77.jar",
+    "META-INF/jarjar/fabric-rendering-fluids-v1-3.0.29+4ac5e37a77.jar",
+    "META-INF/jarjar/fabric-rendering-data-attachment-v1-0.3.39+a6081afc77.jar",
+    "META-INF/jarjar/fabric-renderer-indigo-1.5.3+b5b2da4177.jar",
+    "META-INF/jarjar/fabric-renderer-api-v1-3.2.2+cf68abbe77.jar",
+    "META-INF/jarjar/fabric-registry-sync-v0-2.3.6+1c0ea72177.jar",
+    "META-INF/jarjar/fabric-recipe-api-v1-1.0.24+514a076577.jar",
+    "META-INF/jarjar/fabric-particles-v1-1.1.3+78e1ecb877.jar",
+    "META-INF/jarjar/fabric-object-builder-api-v1-11.1.5+f8c414ce77.jar",
+    "META-INF/jarjar/fabric-networking-api-v1-1.3.14+fb7c822677.jar",
+    "META-INF/jarjar/fabric-models-v0-0.4.3+7c3892a477.jar",
+    "META-INF/jarjar/fabric-model-loading-api-v1-1.0.4+6274ab9d77.jar",
+    "META-INF/jarjar/fabric-mining-level-api-v1-2.1.52+561530ec77.jar",
+    "META-INF/jarjar/fabric-message-api-v1-5.1.10+52cc178c77.jar",
+    "META-INF/jarjar/fabric-loot-api-v2-1.2.3+eb28f93e77.jar",
+    "META-INF/jarjar/fabric-loader-2.6.0+0.15.0+1.20.1-full.jar",
+    "META-INF/jarjar/fabric-lifecycle-events-v1-2.2.23+afab492177.jar",
+    "META-INF/jarjar/fabric-key-binding-api-v1-1.0.38+561530ec77.jar",
+    "META-INF/jarjar/fabric-item-group-api-v1-4.0.14+c9161c2d77.jar",
+    "META-INF/jarjar/fabric-item-api-v1-2.1.29+4d0bbcfa77.jar",
+    "META-INF/jarjar/fabric-game-rule-api-v1-1.0.41+683d4da877.jar",
+    "META-INF/jarjar/fabric-events-interaction-v0-0.6.5+0f26153f77.jar",
+    "META-INF/jarjar/fabric-entity-events-v1-1.6.1+4ca7515277.jar",
+    "META-INF/jarjar/fabric-dimensions-v1-2.1.55+8005d10d77.jar",
+    "META-INF/jarjar/fabric-data-generation-api-v1-12.3.7+369cb3a477.jar",
+    "META-INF/jarjar/fabric-data-attachment-api-v1-1.0.2+30ef839e77.jar",
+    "META-INF/jarjar/fabric-convention-tags-v1-1.5.6+fa3d1c0177.jar",
+    "META-INF/jarjar/fabric-content-registries-v0-4.0.13+a670df1e77.jar",
+    "META-INF/jarjar/fabric-command-api-v2-2.2.14+561530ec77.jar",
+    "META-INF/jarjar/fabric-command-api-v1-1.2.35+f71b366f77.jar",
+    "META-INF/jarjar/fabric-client-tags-api-v1-1.1.3+5d6761b877.jar",
+    "META-INF/jarjar/fabric-blockrenderlayer-v1-1.1.42+1d0da21e77.jar",
+    "META-INF/jarjar/fabric-block-view-api-v2-1.0.3+53347ba977.jar",
+    "META-INF/jarjar/fabric-block-api-v1-1.0.12+0e6cb7f777.jar",
+    "META-INF/jarjar/fabric-biome-api-v1-13.0.14+dc36698e77.jar",
+    "META-INF/jarjar/fabric-api-lookup-api-v1-1.6.37+67f9824077.jar",
+    "META-INF/jarjar/fabric-api-base-0.4.32+ef105b4977.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1442,
+   "representedClasses": 1442,
+   "missingClasses": []
+  },
+  {
+   "file": "核心ftb-library-forge-2001.2.13.jar",
+   "sha256": "e463a003720f1a8e2d384818c0ce560cf2cadd2411b55c8fdac20b8eefef83d6",
+   "key": "e463a003720f1a8e",
+   "ids": [
+    "ftblibrary"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 22,
+   "classes": 318,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心guideme-20.1.15.jar",
+   "sha256": "19c42d7670e4008da424f3b8a8051522f09b54a6ab308140b14720b2b2b9c245",
+   "key": "19c42d7670e4008d",
+   "ids": [
+    "guideme"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 58,
+   "classes": 5131,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 5131,
+   "representedClasses": 5131,
+   "missingClasses": []
+  },
+  {
+   "file": "核心kotlinforforge-4.12.0-all.jar",
+   "sha256": "6a66c6a68ec09f8717cdbf06883394f0ee24d7cd826b7134a0f81839e8e720ae",
+   "key": "6a66c6a68ec09f87",
+   "ids": [],
+   "excluded": false,
+   "reason": "",
+   "resources": 1,
+   "classes": 4314,
+   "nestedJars": [
+    "META-INF/jarjar/kfflang-4.12.0.jar",
+    "META-INF/jarjar/kfflib-4.12.0.jar",
+    "META-INF/jarjar/kffmod-4.12.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 4381,
+   "representedClasses": 4381,
+   "missingClasses": []
+  },
+  {
+   "file": "核心lionfishapi-3.0.jar",
+   "sha256": "36b44a5e407b96fe85b76d9477f37cb4b1dc28b0906166e4b904d5f6b8257250",
+   "key": "36b44a5e407b96fe",
+   "ids": [
+    "lionfishapi"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 7,
+   "classes": 58,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心moonlight-1.20-2.16.34-forge.jar",
+   "sha256": "610ad414ecafccfbd279f37a93fc6c9d1547e49cde05f17143c97e8616895a4e",
+   "key": "610ad414ecafccfb",
+   "ids": [
+    "moonlight"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 59,
+   "classes": 511,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.3.6.jar",
+    "META-INF/jars/mixinsquared-forge-0.1.1.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心pandalib-forge-mc1.20-0.5.2-SNAPSHOT.jar",
+   "sha256": "1595c586e9c3e7e9a455d23b1686cc82f8d9e11578efd86a10a7031995301390",
+   "key": "1595c586e9c3e7e9",
+   "ids": [
+    "pandalib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 8,
+   "classes": 165,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心saintsdragons-0.9.51+forge-1.20.1.jar",
+   "sha256": "23b74dbcef3008ec7762111f6f214db8f3a290de38f25067d864ebe6da510bc1",
+   "key": "23b74dbcef3008ec",
+   "ids": [
+    "saintsdragons"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 661,
+   "classes": 1227,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1227,
+   "representedClasses": 1227,
+   "missingClasses": []
+  },
+  {
+   "file": "核心yet_another_config_lib_v3-3.6.6+1.20.1-forge.jar",
+   "sha256": "bd05da3d9df29b914165583f1c6dfd918a138996447ff32c0418329824027a8f",
+   "key": "bd05da3d9df29b91",
+   "ids": [
+    "yet_another_config_lib_v3"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 33,
+   "classes": 344,
+   "nestedJars": [
+    "META-INF/jarjar/common-image-3.12.0.jar",
+    "META-INF/jarjar/common-io-3.12.0.jar",
+    "META-INF/jarjar/common-lang-3.12.0.jar",
+    "META-INF/jarjar/gson-0.2.1.jar",
+    "META-INF/jarjar/imageio-core-3.12.0.jar",
+    "META-INF/jarjar/imageio-metadata-3.12.0.jar",
+    "META-INF/jarjar/imageio-webp-3.12.0.jar",
+    "META-INF/jarjar/json-0.2.1.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "核心YungsApi-1.20-Forge-4.0.6.jar",
+   "sha256": "101c30d01d0cf9d86190f578eb1e43bd06b64092e95662a00ef52946f472c7b1",
+   "key": "101c30d01d0cf9d8",
+   "ids": [
+    "yungsapi"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 5,
+   "classes": 167,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "槍史epictaczcompat_1.20.1_1201-0.6.0.jar",
+   "sha256": "b7b3198f22bf02c5bb88f56ab92358efed23b937fb9786620bb9a5648fac6422",
+   "key": "b7b3198f22bf02c5",
+   "ids": [
+    "epictaczcompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 4,
+   "classes": 3,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 3,
+   "representedClasses": 3,
+   "missingClasses": []
+  },
+  {
+   "file": "槍槍tacz-1.20.1-1.1.8-hotfix.jar",
+   "sha256": "50f2dbf16ffbe0c24429ba16ae0293e7c86439a68677ad8b41a235aa57b3b4ef",
+   "key": "50f2dbf16ffbe0c2",
+   "ids": [
+    "tacz"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1248,
+   "classes": 837,
+   "nestedJars": [
+    "META-INF/jarjar/simplebedrockmodel-2.2.2-forge+mc1.20.1.jar",
+    "META-INF/jarjar/commons-math3-3.6.1.jar",
+    "META-INF/jarjar/mixinextras-forge-0.3.6.jar",
+    "META-INF/jarjar/luaj-core-3.0.8-figura.jar",
+    "META-INF/jarjar/luaj-jse-3.0.8-figura.jar",
+    "META-INF/jarjar/bcel-6.6.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 3069,
+   "representedClasses": 3069,
+   "missingClasses": []
+  },
+  {
+   "file": "樹倒fallingtrees-forge-mc1.20-0.13.2-SNAPSHOT.jar",
+   "sha256": "bdf2539d85c2edf24a6d2df6cd401a74e8d31c201e910c51b9176363148f6085",
+   "key": "bdf2539d85c2edf2",
+   "ids": [
+    "fallingtrees"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 9,
+   "classes": 53,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 53,
+   "representedClasses": 53,
+   "missingClasses": []
+  },
+  {
+   "file": "機械動力create-1.20.1-6.0.8.jar",
+   "sha256": "6fbb910c367dbce8e4fc7e5bf64b6edd4de980906ed00af8e47e4af843c0d9b0",
+   "key": "6fbb910c367dbce8",
+   "ids": [
+    "create"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 7223,
+   "classes": 2687,
+   "nestedJars": [
+    "META-INF/jarjar/Ponder-Forge-1.20.1-1.0.91.jar",
+    "META-INF/jarjar/Registrate-MC1.20-1.3.3.jar",
+    "META-INF/jarjar/flywheel-forge-1.20.1-1.0.5.jar",
+    "META-INF/jarjar/mixinextras-forge-0.4.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 3762,
+   "representedClasses": 3762,
+   "missingClasses": []
+  },
+  {
+   "file": "武器epicfight_awaken-1.2.7.2-forge-1.20.1.jar",
+   "sha256": "e454316f4c560aee945b9b4d4fcc5def5cb99daf1ae25788bfa8b2f021fec989",
+   "key": "e454316f4c560aee",
+   "ids": [
+    "epicfight_awaken"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 226,
+   "classes": 126,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 126,
+   "representedClasses": 126,
+   "missingClasses": []
+  },
+  {
+   "file": "氣球eureka-1201-1.6.3.jar",
+   "sha256": "15a3be3a179e4e4cbbb58d5ee79cb5e0990c249dc5813bbe55d49c0ad720f2fd",
+   "key": "15a3be3a179e4e4c",
+   "ids": [
+    "vs_eureka"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 214,
+   "classes": 96,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.2.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 98,
+   "representedClasses": 98,
+   "missingClasses": []
+  },
+  {
+   "file": "沙漠YungsBetterDesertTemples-1.20-Forge-3.0.3.jar",
+   "sha256": "00a17e5805acd5f61b1bbcfc00c20fd8b0c8584f1801f03ca8e42fb888a7ce43",
+   "key": "00a17e5805acd5f6",
+   "ids": [
+    "betterdeserttemples"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 56,
+   "classes": 57,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 57,
+   "representedClasses": 57,
+   "missingClasses": []
+  },
+  {
+   "file": "澤塔Zeta-1.0-31.jar",
+   "sha256": "cd1786902a79434f8fd762d741019d9c8a79725fef7e30a89c153c934e1e6a9e",
+   "key": "cd1786902a79434f",
+   "ids": [
+    "zeta"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 11,
+   "classes": 696,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.3.2.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "災變L_Enders_Cataclysm-3.31.jar",
+   "sha256": "c29dcf940168208517b72f2d9965828b106a6b94cbea55d5001558c69a27b362",
+   "key": "c29dcf9401682085",
+   "ids": [
+    "cataclysm"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1440,
+   "classes": 1344,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.3.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1345,
+   "representedClasses": 1345,
+   "missingClasses": []
+  },
+  {
+   "file": "災變史詩EpicFight_X_L_Enders_Cataclysm-1.0.jar",
+   "sha256": "4c9d2b2f21f9ca2263d30fe160e9841b3a15fcac2ccbc219a05e626d91568925",
+   "key": "4c9d2b2f21f9ca22",
+   "ids": [
+    "epicfight_cataclysm"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 16,
+   "classes": 1,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1,
+   "representedClasses": 1,
+   "missingClasses": []
+  },
+  {
+   "file": "玩家動畫player-animation-lib-forge-1.0.2-rc1+1.20.jar",
+   "sha256": "90d9965cb9efdbda29fdc5610be3914cf7008bf5c392ff34f7ab25f96a852691",
+   "key": "90d9965cb9efdbda",
+   "ids": [
+    "playeranimator"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 5,
+   "classes": 115,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "瓦爾基里valkyrienskies-120-2.4.11.jar",
+   "sha256": "abd55362bc99055109974b35a1d51bb5503eaf499b237835a3ca31b1c8b142c5",
+   "key": "abd55362bc990551",
+   "ids": [
+    "valkyrienskies"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 178,
+   "classes": 3816,
+   "nestedJars": [
+    "META-INF/jars/api-1.1.0+cf208d8b56.jar",
+    "META-INF/jars/classmate-1.5.1.jar",
+    "META-INF/jars/cloth-config-forge-11.1.106.jar",
+    "META-INF/jars/commons-collections4-4.3.jar",
+    "META-INF/jars/commons-math3-3.6.1.jar",
+    "META-INF/jars/dagger-2.43.2.jar",
+    "META-INF/jars/itu-1.7.0.jar",
+    "META-INF/jars/jackson-annotations-2.14.0.jar",
+    "META-INF/jars/jackson-core-2.14.0.jar",
+    "META-INF/jars/jackson-databind-2.14.0.jar",
+    "META-INF/jars/jackson-dataformat-cbor-2.14.0.jar",
+    "META-INF/jars/jackson-kotlin-dsl-1.2.0.jar",
+    "META-INF/jars/jackson-module-kotlin-2.14.0-rubyfork.jar",
+    "META-INF/jars/jackson-module-parameter-names-2.14.0.jar",
+    "META-INF/jars/javax.inject-1.jar",
+    "META-INF/jars/joml-primitives-1.10.0.jar",
+    "META-INF/jars/json-schema-validator-1.0.71.jar",
+    "META-INF/jars/jsonschema-generator-4.25.0.jar",
+    "META-INF/jars/jsonschema-module-jackson-4.25.0.jar",
+    "META-INF/jars/mixinextras-forge-0.4.1.jar",
+    "META-INF/jars/util-1.1.0+cf208d8b56.jar",
+    "META-INF/jars/zjsonpatch-0.4.11.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 7900,
+   "representedClasses": 7900,
+   "missingClasses": []
+  },
+  {
+   "file": "畫面優化oculus-mc1.20.1-1.8.0.jar",
+   "sha256": "0945df0cba0f62b3901dd80c3268e5311b770ece78c78037a45db12ac0425fef",
+   "key": "0945df0cba0f62b3",
+   "ids": [
+    "oculus"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 48,
+   "classes": 1587,
+   "nestedJars": [
+    "META-INF/jars/jcpp-1.4.14.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1630,
+   "representedClasses": 1630,
+   "missingClasses": []
+  },
+  {
+   "file": "真實地形reterraforged-0.0.6-forge-1.20.1 (1).jar",
+   "sha256": "bb81a0f1b4958d597337b167617aeeeb0aa88a7210dd70dcd76c2c4978a40903",
+   "key": "bb81a0f1b4958d59",
+   "ids": [
+    "reterraforged"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 10,
+   "classes": 514,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 514,
+   "representedClasses": 514,
+   "missingClasses": []
+  },
+  {
+   "file": "稻草人dummmmmmy-1.20-2.0.12-forge.jar",
+   "sha256": "bd7f168ec56f14a25d36d9d0dc4d281e88f77b1ba678907b5c570e5c051a5ca4",
+   "key": "bd7f168ec56f14a2",
+   "ids": [
+    "dummmmmmy"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 33,
+   "classes": 42,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 43,
+   "representedClasses": 43,
+   "missingClasses": []
+  },
+  {
+   "file": "蛇geckolib-forge-1.20.1-4.8.4.jar",
+   "sha256": "084686407fce09426703c7acab3b39baaf3dd22e6de1e9afb1c0bec8706043e6",
+   "key": "084686407fce0942",
+   "ids": [
+    "geckolib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 69,
+   "classes": 260,
+   "nestedJars": [
+    "META-INF/jarjar/mclib-20.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "裝飾supplementaries-1.20-3.1.43-forge.jar",
+   "sha256": "6132fc23a2fe1da0ca57439b35526ee9a1a8d898397ff8e61b2d08fb951cdf6a",
+   "key": "6132fc23a2fe1da0",
+   "ids": [
+    "supplementaries"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 3307,
+   "classes": 1106,
+   "nestedJars": [
+    "META-INF/jars/mixinextras-forge-0.3.6.jar",
+    "META-INF/jars/mixinsquared-forge-0.1.1.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1111,
+   "representedClasses": 1111,
+   "missingClasses": []
+  },
+  {
+   "file": "要塞YungsBetterStrongholds-1.20-Forge-4.0.3.jar",
+   "sha256": "a4421a79b098ce97d78d6550566e02385087882653787a9e8e3c5f8a3b7ddb83",
+   "key": "a4421a79b098ce97",
+   "ids": [
+    "betterstrongholds"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 45,
+   "classes": 36,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 36,
+   "representedClasses": 36,
+   "missingClasses": []
+  },
+  {
+   "file": "語音voicechat-forge-1.20.1-2.6.23.jar",
+   "sha256": "0f974b43487188e09dd89ae878ea93b4e62802ad970627cf23e051d97eb2b3b1",
+   "key": "0f974b43487188e0",
+   "ids": [
+    "voicechat",
+    "voicechat_api"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 36,
+   "classes": 676,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 676,
+   "representedClasses": 676,
+   "missingClasses": []
+  },
+  {
+   "file": "超視距voxy-0.2.14-alpha.jar",
+   "sha256": "36d73c944ae33be127a3c8b2636e5ba7ea46eba4160df863f326483e0547fbbf",
+   "key": "36d73c944ae33be1",
+   "ids": [
+    "voxy"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 5,
+   "classes": 336,
+   "nestedJars": [
+    "META-INF/jars/commons-pool2-2.12.0.jar",
+    "META-INF/jars/jedis-5.1.0.jar",
+    "META-INF/jars/lwjgl-lmdb-3.3.1-natives-linux.jar",
+    "META-INF/jars/lwjgl-lmdb-3.3.1-natives-windows.jar",
+    "META-INF/jars/lwjgl-lmdb-3.3.1.jar",
+    "META-INF/jars/lwjgl-zstd-3.3.1-natives-linux.jar",
+    "META-INF/jars/lwjgl-zstd-3.3.1-natives-windows.jar",
+    "META-INF/jars/lwjgl-zstd-3.3.1.jar",
+    "META-INF/jars/lz4-java-1.8.0.jar",
+    "META-INF/jars/rocksdbjni-10.2.1.jar",
+    "META-INF/jars/xz-1.10.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 1543,
+   "representedClasses": 1543,
+   "missingClasses": []
+  },
+  {
+   "file": "跑酷ParCool-1.20.1-3.4.3.3.jar",
+   "sha256": "2ddef8752b5a1428035b95f29e62c81e33b80d37851681e1b928d8a01615c6e7",
+   "key": "2ddef8752b5a1428",
+   "ids": [
+    "parcool"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 100,
+   "classes": 302,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 302,
+   "representedClasses": 302,
+   "missingClasses": []
+  },
+  {
+   "file": "跑酷連接epiccompat_parcool-forge-1.20.1-1.0.3.jar",
+   "sha256": "7fbc6fd14f651119eebe795f92a556d2f66ceef3911bc54c998fc518604f9ee5",
+   "key": "7fbc6fd14f651119",
+   "ids": [
+    "epiccompat_parcool"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 6,
+   "classes": 14,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 14,
+   "representedClasses": 14,
+   "missingClasses": []
+  },
+  {
+   "file": "農夫FarmersDelight-1.20.1-1.3.3.jar",
+   "sha256": "6149462a677fdab9e736e18149cfa3a3cc51120097279798fcfadbcc033fd303",
+   "key": "6149462a677fdab9",
+   "ids": [
+    "farmersdelight"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1459,
+   "classes": 289,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.3.6.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 291,
+   "representedClasses": 291,
+   "missingClasses": []
+  },
+  {
+   "file": "逆卡巴拉fdbosses-3.1.0.3-1.20.1.jar",
+   "sha256": "7acfcb15ec94ab9772137d8a55bcd642ddea6cecf75cc2e70be698f12f3a048e",
+   "key": "7acfcb15ec94ab97",
+   "ids": [
+    "fdbosses"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 243,
+   "classes": 422,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "complete",
+   "bytecodeClasses": 423,
+   "representedClasses": 423,
+   "missingClasses": []
+  },
+  {
+   "file": "逆卡巴拉附加fdlib-1.0.9-1.20.1.jar",
+   "sha256": "c0b7de65fef6bc76124aa58cb4fd0cebc34d886007ef2efc27084aa6eacb5263",
+   "key": "c0b7de65fef6bc76",
+   "ids": [
+    "fdlib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 21,
+   "classes": 558,
+   "nestedJars": [
+    "META-INF/jarjar/mixinextras-forge-0.5.0.jar"
+   ],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "鉤爪grapplingHookMod-Reforged-1.2.jar",
+   "sha256": "b911c8f33d4e8e746f718f1fd0b5eb0e3b33d770928a3a3f66e0f4e3eddbb9f2",
+   "key": "b911c8f33d4e8e74",
+   "ids": [
+    "grapplemod"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 67,
+   "classes": 146,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 146,
+   "representedClasses": 146,
+   "missingClasses": []
+  },
+  {
+   "file": "預生成Chunky-1.3.146.jar",
+   "sha256": "29cc7c278cb0c805d171e9e2e2f459abc66b01f376450c90b09e12d9cbd86ce9",
+   "key": "29cc7c278cb0c805",
+   "ids": [
+    "chunky"
+   ],
+   "excluded": true,
+   "reason": "純效能或預生成工具",
+   "resources": 30,
+   "classes": 130,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "飾品curios-forge-5.14.1+1.20.1.jar",
+   "sha256": "4e0978be09302df6a45013f26c3fc1ec5cd38a5ec004af3e9fe2f7e9b6e8f13a",
+   "key": "4e0978be09302df6",
+   "ids": [
+    "curios"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 32,
+   "classes": 143,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 143,
+   "representedClasses": 143,
+   "missingClasses": []
+  },
+  {
+   "file": "首領崛起block_factorys_bosses-2.1.2-forge-1.20.1.jar",
+   "sha256": "a7a44e84dbfc7fbad3821e16b24942e61fe90cbbac2fa6eea768d194078a0a14",
+   "key": "a7a44e84dbfc7fba",
+   "ids": [
+    "block_factorys_bosses"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 776,
+   "classes": 797,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 797,
+   "representedClasses": 797,
+   "missingClasses": []
+  },
+  {
+   "file": "魂系slu_9990.3.1.20.1-remade.jar",
+   "sha256": "2fc4307002789f99d9f00f3912ddbb4f84487a6950e7ec8fa6fc7a526ab19ef7",
+   "key": "2fc4307002789f99",
+   "ids": [
+    "slu"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 2771,
+   "classes": 2498,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 2498,
+   "representedClasses": 2498,
+   "missingClasses": []
+  },
+  {
+   "file": "魔法irons_lib-1.20.1-2.1.0.jar",
+   "sha256": "dc9e9c2f83b9daa0fb7ba29388c4ca953d2874741bcc7d85a31545cf6a081ddc",
+   "key": "dc9e9c2f83b9daa0",
+   "ids": [
+    "irons_lib"
+   ],
+   "excluded": true,
+   "reason": "共用函式庫；依賴它的玩法模組另行解包",
+   "resources": 48,
+   "classes": 117,
+   "nestedJars": [],
+   "decompile": "excluded",
+   "bytecodeClasses": null,
+   "representedClasses": null,
+   "missingClasses": null
+  },
+  {
+   "file": "魔法irons_spellbooks-1.20.1-3.16.3.jar",
+   "sha256": "bca6fbbf7353d369686597862ff0a68e665ca3a1a6b2c9688762005ed7dc3c72",
+   "key": "bca6fbbf7353d369",
+   "ids": [
+    "irons_spellbooks"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 1468,
+   "classes": 1264,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 1264,
+   "representedClasses": 1264,
+   "missingClasses": []
+  },
+  {
+   "file": "魔法動畫efiscompat-2.6.0.jar",
+   "sha256": "c5eef935e534139209e5bf002685c885662bc809d1c4e05ad1309bda8eea07ab",
+   "key": "c5eef935e5341392",
+   "ids": [
+    "efiscompat"
+   ],
+   "excluded": false,
+   "reason": "",
+   "resources": 183,
+   "classes": 32,
+   "nestedJars": [],
+   "decompile": "complete",
+   "bytecodeClasses": 32,
+   "representedClasses": 32,
+   "missingClasses": []
+  }
+ ]
+}
