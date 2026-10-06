@@ -54,6 +54,14 @@ test('conversational replies without citations still remain in the next turn mem
  await service.ask('u','魔法之眼還有呢？',cid);
  assert(input.includes('那我們先聊魔法之眼吧。'));
 });
+
+test('unnamed conversation gets concrete activity evidence without matching recommendation keywords',async()=>{
+ const {service,env}=setup();let input;
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',activities:'activities.json',shards:[]}:r.url.endsWith('activities.json')?[{title:'製作揹包',article:'backpack',group:'起步',firstStep:'線 ×4、皮革 ×4、木箱 ×1'}]:[]);
+ env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'做個揹包吧。',factIds:['1']}}};
+ const result=await service.ask('u','你替我拿主意好了');
+ assert.equal(result.status,200);assert(input.facts.some(f=>f.text.includes('皮革 ×4')));
+});
 test('all providers cooling down produces retry time, not a missing-data answer',async()=>{
  const {service,storage}=setup();await storage.put('cooldown:cloudflare',Date.now()+60000);const r=await service.ask('u','魔法之眼');assert.equal(r.status,503);assert(r.body.retryAt>Date.now());assert.match(r.body.error,/重試/);assert.equal(await storage.get('user:'+dayKey()+':u'),0);
 });

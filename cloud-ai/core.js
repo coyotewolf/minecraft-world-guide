@@ -1,7 +1,7 @@
-import {retrieve} from '../ai-search.js';
+import {retrieve,activityPool} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v7-conversation';
+export const ANSWER_CACHE_VERSION='zh-tw-v8-conversation-evidence';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -113,6 +113,10 @@ export class GuideService{
   const normalizedQuestion=question.replace(/簑釉龍|簑鮋龍|蓑釉龍/g,'蓑鮋龍');
   this.stage='retrieval';const current=await retrieve(this.manifest,normalizedQuestion,file=>this.read(file));
   const contextual=previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
+  // Unnamed conversational requests also get playable facts. The model can
+  // infer intent without a growing list of hard-coded recommendation phrases.
+  const hasNamedSubject=Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name));
+  const playable=hasNamedSubject?[]:await activityPool(this.manifest,normalizedQuestion,file=>this.read(file));
   this.stage='translations';await this.loadTranslations();
   this.stage='playbook';this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
   this.stage='gameplay';this.gameplay??=await (async()=>{
@@ -153,7 +157,7 @@ export class GuideService{
   const currentPlayer=current.filter(f=>f.playerSummary),contextPlayer=contextual.filter(f=>f.playerSummary),broadPlayer=broad.filter(f=>f.playerSummary);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
-  for(const f of [...curated.filter(f=>f.category!=='activity'),...currentPlayer.slice(0,4),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity').slice(0,2),...currentPlayer.slice(4),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...curated.filter(f=>f.category!=='activity'),...currentPlayer.slice(0,2),...playable.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity').slice(0,2),...currentPlayer.slice(2),...playable.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length)return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}};
