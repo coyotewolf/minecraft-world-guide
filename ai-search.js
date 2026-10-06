@@ -18,3 +18,29 @@ export async function activityPool(manifest,q,read,options={}){
  return picks.slice(0,12);
 }
 export async function retrieve(manifest,q,read){const query=expanded(q),terms=tokens(query),wanted=intent(q);let anchors=[],files=[],reviewed=[];if(manifest.reviewed){manifest._reviewed??=await read(manifest.reviewed);reviewed=manifest._reviewed.filter(f=>f.matchAll?.every(group=>group.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))}const picks=recommendation(q)?await activityPool(manifest,q,read):[];if(manifest.entityIndex){manifest._entities??=await read(manifest.entityIndex);const normalized=q.toLowerCase();const matched=Object.keys(manifest._entities).filter(n=>normalized.includes(n));anchors=matched.filter(n=>!matched.some(other=>other.length>n.length&&other.includes(n)));files=[...new Set(anchors.flatMap(n=>manifest._entities[n]))]}const ranked=manifest.shards.map(s=>{let n=terms.reduce((n,t)=>n+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0);if(n&&wanted&&s.kinds?.includes(wanted))n+=2;if(files.includes(s.file))n+=100;return {s,n}}).filter(x=>x.n>0&&(!files.length||files.includes(x.s.file))).sort((a,b)=>b.n-a.n);const found=[];for(const {s} of ranked.slice(0,8))found.push(...rank(await read(s.file),query,24,anchors));return [...reviewed,...rank(found,query),...picks].filter((f,i,all)=>all.findIndex(v=>v.id===f.id)===i).slice(0,18)}
+
+// Bounded multi-query retrieval balances evidence kinds before reading shards.
+// Secondary queries broaden wording, never add game facts to the prompt.
+export async function retrieveMany(manifest,queries,read,options={}){
+ const normalized=[...new Set(queries.filter(q=>typeof q==='string'&&q.trim()).map(q=>q.trim().slice(0,180)))].slice(0,4),cache=new Map();
+ const once=file=>{if(!cache.has(file))cache.set(file,read(file));return cache.get(file)};
+ if(!manifest._coverage)manifest._coverage=await once('coverage-index.json').catch(()=>({subjects:{}}));
+ const locator=manifest._coverage.subjects||{};
+ const anchorsByQuery=[];const choices=normalized.map(q=>{
+  const matched=Object.keys(locator).filter(n=>q.toLowerCase().includes(n));const names=matched.filter(n=>!matched.some(o=>o.length>n.length&&o.includes(n)));anchorsByQuery.push(names);
+  const files=new Map();for(const name of names)for(const entry of locator[name]){const [file,kinds]=Number.isInteger(entry)?manifest._coverage.files[entry]:entry;files.set(file,kinds)};
+  const terms=tokens(q);return manifest.shards.map(s=>{const score=terms.reduce((sum,t)=>sum+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0)+(files.has(s.file)?100:0);return {s,score,kinds:files.get(s.file)||s.kinds||['其他']}}).filter(x=>x.score>0&&(!files.size||files.has(x.s.file))).sort((a,b)=>b.score-a.score||a.s.file.localeCompare(b.s.file));
+ });
+ const picked=new Map();
+ // Cover each query and evidence kind in turn; then fill by relevance. A recipe-only
+ // subject locator cannot exclude runtime, config or manual evidence anymore.
+ const covered=choices.map(()=>new Set());for(let round=0;round<16&&picked.size<16;round++)for(let i=0;i<choices.length;i++){const row=choices[i].find(x=>x.kinds.some(k=>!covered[i].has(k)));if(row){if(picked.size<16)picked.set(row.s.file,row);for(const kind of row.kinds)covered[i].add(kind)}}
+ for(let i=0;i<16&&picked.size<16;i++)for(const list of choices){const row=list[i];if(row&&picked.size<16)picked.set(row.s.file,row)}
+ const pages=await Promise.all([...picked.keys()].map(once)),all=pages.flat();
+ const ranked=normalized.map((q,i)=>rank(all,q,36,anchorsByQuery[i]));const facts=[];
+ for(let i=0;i<36;i++)for(const list of ranked){const f=list[i];if(f&&!facts.some(x=>x.id===f.id))facts.push(f)}
+ // Keep curated reviewed evidence, and concrete activities appropriate to progress.
+ if(manifest.reviewed){const reviewed=await once(manifest.reviewed);facts.unshift(...reviewed.filter(f=>normalized.some((q,i)=>{const relevant=!anchorsByQuery[i].length||anchorsByQuery[i].some(n=>(f.title+' '+(f.labels||[]).join(' ')+' '+f.search).toLowerCase().includes(n));return relevant&&(f.matchAll?.every(g=>g.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))})))}
+ if(normalized.some(recommendation))facts.push(...await activityPool(manifest,normalized[0],once,options));
+ return {facts:[...new Map(facts.map(f=>[f.id,f])).values()].slice(0,48),coverage:{queries:normalized,readShards:picked.size,totalShards:manifest.shards.length,matchedShards:new Set(choices.flatMap(x=>x.map(r=>r.s.file))).size,evidenceKinds:[...new Set([...picked.values()].flatMap(x=>x.kinds))],bounded:true,note:'搜尋涵蓋多種資料，但本輪最多讀取 16 個資料檔；沒有找到不能推論整包不存在。來源摘要仍須核對條件。'}};
+}

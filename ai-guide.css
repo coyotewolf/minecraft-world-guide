@@ -5,3 +5,5 @@
 .assistant-history-row label{font-size:12px;color:var(--muted)}
 #assistant-history{min-width:0;width:100%;padding:7px 9px;background:var(--bg);color:var(--ink);border:1px solid var(--line);font:inherit}
 #assistant-more{align-self:center;margin:8px 0 0;padding:5px 10px;font-size:12px;flex-shrink:0}
+
+.assistant-header button{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;padding:6px}.assistant-header svg{pointer-events:none;flex-shrink:0}

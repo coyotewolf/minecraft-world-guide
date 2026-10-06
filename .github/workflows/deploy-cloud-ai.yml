@@ -11,6 +11,9 @@ on:
       - "data/inventory.json"
       - "tools/build_gameplay_knowledge.mjs"
       - "tools/build_relation_knowledge.mjs"
+      - "tools/build_coverage_index.mjs"
+      - "ai-search.js"
+      - "ai-search.test.js"
       - ".github/workflows/deploy-cloud-ai.yml"
   workflow_dispatch:
 
@@ -41,6 +44,7 @@ jobs:
         run: |
           node tools/build_gameplay_knowledge.mjs
           node tools/build_relation_knowledge.mjs
+          node tools/build_coverage_index.mjs
 
       - name: Verify generated knowledge
         shell: bash

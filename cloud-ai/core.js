@@ -1,8 +1,9 @@
-import {retrieve,activityPool} from '../ai-search.js';
+import {playerLimit,recordUsage,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
+import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v14-scoped-confirmation';
+export const ANSWER_CACHE_VERSION='zh-tw-v15-multi-source-coverage';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -24,7 +25,8 @@ export function selectedReply(value,candidates){
  if(typeof parsed?.answer!=='string'||parsed.answer.trim().length<1||parsed.answer.length>1600)return {answer:'',facts:[]};
  return {answer:parsed.answer.trim(),facts:selectedFacts(parsed,candidates)};
 }
-export async function approvedUser(request,env,fetcher=fetch){const auth=request.headers.get('Authorization');if(!auth?.startsWith('Bearer ')||auth.length>8192)return null;const headers={Authorization:auth,apikey:env.SUPABASE_KEY};const user=await fetcher(env.SUPABASE_URL+'/auth/v1/user',{headers,signal:AbortSignal.timeout(10000)});if(!user.ok)return null;const data=await user.json();if(!data.id)return null;const status=await fetcher(env.SUPABASE_URL+'/rest/v1/rpc/player_status',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});if(!status.ok)return null;const state=await status.json();return state?.active===true?data.id:null}
+export async function approvedIdentity(request,env,fetcher=fetch){const auth=request.headers.get('Authorization');if(!auth?.startsWith('Bearer ')||auth.length>8192)return null;const headers={Authorization:auth,apikey:env.SUPABASE_KEY};const user=await fetcher(env.SUPABASE_URL+'/auth/v1/user',{headers,signal:AbortSignal.timeout(10000)});if(!user.ok)return null;const data=await user.json();if(!data.id)return null;const status=await fetcher(env.SUPABASE_URL+'/rest/v1/rpc/player_status',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});if(!status.ok)return null;const state=await status.json();return state?.active===true?{id:data.id,admin:state.admin===true}:null}
+export async function approvedUser(request,env,fetcher=fetch){return (await approvedIdentity(request,env,fetcher))?.id??null}
 export function providerMessages(prompt){
  const split=prompt.lastIndexOf('\n{');
  if(split<0)return [{role:'user',content:prompt}];
@@ -40,15 +42,16 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
  const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
  if(geminiKey&&await canUse('gemini',0)){
+  await options.onUsage?.('gemini','attempt');
   const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},body:JSON.stringify({...(system?{systemInstruction:{parts:[{text:system.content}]}}:{}),contents:messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),generationConfig:{temperature:options.temperature??0.45,maxOutputTokens:outputTokens,responseMimeType:'application/json',responseJsonSchema:options.schema||SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
-  if(r?.ok){const data=await r.json().catch(()=>({})),value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onSpend('gemini',10000,0);await onFailure('gemini',{code:'invalid_answer',delay:10000})}
+  if(r?.ok){const data=await r.json().catch(()=>({}));await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onSpend('gemini',10000,0);await onFailure('gemini',{code:'invalid_answer',delay:10000})}
   else
-  if(r){const details=await r.json().catch(()=>({}));const wait=providerFailure(r.status,details,r.headers.get('Retry-After'));await onSpend('gemini',wait.delay,0);await onFailure('gemini',wait)}else{await onSpend('gemini',60000,0);await onFailure('gemini',{code:'connection',delay:60000})}
+  if(r){await options.onUsage?.('gemini','error');const details=await r.json().catch(()=>({}));const wait=providerFailure(r.status,details,r.headers.get('Retry-After'));await onSpend('gemini',wait.delay,0);await onFailure('gemini',wait)}else{await options.onUsage?.('gemini','error');await onSpend('gemini',60000,0);await onFailure('gemini',{code:'connection',delay:60000})}
  }
  if(env.AI&&await canUse('cloudflare',estimate)){
   // Reserve worst-case tokens before invoking the free binding, even on errors.
-  await onSpend('cloudflare',0,estimate);
-  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:10000});await onSpend('cloudflare',10000,0)}catch{await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
+  await onSpend('cloudflare',0,estimate);await options.onUsage?.('cloudflare','attempt');
+  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:10000});await onSpend('cloudflare',10000,0)}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
  }
  return null;
 }
@@ -95,17 +98,17 @@ export class GuideService{
   if(Array.isArray(copy.labels))copy.labels=copy.labels.map(x=>this.localize(x));
   return copy;
  }
- async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async(p,estimate)=>{const cooldown=await this.storage.get('cooldown:'+p)||0;if(cooldown>Date.now())return false;if(p==='cloudflare'){if((await this.storage.get('neurons:'+utcDay())||0)+estimate>8500){await this.storage.put('cooldown:cloudflare',Date.parse(utcDay()+'T00:00:00Z')+86400000);await this.storage.put('failure:cloudflare',{code:'daily_budget',at:Date.now()});return false}return true;}return true},async(p,delay,spend)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay);if(spend)await this.storage.put('neurons:'+utcDay(),(await this.storage.get('neurons:'+utcDay())||0)+spend)},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,options)}
+ async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async(p,estimate)=>{const cooldown=await this.storage.get('cooldown:'+p)||0;if(cooldown>Date.now())return false;if(p==='cloudflare'){if((await this.storage.get('neurons:'+utcDay())||0)+estimate>8500){await this.storage.put('cooldown:cloudflare',Date.parse(utcDay()+'T00:00:00Z')+86400000);await this.storage.put('failure:cloudflare',{code:'daily_budget',at:Date.now()});return false}return true;}const cap=await this.storage.get('config:geminiDailyLimit');if(cap!==undefined&&(await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts>=cap)return false;return true},async(p,delay,spend)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay);if(spend)await this.storage.put('neurons:'+utcDay(),(await this.storage.get('neurons:'+utcDay())||0)+spend)},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,{...options,onUsage:(p,event,details)=>recordUsage(this.storage,p,event,details)})}
  async availability(){
   const now=Date.now(),ready=[],failures=[];
-  for(const name of ['gemini','cloudflare']){const cooldown=await this.storage.get('cooldown:'+name)||0;const failure=await this.storage.get('failure:'+name);const configured=name==='gemini'?!!(this.env.GEMINI_API_KEY||this.env.gemini_api):!!this.env.AI;const budget=name==='cloudflare'&&(await this.storage.get('neurons:'+utcDay())||0)>=8480;
-   ready.push({provider:name,available:configured&&!budget&&cooldown<=now,retryAt:budget?Date.parse(utcDay()+'T00:00:00Z')+86400000:cooldown>now?cooldown:null,reason:budget?'daily_budget':cooldown>now?failure?.code||'cooldown':configured?null:'configuration'});
+  for(const name of ['gemini','cloudflare']){const cooldown=await this.storage.get('cooldown:'+name)||0;const failure=await this.storage.get('failure:'+name);const configured=name==='gemini'?!!(this.env.GEMINI_API_KEY||this.env.gemini_api):!!this.env.AI;const cap=await this.storage.get('config:geminiDailyLimit');const budget=name==='cloudflare'?(await this.storage.get('neurons:'+utcDay())||0)>=8480:cap!==undefined&&((await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts||0)>=cap;
+   ready.push({provider:name,available:configured&&!budget&&cooldown<=now,retryAt:budget?providerReset(name):cooldown>now?cooldown:null,reason:budget?'daily_budget':cooldown>now?failure?.code||'cooldown':configured?null:'configuration'});
    if(failure)failures.push({provider:name,code:failure.code,status:failure.status,at:failure.at});
   }
   const times=ready.filter(x=>x.retryAt).map(x=>x.retryAt),daily=ready.every(x=>['daily_quota','daily_budget','configuration'].includes(x.reason));
   return {providers:ready,lastFailures:failures,code:daily?'free_quota':'temporarily_unavailable',retryAt:times.length?Math.min(...times):null,message:daily?'小助手今天的免費額度已用完。聊天紀錄會保留，你仍可使用搜尋。':'小助手暫時忙碌或連線不穩，請稍後按「重試」。聊天紀錄會保留，搜尋也能繼續使用。'};
  }
- async cleanup(){for(const prefix of ['conversation:','request:','cache:','user:','global:','neurons:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:','request:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
+ async cleanup(){for(const prefix of ['conversation:','request:','cache:','user:','global:','neurons:','usage:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:','request:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
  async ask(uid,question,conversationId,cloudTurns=[]){
   if(this.env.FREE_ONLY_ACK!=='true')return {status:503,body:{error:'雲端問答尚未啟用。請使用解包資料搜尋。'}};
   this.stage='manifest';this.manifest??=await this.read('manifest.json');
@@ -116,7 +119,7 @@ export class GuideService{
   previous.answers=Array.isArray(previous.answers)?previous.answers:[];
   const priorIntent=saved?.expires>Date.now()&&validIntent(saved.intent)?saved.intent:null;
   const day=dayKey(),uk='user:'+day+':'+uid,gk='global:'+day,mk='minute:'+uid;
-  const slot=await this.storage.transaction(async tx=>{const u=await tx.get(uk)||0,g=await tx.get(gk)||0,m=await tx.get(mk)||{at:0,n:0};if(u>=50||g>=400)return {error:'今日免費問答額度已用完，仍可搜尋解包資料。',status:429};if(Date.now()-m.at<60000&&m.n>=4)return {error:'提問稍快，請等一分鐘再試。',status:429};await tx.put(uk,u+1);await tx.put(gk,g+1);await tx.put(mk,Date.now()-m.at<60000?{at:m.at,n:m.n+1}:{at:Date.now(),n:1});return {remaining:49-u}});
+  const slot=await this.storage.transaction(async tx=>{const limit=await playerLimit(tx,uid),u=await tx.get(uk)||0,g=await tx.get(gk)||0,m=await tx.get(mk)||{at:0,n:0};if(u>=limit||g>=400)return {error:'今日免費問答額度已用完，仍可搜尋解包資料。',status:429};if(Date.now()-m.at<60000&&m.n>=4)return {error:'提問稍快，請等一分鐘再試。',status:429};await tx.put(uk,u+1);await tx.put(gk,g+1);await tx.put(mk,Date.now()-m.at<60000?{at:m.at,n:m.n+1}:{at:Date.now(),n:1});return {remaining:Math.max(0,limit-u-1)}});
   if(slot.error)return {status:slot.status,body:slot};
   const release=()=>this.storage.transaction(async tx=>{await tx.put(uk,Math.max(0,(await tx.get(uk)||0)-1));await tx.put(gk,Math.max(0,(await tx.get(gk)||0)-1))});
   try{
@@ -129,13 +132,13 @@ export class GuideService{
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:350,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
    if(!intent){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
    plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});
    }
    normalizedQuestion=plan.query;
   }
-  this.stage='retrieval';const current=await retrieve(this.manifest,normalizedQuestion,file=>this.read(file));
+  this.stage='retrieval';const search=await retrieveMany(this.manifest,[normalizedQuestion,...(plan?.queries||[])],file=>this.read(file),{advanced:plan?.progress==='advanced',list:plan?.mode==='list'});const current=search.facts;
   const contextual=!plan&&previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
   // Unnamed conversational requests also get playable facts. The model can
   // infer intent without a growing list of hard-coded recommendation phrases.
@@ -176,8 +179,12 @@ export class GuideService{
     return score;
   };
   const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f).filter(f=>!flying||!['playbook:dragon-terrain-berk-safe','playbook:dragon-terrain-berk-matrix'].includes(f.id));
-  const broad=(this.gameplay||[]).filter(f=>!plan||plan.facet!=='companions'||f.category==='companions').map(f=>({f,score:rank(f)||(plan?.facet==='companions'?1:0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.f);
+  const broad=(this.gameplay||[]).filter(f=>!plan||plan.facet!=='companions'||f.category==='companions').map(f=>({f,score:rank(f)||(plan?.facet==='companions'?1:0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,plan?.mode==='list'?48:12).map(x=>x.f);
   const candidates=[];
+  if(plan?.mode==='list'&&!['drops','bossDrops'].includes(plan.facet)&&broad.length>4){
+   const names=broad.filter(f=>f.kind==='collection'||f.kind==='inventory');
+   if(names.length)candidates.push({id:'list:gameplay',title:'本輪相關圖鑑條目',playerTitle:'相關圖鑑名稱查核',playerSummary:'本輪依問題比對圖鑑，列出 '+names.length+' 個相關條目；這是搜尋結果，不代表所有項目皆符合玩家要求，操作與效果要依其他證據確認。\n'+names.map(f=>f.playerTitle||f.title).join('、'),source:'目前整合包圖鑑資料',shard:'gameplay-knowledge-index.json',labels:plan.focus});
+  }
   if(plan&&['drops','bossDrops'].includes(plan.facet)){this.stage='relations';this.relations??=await this.read('relation-knowledge.json');const evidence=relationEvidence(this.relations,plan);if(evidence)candidates.push(evidence)}
   if(plan?.facet==='companions'&&plan.mode!=='mechanism')for(const f of broad)if(f.playerSummary)candidates.push(f);
   const activityGuides=new Map((this.gameplay||[]).filter(f=>f.kind==='article').map(f=>[f.id,f]));
@@ -186,17 +193,17 @@ export class GuideService{
   const playablePlayer=playable.map(completeActivity);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
-  for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(!plan||plan.mode==='mechanism')).slice(0,2),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
-  if(!candidates.length&&plan?.mode!=='chat'){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
+  if(!candidates.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
    const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const cacheKey='cache:'+digest,cached=await this.storage.get(cacheKey);
    if(cached&&cached.expires>Date.now()){await remember(cached.body.facts,cached.body.answer);return {status:200,body:{...cached.body,remaining:slot.remaining}}};
    const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f);const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}
-   if(!sent.length&&plan?.mode!=='chat'){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
+   if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
    const requestedConstraints={flying,rideable,buildings,naturalChangesAllowed:/自然.*(?:沒關係|可以|不介意)/.test(q)};
-   const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,requestedConstraints,facts:compact});
+   const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,requestedConstraints,retrievalCoverage:search.coverage,facts:compact});
    this.stage='provider';const reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
    if(!reply){await release();const availability=await this.availability();return {status:503,body:{error:availability.message,code:availability.code,retryAt:availability.retryAt,providers:availability.providers,lastFailures:availability.lastFailures}}}
    const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));
