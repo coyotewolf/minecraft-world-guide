@@ -62,6 +62,15 @@ test('unnamed conversation gets concrete activity evidence without matching reco
  const result=await service.ask('u','你替我拿主意好了');
  assert.equal(result.status,200);assert(input.facts.some(f=>f.text.includes('皮革 ×4')));
 });
+
+test('activity titles are backed by full instructions rather than just the opening step',async()=>{
+ const {service,env}=setup();let input;
+ env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',activities:'activities.json',shards:[]}:r.url.endsWith('activities.json')?[{title:'切菜板與烹飪鍋：做燉牛肉',article:'food',group:'生產',firstStep:'放下切菜板'}]:r.url.endsWith('gameplay-knowledge-index.json')?{shards:[{file:'gameplay.json'}]}:r.url.endsWith('gameplay.json')?[{id:'article:food',kind:'article',title:'燉牛肉',playerSummary:'烹飪鍋下方提供熱源，生牛肉 ×1、紅蘿蔔 ×1、馬鈴薯 ×1；成品需要碗。',source:'已查核教學'}]:[]);
+ env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'使用烹飪鍋做燉牛肉。',factIds:['1']}}};
+ await service.ask('u','幫我決定一件事');
+ const activity=input.facts.find(f=>f.title.includes('切菜板'));
+ assert(activity.text.includes('烹飪鍋下方提供熱源'));assert(activity.text.includes('成品需要碗'));
+});
 test('all providers cooling down produces retry time, not a missing-data answer',async()=>{
  const {service,storage}=setup();await storage.put('cooldown:cloudflare',Date.now()+60000);const r=await service.ask('u','魔法之眼');assert.equal(r.status,503);assert(r.body.retryAt>Date.now());assert.match(r.body.error,/重試/);assert.equal(await storage.get('user:'+dayKey()+':u'),0);
 });

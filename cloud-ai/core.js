@@ -1,7 +1,7 @@
 import {retrieve,activityPool} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v8-conversation-evidence';
+export const ANSWER_CACHE_VERSION='zh-tw-v9-complete-activity-evidence';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -154,10 +154,13 @@ export class GuideService{
   const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f).filter(f=>!flying||!['playbook:dragon-terrain-berk-safe','playbook:dragon-terrain-berk-matrix'].includes(f.id));
   const broad=(this.gameplay||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.f);
   const candidates=[];
-  const currentPlayer=current.filter(f=>f.playerSummary),contextPlayer=contextual.filter(f=>f.playerSummary),broadPlayer=broad.filter(f=>f.playerSummary);
+  const activityGuides=new Map((this.gameplay||[]).filter(f=>f.kind==='article').map(f=>[f.id,f]));
+  const completeActivity=f=>{const guide=f.id.startsWith('activity-')&&activityGuides.get('article:'+f.article);return guide?.playerSummary?{...f,playerSummary:guide.playerSummary,source:guide.source}:f};
+  const currentPlayer=current.filter(f=>f.playerSummary).map(completeActivity),contextPlayer=contextual.filter(f=>f.playerSummary).map(completeActivity),broadPlayer=broad.filter(f=>f.playerSummary);
+  const playablePlayer=playable.map(completeActivity);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
-  for(const f of [...curated.filter(f=>f.category!=='activity'),...currentPlayer.slice(0,2),...playable.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity').slice(0,2),...currentPlayer.slice(2),...playable.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...curated.filter(f=>f.category!=='activity'),...currentPlayer.slice(0,2),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity').slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length)return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}};
