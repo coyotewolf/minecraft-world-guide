@@ -1,4 +1,4 @@
-# Minecraft鋼鐵與秘法：帝國紀元攻略
+# Minecraft鐵血餘燼：王國飛翼攻略
 
 網站：https://coyotewolf.github.io/minecraft-world-guide/
 

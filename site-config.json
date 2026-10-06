@@ -1,12 +1,12 @@
 {
- "siteTitle":"Minecraft 鐵血餘燼：王國飛翼攻略",
- "serverNameEn":"Ashes of Ironblood: Wings of the Realm",
- "serverNameZh":"鐵血餘燼：王國飛翼",
- "taglineEn":"Where Magic and Dragons Endure, an Empire Rises.",
- "taglineZh":"當秘法與龍族仍存，帝國崛起。",
- "description":"從探索與戰鬥，到殖民地、工廠與帝國。把每一次冒險，都寫進你們共同的世界。",
- "supabaseUrl":"https://pfrnxaitloaiemrerhcn.supabase.co",
- "supabaseKey":"sb_publishable_VbCO9ufRfxSZT8w7N7UtnA_zP5mkFgq",
- "scanDate":"2026-10-04",
- "serverRulesVerified":false
+ "siteTitle": "Minecraft 鐵血餘燼：王國飛翼攻略",
+ "serverNameEn": "Ashes of Ironblood: Wings of the Realm",
+ "serverNameZh": "鐵血餘燼：王國飛翼",
+ "taglineEn": "Where Magic and Dragons Endure, an Empire Rises.",
+ "taglineZh": "當秘法與龍族仍存，帝國崛起。",
+ "description": "從探索與戰鬥，到殖民地、工廠與帝國。把每一次冒險，都寫進你們共同的世界。",
+ "supabaseUrl": "https://pfrnxaitloaiemrerhcn.supabase.co",
+ "supabaseKey": "sb_publishable_VbCO9ufRfxSZT8w7N7UtnA_zP5mkFgq",
+ "scanDate": "2026-10-06",
+ "serverRulesVerified": false
 }

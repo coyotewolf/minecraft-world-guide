@@ -235,7 +235,8 @@ using(private.valid_session() and user_id=(select auth.uid()))
 with check(private.valid_session() and user_id=(select auth.uid()));
 
 revoke all on public.request_notifications from public,anon;
-grant select,update on public.request_notifications to authenticated;
+grant select on public.request_notifications to authenticated;
+grant update(read_at) on public.request_notifications to authenticated;
 
 create or replace function private.request_action(rid uuid,action text) returns void
 language plpgsql security definer set search_path='' as $$
@@ -296,7 +297,7 @@ begin
  elsif new.status='cancelled' then
   if old.assignee_id is not null and old.assignee_id is distinct from actor then
    insert into public.request_notifications(team_id,request_id,user_id,event,title,message)
-   values(new.team_id,new.id,old.assignee_id,'cancelled',new.title,'發布者已取消這張訂單。');
+   values(new.team_id,new.id,old.assignee_id,'cancelled','訂單已取消','發布者已取消這張訂單。');
   end if;
  end if;
  return new;

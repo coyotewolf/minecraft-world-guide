@@ -18,7 +18,7 @@ function adaptInventoryHints(){
 }
 adaptInventoryHints();let inventoryHintTimer;new MutationObserver(()=>{clearTimeout(inventoryHintTimer);inventoryHintTimer=setTimeout(()=>{adaptInventoryHints();applyAtlasWishes()},20)}).observe(document.body,{childList:true,subtree:true});
 // Fill source-reader gaps with genuine inventory artwork from the installed pack.
-Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json').then(r=>{if(!r.ok)throw Error('Inventory assets unavailable');return r.json()}))).then(([inventory,names])=>{
+Promise.all(['icons','names'].map(name=>fetch('../data/'+name+'.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Inventory assets unavailable');return r.json()}))).then(([inventory,names])=>{
   const paths=Object.fromEntries(Object.entries(inventory).map(([id,path])=>[id,'../'+path]));
   if(slug==='equipment'&&typeof D!=='undefined'&&D.icons){for(const [id,path]of Object.entries(paths))if(!D.icons[id])D.icons[id]=path;if(typeof current!=='undefined'&&current&&typeof drawDetail==='function')drawDetail(current,false);}
   const labels=new Map();for(const [id,label]of Object.entries(names))if(paths[id]&&label.length>=2&&!label.includes('§'))labels.set(label,id);
@@ -69,7 +69,7 @@ function setAtlasMode(mode){
  atlasMode=['all','wish','done','materials'].includes(mode)?mode:'all';
  document.querySelectorAll('[data-atlas-mode]').forEach(b=>b.classList.toggle('active',b.dataset.atlasMode===atlasMode));
  if(slug==='equipment'){
-  const map={all:'all',wish:'wish',done:'done',materials:'materials'};document.querySelector('[data-tab="'+map[atlasMode]+'"]')?.click();return;
+  const map={all:'items',wish:'wishlist',done:'done',materials:'materials'},target=map[atlasMode];document.querySelector('[data-tab="'+target+'"]')?.click();if(typeof tab!=='undefined'&&tab!==target){tab=target;selectedSeries='';page=1;render();}polishEquipmentControls();return;
  }
  if(slug==='skills'){
   if(mode==='done')input('state','done');else if(mode==='all')input('state','');

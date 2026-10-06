@@ -1,0 +1,4 @@
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
+self.addEventListener('push',e=>{let d={};try{d=e.data.json()}catch{}e.waitUntil(self.registration.showNotification(d.title||'AOI 隊伍通知',{body:d.body||'隊伍有新的需求或邀約',tag:d.tag||'aoi-team',icon:'assets/art/b026e708ac2763f03a2cb707.png',data:{url:d.url||self.registration.scope+'#team'}}));});
+self.addEventListener('notificationclick',e=>{e.notification.close();const target=new URL(e.notification.data.url,self.registration.scope);if(!target.href.startsWith(self.registration.scope))return;e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(async cs=>{const c=cs.find(c=>c.url.startsWith(self.registration.scope));if(c){await c.navigate(target.href);return c.focus()}return self.clients.openWindow(target.href)}));});
