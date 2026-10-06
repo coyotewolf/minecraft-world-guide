@@ -100,6 +100,7 @@ export class GuideService{
    const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));
    const facts=parsed.facts.map(({search,...f})=>({...f,id:sent[Number(f.id)-1].id}));
    if(!parsed.answer){await release();return {status:200,body:{facts:[],answer:'目前資料不足以可靠回答這題。',message:'目前資料不足以可靠回答這題。'}}}
+   if(!facts.length){await release();return {status:200,body:{facts:[],answer:parsed.answer,message:parsed.answer,provider:reply.provider,version:this.manifest.version}}}
    const body={facts,answer:parsed.answer,provider:reply.provider,version:this.manifest.version,message:parsed.answer};
    await this.storage.put(cacheKey,{body,expires:Date.now()+86400000});await remember(facts);return {status:200,body:{...body,remaining:slot.remaining}};
   }catch(error){await release();throw error}
