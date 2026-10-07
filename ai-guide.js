@@ -20,6 +20,7 @@ function save(){
  catch{state.messages=state.messages.slice(-20);try{localStorage.setItem(storageKey(identity),JSON.stringify(state))}catch{}}
 }
 const $=s=>host.querySelector(s);
+document.addEventListener('pointerdown',e=>{if(host&&!e.target.closest('#assistant-host .assistant-history-row'))closeHistory()});
 async function loadTranslations(){
  if(translationMap)return translationMap;
  try{
@@ -36,13 +37,19 @@ async function loadTranslations(){
 function localizeText(text){if(typeof text!=='string'||!translationMap)return text;let out=text;for(const re of translationMatchers)out=out.replace(re,m=>translationMap[m]||m);return out}
 function localizeFact(f){if(!f)return f;const copy={...f};for(const k of ['title','playerTitle','playerSummary','text'])if(typeof copy[k]==='string')copy[k]=localizeText(copy[k]);if(Array.isArray(copy.labels))copy.labels=copy.labels.map(localizeText);return copy}
 function factsView(facts){const {h}=auth;if(!(facts||[]).length)return '';return `<div class="assistant-sources"><details><summary>查看來源${facts.length>1?`（${facts.length}）`:''}</summary>${facts.map(raw=>{const f=localizeFact(raw),shown=playerEvidence(f);return `<article class="assistant-fact assistant-fact-compact"><h3>${h(shown.title)}</h3><p class="assistant-source-label">${h(f.runtimeEvidence||/\.jar|Volitans|Entity|Projectile|Manager|Handler|Breath|FuryBolt/.test(f.source||'')?'目前整合包的模組資料與程式查核':localizeText(f.source)||'本站查核資料')}</p><p>${h(shown.text)}</p>${f.shard?`<a href="data/ai/${h(f.shard)}" target="_blank" rel="noopener">原始資料 ↗</a>`:''}</article>`}).join('')}</details></div>`}
+function closeHistory(focus=false){$('#assistant-history-list').hidden=true;$('#assistant-history').setAttribute('aria-expanded','false');if(focus)$('#assistant-history').focus()}
+function toggleHistory(){const list=$('#assistant-history-list');list.hidden=!list.hidden;$('#assistant-history').setAttribute('aria-expanded',String(!list.hidden))}
 function updateHistoryControl(){
- const select=$('#assistant-history');
- if(!select)return;
- const selected=state?.conversationId;
- const options=history.map(c=>`<option value="${c.id}"${c.id===selected?' selected':''}>${auth.h(c.title||'新對話')}</option>`).join('');
- select.innerHTML=(history.length&&!history.some(c=>c.id===selected)?`<option value="${selected}" selected>新對話</option>`:'')+options||`<option value="${selected||''}">目前對話</option>`;
- select.disabled=busy||switching||deleting||!!pendingDelete||!cloudReady||(history.length+(history.some(c=>c.id===selected)?0:1))<2;
+ const toggle=$('#assistant-history'),list=$('#assistant-history-list');if(!toggle)return;
+ const selected=state.conversationId,locked=busy||switching||deleting||hydrating||!!pendingDelete;
+ $('#assistant-history-title').textContent=history.find(c=>c.id===selected)?.title||'新對話';
+ toggle.disabled=locked||!cloudReady||!history.length;
+ if(toggle.disabled)closeHistory();
+ const entries=history.some(c=>c.id===selected)?history:[{id:selected,title:'新對話',draft:true},...history];
+ const top=list.scrollTop,focus=document.activeElement,focusId=focus?.dataset?.openConversation||focus?.dataset?.deleteConversation,focusAction=focus?.hasAttribute('data-delete-conversation')?'deleteConversation':'openConversation';
+ list.innerHTML=entries.map(c=>`<div class="assistant-history-entry"${c.id===selected?' data-current="true"':''}><button type="button" class="assistant-history-open" data-open-conversation="${auth.h(c.id)}"${c.id===selected?' aria-current="true"':''}${locked?' disabled':''} title="${auth.h(c.title||'新對話')}">${auth.h(c.title||'新對話')}</button>${!c.draft?`<button type="button" class="assistant-history-delete" data-delete-conversation="${auth.h(c.id)}" aria-label="刪除對話：${auth.h(c.title||'新對話')}" title="刪除這段對話"${locked?' disabled':''}>${trashIcon()}</button>`:''}</div>`).join('');
+ list.scrollTop=top;
+ if(focusId&&!list.hidden){const replacement=[...list.querySelectorAll('button')].find(x=>x.dataset[focusAction]===focusId);replacement?.focus({preventScroll:true})}
 }
 function paint(forceScroll=false){
  const oldLog=$('#assistant-messages'),oldTop=oldLog.scrollTop,nearBottom=oldLog.scrollHeight-oldTop-oldLog.clientHeight<80;
@@ -64,7 +71,7 @@ function paint(forceScroll=false){
  $('#assistant-retry').disabled=busy||switching||deleting||!!pendingDelete;
 }
 export function openAssistant(){if(!host)return;$('#assistant-window').hidden=false;$('#assistant-launcher').setAttribute('aria-expanded','true');$('#assistant-input').focus();$('#assistant-messages').scrollTop=$('#assistant-messages').scrollHeight;if(!busy&&cloudEnabled())void hydrateCloud()}
-function closeAssistant(){if(!deleting){pendingDelete=null;paint()}$('#assistant-window').hidden=true;$('#assistant-launcher').setAttribute('aria-expanded','false');$('#assistant-launcher').focus()}
+function closeAssistant(){closeHistory();if(!deleting){pendingDelete=null;paint()}$('#assistant-window').hidden=true;$('#assistant-launcher').setAttribute('aria-expanded','false');$('#assistant-launcher').focus()}
 function cloudEnabled(){return identity!=='guest'&&auth?.active&&auth?.db}
 async function refreshHistory(){
  if(!cloudEnabled())return;
@@ -159,35 +166,36 @@ async function hydrateCloud(){
  }finally{hydrating=false;if(identity===owner)paint()}
 }
 async function switchConversation(id){
- if(deleting||!id||id===state.conversationId)return;pendingDelete=null;statusNotice='';retryQuestion=null;retryRequestId=null;
+ closeHistory();if(deleting||!id||id===state.conversationId)return;pendingDelete=null;statusNotice='';retryQuestion=null;retryRequestId=null;
  cancelAiGuide();switching=true;paint();
  try{await loadCloudConversation(id)}catch(e){$('#assistant-status').textContent='載入對話失敗：'+e.message}finally{busy=false;switching=false;paint()}
 }
 async function newChat(){
- if(deleting)return;pendingDelete=null;statusNotice='';cancelAiGuide();historyEpoch++;retryQuestion=null;retryRequestId=null;state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false};save();paint();$('#assistant-input').focus()
+ if(deleting)return;closeHistory();pendingDelete=null;statusNotice='';cancelAiGuide();historyEpoch++;retryQuestion=null;retryRequestId=null;state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false};save();paint();$('#assistant-input').focus()
 }
 function trashIcon(){return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>'}
 function requestDeletion(kind,id){
  if(busy||deleting||switching||hydrating)return;
  const message=kind==='message'?state.messages.find(m=>m.id===id):null;if(kind==='message'&&!message)return;
- pendingDelete={kind,id,owner:identity,conversationId:state.conversationId};statusNotice='';
- $('#assistant-delete-question').textContent=kind==='conversation'?'刪除這段對話及其中所有訊息？':('刪除這則訊息？「'+message.text.slice(0,70)+(message.text.length>70?'…':'')+'」');
+ const cid=kind==='conversation'?(id||state.conversationId):state.conversationId;if(cid!==state.conversationId&&!history.some(c=>c.id===cid))return;
+ closeHistory();pendingDelete={kind,id,owner:identity,conversationId:cid,activeConversationId:state.conversationId};statusNotice='';
+ $('#assistant-delete-question').textContent=kind==='conversation'?('刪除「'+(history.find(c=>c.id===cid)?.title||'新對話')+'」及其中所有訊息？'):('刪除這則訊息？「'+message.text.slice(0,70)+(message.text.length>70?'…':'')+'」');
  paint();$('#assistant-delete-cancel').focus();
 }
 async function deleteSelection(){
  const target=pendingDelete;if(!target||deleting||busy)return;
- const {owner,conversationId:cid}=target;if(identity!==owner||state.conversationId!==cid){pendingDelete=null;paint();return}
+ const {owner,conversationId:cid,activeConversationId:activeId}=target;if(identity!==owner||state.conversationId!==activeId){pendingDelete=null;paint();return}
  const snapshot=auth,hadCloud=owner!=='guest';deleting=true;historyEpoch++;paint();
  try{
   if(hadCloud){
    if(!cloudEnabled())throw Error('請登入玩家帳號後再刪除帳號聊天紀錄。');
    const {data,error}=await snapshot.db.auth.getSession();if(error)throw error;
    const session=data?.session;if(!session?.access_token||session.user.id!==owner)throw Error('請重新登入後再刪除。');
-   if(identity!==owner||state.conversationId!==cid)return;
+   if(identity!==owner||state.conversationId!==activeId)return;
    if(!snapshot.cfg.aiEndpoint)throw Error('目前無法同步清除對話，請稍後再試。');
    const response=await fetch(snapshot.cfg.aiEndpoint.replace(/\/$/,'')+'/forget',{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({conversationId:cid}),signal:AbortSignal.timeout(15000)});
    if(!response.ok)throw Error('目前無法同步清除對話，請稍後再試。');
-   if(identity!==owner||state.conversationId!==cid)return;
+   if(identity!==owner||state.conversationId!==activeId)return;
    if(target.kind==='message'&&state.messages.find(m=>m.id===target.id)?.role==='user'){
     const title=state.messages.find(m=>m.id!==target.id&&m.role==='user')?.text.trim().slice(0,80)||'新對話';
     const renamed=await snapshot.db.from('assistant_conversations').update({title,updated_at:nowIso()}).eq('user_id',owner).eq('id',cid);
@@ -198,19 +206,19 @@ async function deleteSelection(){
    const result=await query.select('id');if(result.error)throw result.error;
    if(!result.data?.length){const checked=await snapshot.db.rpc('player_status');if(checked.error||checked.data?.active!==true)throw Error('請重新登入後再刪除。')}
   }
-  if(identity!==owner||state.conversationId!==cid)return;
-  retryQuestion=null;retryRequestId=null;
-  if(target.kind==='conversation'){history=history.filter(c=>c.id!==cid);state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false}}
+  if(identity!==owner||state.conversationId!==activeId)return;
+  if(cid===activeId){retryQuestion=null;retryRequestId=null}
+  if(target.kind==='conversation'){history=history.filter(c=>c.id!==cid);if(cid===activeId)state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false}}
   else{state.messages=state.messages.filter(m=>m.id!==target.id);state.oldestAt=state.messages[0]?.created_at||null}
   save();pendingDelete=null;statusNotice=target.kind==='conversation'?'對話已刪除。':'訊息已刪除。';
- }catch(e){if(identity===owner&&state.conversationId===cid){pendingDelete=null;statusNotice='未能確認刪除完成，本機紀錄暫時保留。'+(e.message?.startsWith('請')?e.message:'請確認連線後重試。')}}
+ }catch(e){if(identity===owner&&state.conversationId===activeId){pendingDelete=null;statusNotice='未能確認刪除完成，本機紀錄暫時保留。'+(e.message?.startsWith('請')?e.message:'請確認連線後重試。')}}
  finally{if(identity===owner){deleting=false;paint();$('#assistant-input').focus()}}
 }
 export function syncAssistant(options){
  auth=options;const uid=options.user?.id||'guest';
  if(host&&uid===identity){paint();if(cloudEnabled()&&!cloudReady)void hydrateCloud();return}
  cancelAiGuide();historyEpoch++;deleting=false;switching=false;pendingDelete=null;statusNotice='';identity=uid;cloudReady=false;syncWarning=false;retryQuestion=null;history=[];state=load(uid);host?.remove();host=document.createElement('aside');host.id='assistant-host';document.body.append(host);
- host.innerHTML=`<button id="assistant-launcher" aria-expanded="false" aria-controls="assistant-window"><span aria-hidden="true">✦</span> 問問小助手</button><section id="assistant-window" role="dialog" aria-labelledby="assistant-title" hidden><header class="assistant-header"><h2 id="assistant-title">問問小助手</h2><div><button id="assistant-new" title="開始新對話" aria-label="開始新對話"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/><path d="M12 7v7m-3.5-3.5h7"/></svg></button><button id="assistant-delete" type="button" title="刪除這段對話" aria-label="刪除這段對話">${trashIcon()}</button><button id="assistant-close" title="最小化聊天室" aria-label="縮小聊天室"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 17h14"/></svg></button></div></header><div class="assistant-history-row"><label for="assistant-history">對話</label><select id="assistant-history"><option>目前對話</option></select></div><section id="assistant-delete-panel" aria-label="確認刪除聊天內容" hidden><p id="assistant-delete-question"></p><p class="assistant-delete-warning">刪除後無法復原。已使用的每日問答次數不會退回。</p><div class="assistant-delete-actions"><button id="assistant-delete-cancel" type="button">取消</button><button id="assistant-delete-confirm" type="button">刪除</button></div></section><button id="assistant-more" type="button" hidden>載入更早訊息</button><div id="assistant-messages" role="log" aria-live="polite"></div><p id="assistant-status" role="status"></p><form id="assistant-form"><label class="assistant-input-label" for="assistant-input">訊息</label><textarea id="assistant-input" maxlength="600" rows="2" placeholder="可以直接問比較、推薦、玩法、材料或取得方式…" required></textarea><div class="assistant-actions"><button id="assistant-retry" type="button" hidden>重試上個問題</button><button id="assistant-send" class="primary" type="submit">傳送 ➤</button></div></form></section>`;
+ host.innerHTML=`<button id="assistant-launcher" aria-expanded="false" aria-controls="assistant-window"><span aria-hidden="true">✦</span> 問問小助手</button><section id="assistant-window" role="dialog" aria-labelledby="assistant-title" hidden><header class="assistant-header"><h2 id="assistant-title">問問小助手</h2><div><button id="assistant-new" title="開始新對話" aria-label="開始新對話"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/><path d="M12 7v7m-3.5-3.5h7"/></svg></button><button id="assistant-delete" type="button" title="刪除這段對話" aria-label="刪除這段對話">${trashIcon()}</button><button id="assistant-close" title="最小化聊天室" aria-label="縮小聊天室"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 17h14"/></svg></button></div></header><div class="assistant-history-row"><span id="assistant-history-label">對話</span><button id="assistant-history" type="button" aria-labelledby="assistant-history-label assistant-history-title" aria-expanded="false" aria-controls="assistant-history-list"><span id="assistant-history-title">新對話</span><span aria-hidden="true">⌄</span></button><div id="assistant-history-list" role="group" aria-label="對話清單" hidden></div></div><section id="assistant-delete-panel" aria-label="確認刪除聊天內容" hidden><p id="assistant-delete-question"></p><p class="assistant-delete-warning">刪除後無法復原。已使用的每日問答次數不會退回。</p><div class="assistant-delete-actions"><button id="assistant-delete-cancel" type="button">取消</button><button id="assistant-delete-confirm" type="button">刪除</button></div></section><button id="assistant-more" type="button" hidden>載入更早訊息</button><div id="assistant-messages" role="log" aria-live="polite"></div><p id="assistant-status" role="status"></p><form id="assistant-form"><label class="assistant-input-label" for="assistant-input">訊息</label><textarea id="assistant-input" maxlength="600" rows="2" placeholder="可以直接問比較、推薦、玩法、材料或取得方式…" required></textarea><div class="assistant-actions"><button id="assistant-retry" type="button" hidden>重試上個問題</button><button id="assistant-send" class="primary" type="submit">傳送 ➤</button></div></form></section>`;
  $('#assistant-launcher').onclick=()=>$('#assistant-window').hidden?openAssistant():closeAssistant();
  $('#assistant-close').onclick=closeAssistant;
  $('#assistant-delete').onclick=()=>requestDeletion('conversation');
@@ -219,11 +227,16 @@ export function syncAssistant(options){
  $('#assistant-messages').onclick=e=>{const button=e.target.closest('[data-delete-message]');if(button)requestDeletion('message',button.dataset.deleteMessage)};
  $('#assistant-retry').onclick=()=>{if(retryQuestion){$('#assistant-input').value=retryQuestion;send(true,true)}};
  $('#assistant-new').onclick=()=>void newChat();
- $('#assistant-history').onchange=e=>void switchConversation(e.target.value);
+ $('#assistant-history').onclick=toggleHistory;
+ $('#assistant-history').onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();if($('#assistant-history-list').hidden)toggleHistory();$('#assistant-history-list button')?.focus()}};
+ $('#assistant-history-list').onclick=e=>{const button=e.target.closest('button');if(!button||button.disabled)return;if(button.dataset.deleteConversation)requestDeletion('conversation',button.dataset.deleteConversation);else if(button.dataset.openConversation){void switchConversation(button.dataset.openConversation);$('#assistant-history').focus()}};
+ $('#assistant-history-list').onkeydown=e=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(e.key))return;const buttons=[...$('#assistant-history-list').querySelectorAll('button:not(:disabled)')],i=buttons.indexOf(document.activeElement);e.preventDefault();buttons[e.key==='Home'?0:e.key==='End'?buttons.length-1:Math.max(0,Math.min(buttons.length-1,i+(e.key==='ArrowDown'?1:-1)))]?.focus()};
+ host.addEventListener('focusout',e=>{if(!host.querySelector('.assistant-history-row').contains(e.relatedTarget))closeHistory()});
+ host.addEventListener('pointerdown',e=>{if(!e.target.closest('.assistant-history-row'))closeHistory()});
  $('#assistant-more').onclick=()=>void loadCloudConversation(state.conversationId,true);
  $('#assistant-form').onsubmit=e=>{e.preventDefault();send(true)};
  $('#assistant-input').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();if(!$('#assistant-send').disabled)send(true)}};
- host.onkeydown=e=>{if(e.key==='Escape'&&!$('#assistant-window').hidden)closeAssistant()};
+ host.onkeydown=e=>{if(e.key==='Escape'&&!$('#assistant-window').hidden){e.preventDefault();if(!$('#assistant-history-list').hidden)closeHistory(true);else closeAssistant()}};
  paint();void hydrateCloud();void loadTranslations().then(()=>paint());
 }
 export function mountAiGuide(){openAssistant()}
