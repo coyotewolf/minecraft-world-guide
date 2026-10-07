@@ -26,7 +26,7 @@ function flatten(value,path='',out=[]){
 }
 export function modelEvidence(f){
  const shown=playerEvidence(f);
- if(f.runtimeEvidence)return {title:f.title,text:'解包片段，必須檢查條件；片段未出現某行為不能證明不存在。\n'+String(f.retrievalText||f.text||'').slice(0,2600)};
+ if(f.runtimeEvidence)return {title:f.title,text:'解包片段，必須檢查條件；片段未出現某行為不能證明不存在。\n本輪完整性：'+(f.retrievalScope||'只提供來源視窗；尚未確認完整程式路徑')+'\n'+String(f.retrievalText||f.text||'').slice(0,2600)};
  if(f.playerSummary)return shown;
  const raw=String(f.text||'').trim();
  if(!raw.match(/^[\[{]/))return shown;

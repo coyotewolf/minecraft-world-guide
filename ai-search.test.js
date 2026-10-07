@@ -40,3 +40,23 @@ test('retrieval remains bounded across many related shards while balancing kinds
  const result=await retrieveMany(manifest,['測試主題'],async file=>file==='coverage-index.json'?{subjects}:(reads++,[{id:file,title:'測試主題',search:'測試主題'}]));assert.equal(reads,16);assert(result.coverage.evidenceKinds.includes('行為'));assert.equal(result.coverage.matchedShards,40);
 });
 test('installed data multi-query recipe answers do not pick an upgrade that consumes the named item',async()=>{const m=await read('manifest.json');const r=await retrieveMany(m,['鑽石太刀怎麼製作？'],read);const recipes=r.facts.filter(f=>f.title.startsWith('製作配方')&&f.playerTitle);assert(recipes.length);assert(recipes.every(f=>f.playerTitle.includes('鑽石太刀')));assert(r.facts[0].playerSummary.includes('鑽石劍 × 1'))});
+
+
+test('routine evidence keeps nested success and rejection branches across arbitrary topics',async()=>{
+ const {routineExcerpt}=await import('./evidence-integrity.js');
+ const source='public Result handleActivate(){\n String json="{not a block}"; /* } */\n if (!powered) { return FAIL; }\n if (fuel > 0 && enabled) { useFuel(); return SUCCESS; }\n return PASS;\n}\npublic void unrelated() { explode(); }';
+ const r=routineExcerpt(source);assert(r.complete);assert(r.text.includes('return FAIL'));assert(r.text.includes('fuel > 0 && enabled'));assert(r.text.endsWith('}'));assert(!r.text.includes('unrelated'));
+});
+test('over-budget and incomplete functions explicitly disclose missing conditions rather than appearing complete',async()=>{
+ const {routineExcerpt}=await import('./evidence-integrity.js');
+ const raw='public void process(){\n'+('doWork();\n'.repeat(600))+'if (!safe) { return; }\n}';const r=routineExcerpt(raw,0,800);assert(!r.complete);assert(r.text.includes('條件可能不完整'));assert(r.text.includes('if (!safe)'));
+ const partial=routineExcerpt('public void handleUse(){ if(!valid) { return; }');assert(!partial.complete);assert(partial.reason.includes('未包含函式結尾'));
+});
+
+test('referenced settings are discovered before answering across crafting, logistics, combat and unfamiliar mechanics',async()=>{
+ const {referenceQueries}=await import('./ai-search.js');
+ for(const [query,method,field] of [['合成條件','handleCraft','requiredIngredients'],['自動輸送','handleTransfer','insertLimit'],['射擊條件','handleFire','projectileSpeed'],['未知機器數值','operate','rareThreshold']]){
+  const runtime={runtimeEvidence:true,text:'public Result '+method+'(){ if(!enabled) return FAIL; if(value >= DeviceConfig.'+field+') return SUCCESS; return PASS; }'};
+  assert(referenceQueries([runtime],query).some(q=>q.includes('DeviceConfig.'+field)),query);
+ }
+});

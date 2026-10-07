@@ -15,6 +15,7 @@ on:
       - "tools/build_assistant_bootstrap.mjs"
       - "ai-search.js"
       - "ai-evidence.js"
+      - "evidence-integrity.js"
       - "ai-search.test.js"
       - ".github/workflows/deploy-cloud-ai.yml"
   workflow_dispatch:

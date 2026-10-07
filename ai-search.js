@@ -1,3 +1,4 @@
+import {routineExcerpt} from './evidence-integrity.js';
 const stop=new Set(['請問','在哪','哪裡','怎麼','如何','可以','我想','取得','掉落','製作','合成','配方','材料','機率','什麼','多少','它的','那它','得到','需要','要怎','麼取']);
 export function tokens(q){const text=String(q).toLowerCase(),out=text.match(/[a-z0-9_:.-]+/g)||[];out.push(...out.flatMap(t=>t.split(/[.:]/).filter(part=>part.length>=3&&/[a-z]/.test(part))));for(const run of text.match(/[\u3400-\u9fff]+/g)||[]){if(run.length>2)out.push(run);for(let i=0;i<run.length-1;i++)out.push(run.slice(i,i+2))}return [...new Set(out)].filter(t=>t.length>1&&!stop.has(t))}
 export const recommendation=q=>/無聊|幹嘛|做什麼|玩什麼|推薦|下一個目標|不知道.*(做|玩)|有什麼.*(玩|做)|新手|入門|開始玩|嗨|你好/.test(q);
@@ -27,15 +28,18 @@ const actionQuery=q=>q+' '+[
  [/飛行|會飛/, 'fly flying flight'],
  [/孵|繁殖|成長/, 'hatch egg breed grow'],
  [/破壞|拆|建築安全/, 'grief destroy break block'],
- [/配方|製作|合成/, 'recipe ingredients result'],
- [/自動|輸送|收納/, 'inventory insert extract automation'],
- [/攻擊|傷害|技能|法術/, 'attack damage hurt ability effect']
+ [/配方|製作|合成/, 'recipe ingredients result craft crafting construct'],
+ [/自動|輸送|收納/, 'inventory insert extract automation transfer logistics'],
+ [/攻擊|傷害|技能|法術|射擊|開砲/, 'attack damage hurt ability effect fire shoot projectile'],
+ [/烹|料理|加熱/, 'cook cooking heat temperature fuel'],
+ [/啟動|使用|操作|互動|開啟/, 'use activate interact handle'],
+ [/種植|收成|生長/, 'plant harvest grow']
 ].filter(([pattern])=>pattern.test(q)).map(([,words])=>words).join(' ');
 function focusRuntime(f,q){
  if(!f.runtimeEvidence)return f;
  const words=tokens(actionQuery(q)).filter(t=>/^[a-z]{4,}$/.test(t)),lines=String(f.text||'').split('\n');let best=-1,score=0;
  for(let i=0;i<lines.length;i++){const m=lines[i].match(/\b(?:public|private|protected)\s+(?:static\s+)?[\w<>]+\s+(\w+)\s*\(/);if(!m)continue;const hits=words.filter(w=>m[1].toLowerCase().includes(w)).length,n=hits*(/^(?:handle|try|perform|apply|process)/i.test(m[1])?300:100);if(n>score){score=n;best=i}}
- return best<0?f:{...f,actionScore:score,retrievalText:lines.slice(best,best+65).join('\n').slice(0,2600)};
+ if(best<0)return f;const excerpt=routineExcerpt(lines.slice(best).join('\n'));return {...f,actionScore:score,retrievalText:excerpt.text,retrievalComplete:excerpt.complete,retrievalScope:excerpt.reason};
 }
 // Bounded multi-query retrieval balances evidence kinds before reading shards.
 // Secondary queries broaden wording, never add game facts to the prompt.
@@ -61,7 +65,7 @@ export async function retrieveMany(manifest,queries,read,options={}){
  const ranked=normalized.map((q,i)=>{
   const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows.map((f,i)=>({f:focusRuntime(f,q),score:rows.length-i})).sort((a,b)=>(b.score+(b.f.actionScore||0))-(a.score+(a.f.actionScore||0))).map(x=>x.f);
   const words=[...new Set(tokens(actionQuery(q+' '+q.replace(/([a-z])([A-Z])/g,'$1 $2'))).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)&&!['config','cache','main','data','item','items'].includes(t)))];
-  return rows.map((f,index)=>{let bonus=0,line=-1;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const matches=words.filter(w=>m[1].toLowerCase().includes(w)).length;const score=concrete?(exact?1500:500*Math.max(1,matches)):50;if(score>bonus){bonus=score;line=j}}}return {f:line>=0?{...f,retrievalText:lines.slice(Math.max(0,line-3),line+20).map((text,j)=>j===Math.min(3,line)?text.slice(0,2000):text.slice(0,500)).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
+  return rows.map((f,index)=>{let bonus=0,line=-1,definitionKey=null;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const matches=words.filter(w=>m[1].toLowerCase().includes(w)).length;const score=concrete?(exact?1500:500*Math.max(1,matches)):50;if(score>bonus){bonus=score;line=j;definitionKey=String(f.source||f.mod||'').replace(/:\d+$/,'')+':'+m[1]}}}return {f:line>=0?{...f,definitionKey,retrievalText:lines.slice(Math.max(0,line-3),line+1+Math.max(0,lines.slice(line,line+20).findIndex(text=>/;\s*(?:\/\/.*)?$/.test(text)))).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
  });const facts=[];
  for(let i=0;i<36;i++)for(const list of ranked){const f=list[i];if(f&&!facts.some(x=>x.id===f.id))facts.push(f)}
  // Keep curated reviewed evidence, and concrete activities appropriate to progress.
@@ -72,6 +76,6 @@ export async function retrieveMany(manifest,queries,read,options={}){
 
 export function referenceQueries(facts,q){
  const terms=tokens(actionQuery(q)).filter(t=>/^[a-z][a-z0-9_]*$/.test(t)&&t.length>=4),refs=new Map();
- for(const f of facts.filter(f=>f.runtimeEvidence))for(const ref of String(f.text||'').match(/\b[A-Za-z0-9_]*config[A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){1,4}/gi)||[]){const text=ref.toLowerCase(),score=terms.reduce((sum,t)=>sum+(text.includes(t)?t.length:0),0);if(score>0)refs.set(ref,Math.max(score,refs.get(ref)||0))}
+ for(const f of facts.filter(f=>f.runtimeEvidence))for(const ref of String(f.retrievalText||f.text||'').match(/\b[A-Za-z0-9_]*config[A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){1,4}/gi)||[]){const text=ref.toLowerCase(),score=terms.reduce((sum,t)=>sum+(text.includes(t)?t.length:0),0);refs.set(ref,Math.max(score+(f.actionScore||0)/100,refs.get(ref)||0))}
  return [...refs].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([ref])=>(ref+' '+ref.replace(/([a-z])([A-Z])/g,'$1 $2').split(/[.\s_]+/).filter(t=>t.length>=4&&!/config|cache|^main$|^data$/i.test(t)).join(' ')).slice(0,100));
 }
