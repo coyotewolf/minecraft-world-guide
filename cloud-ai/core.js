@@ -45,14 +45,14 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  if(geminiKey&&await canUse('gemini',0)){
   await options.onUsage?.('gemini','attempt');
   const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},body:JSON.stringify({...(system?{systemInstruction:{parts:[{text:system.content}]}}:{}),contents:messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),generationConfig:{temperature:options.temperature??0.45,maxOutputTokens:outputTokens,responseMimeType:'application/json',responseJsonSchema:options.schema||SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
-  if(r?.ok){const data=await r.json().catch(()=>({}));await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onSpend('gemini',10000,0);await onFailure('gemini',{code:'invalid_answer',delay:10000})}
+  if(r?.ok){const data=await r.json().catch(()=>({}));await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onFailure('gemini',{code:'invalid_answer',delay:0})}
   else
   if(r){await options.onUsage?.('gemini','error');const details=await r.json().catch(()=>({}));const wait=providerFailure(r.status,details,r.headers.get('Retry-After'));await onSpend('gemini',wait.delay,0);await onFailure('gemini',wait)}else{await options.onUsage?.('gemini','error');await onSpend('gemini',60000,0);await onFailure('gemini',{code:'connection',delay:60000})}
  }
  if(env.AI&&await canUse('cloudflare',estimate)){
   // Reserve worst-case tokens before invoking the free binding, even on errors.
   await onSpend('cloudflare',0,estimate);await options.onUsage?.('cloudflare','attempt');
-  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});const settled=qwenNeurons(value.usage);if(settled!==null)await onSpend('cloudflare',0,settled-estimate);await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:10000});await onSpend('cloudflare',10000,0)}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
+  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});const settled=qwenNeurons(value.usage);if(settled!==null)await onSpend('cloudflare',0,settled-estimate);await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:0})}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
  }
  return null;
 }
@@ -137,8 +137,11 @@ export class GuideService{
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
    const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
-   if(!intent){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
-   plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});
+   if(intent){plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});}
+   // Planning improves relevance, but it must never be a single point of failure.
+   // When a provider returns malformed planning JSON, continue with the original question.
+   // Provider/service outages are still handled later by the actual answer call.
+
    }
    normalizedQuestion=plan.query;
   }
@@ -225,7 +228,7 @@ export class GuideService{
     const validateReview=value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)&&(x.searchQueries===undefined||Array.isArray(x.searchQueries)&&x.searchQueries.length<=3&&x.searchQueries.every(q=>typeof q==='string'&&q.trim()&&q.length<=100))};
     for(let pass=0;pass<2;pass++){
      this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:search.coverage.supplemental?0:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
-     if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
+     if(!reviewed)break;
      reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
      if(pass||!extra?.length||search.coverage.supplemental)break;
      const oldFacts=sent.map(f=>f.id),draft=parseModelValue(reply.value);await supplement(extra);
