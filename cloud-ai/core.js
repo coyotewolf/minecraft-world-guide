@@ -5,7 +5,7 @@ import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {resolveSubjects} from '../subject-resolver.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v26-typed-subject-aliases';
+export const ANSWER_CACHE_VERSION='zh-tw-v27-account-chat-deletion';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -188,15 +188,16 @@ export class GuideService{
   return {providers:ready,lastFailures:failures,code:daily?'free_quota':'temporarily_unavailable',retryAt:times.length?Math.min(...times):null,message:daily?'小助手今天的免費額度已用完。聊天紀錄會保留，你仍可使用搜尋。':'小助手暫時忙碌或連線不穩，請稍後按「重試」。聊天紀錄會保留，搜尋也能繼續使用。'};
  }
  async cleanup(){for(const prefix of ['conversation:','request:','cache:','user:','global:','neurons:','usage:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:','request:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
- async ask(uid,question,conversationId,cloudTurns=[]){
+ async saveHistory(key,value){if(!this.historyEpoch)return this.storage.put(key,value);return this.storage.transaction(async tx=>{if((await tx.get(this.historyEpoch.key)||0)===this.historyEpoch.value)await tx.put(key,value)})}
+ async ask(uid,question,conversationId,cloudTurns=null){
   if(this.env.FREE_ONLY_ACK!=='true')return {status:503,body:{error:'雲端問答尚未啟用。請使用解包資料搜尋。'}};
   this.stage='manifest';this.manifest??=await this.read('manifest.json');
   const conversationKey=conversationId?'conversation:'+uid+':'+conversationId:null;
   const saved=conversationKey?await this.storage.get(conversationKey):null;
-  const previous=cloudTurns.length?{questions:cloudTurns.map(t=>t.user),answers:cloudTurns.map(t=>t.assistant),context:cloudTurns.map(t=>t.user).join(' ').slice(-1800)}:saved?.expires>Date.now()?saved:{questions:[],answers:[],context:''};
+  const previous=Array.isArray(cloudTurns)?{questions:cloudTurns.map(t=>t.user),answers:cloudTurns.map(t=>t.assistant),context:cloudTurns.map(t=>t.user).join(' ').slice(-1800)}:saved?.expires>Date.now()?saved:{questions:[],answers:[],context:''};
   previous.questions=Array.isArray(previous.questions)?previous.questions:[];
   previous.answers=Array.isArray(previous.answers)?previous.answers:[];
-  const priorIntent=saved?.expires>Date.now()&&validIntent(saved.intent)?saved.intent:null;
+  const priorIntent=Array.isArray(cloudTurns)&&!cloudTurns.length?null:saved?.expires>Date.now()&&validIntent(saved.intent)?saved.intent:null;
   const day=dayKey(),uk='user:'+day+':'+uid,gk='global:'+day,mk='minute:'+uid;
   const slot=await this.storage.transaction(async tx=>{const limit=await playerLimit(tx,uid),u=await tx.get(uk)||0,g=await tx.get(gk)||0,m=await tx.get(mk)||{at:0,n:0};if(u>=limit||g>=400)return {error:'今日免費問答額度已用完，仍可搜尋解包資料。',status:429};if(Date.now()-m.at<60000&&m.n>=4)return {error:'提問稍快，請等一分鐘再試。',status:429};await tx.put(uk,u+1);await tx.put(gk,g+1);await tx.put(mk,Date.now()-m.at<60000?{at:m.at,n:m.n+1}:{at:Date.now(),n:1});return {remaining:Math.max(0,limit-u-1)}});
   if(slot.error)return {status:slot.status,body:slot};
@@ -210,12 +211,12 @@ export class GuideService{
   if(this.env.CONVERSATION_PLANNER==='true'){
    this.stage='intent';
    const priorTurns=previous.questions.slice(-6).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-6).length)[i]||''}));
-   const intentKey='cache:intent:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const intentKey='cache:intent:'+uid+':'+(conversationId||'new')+':'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion)))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
    const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion,subjectMatches}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
-   if(intent){plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});}
+   if(intent){plan=parseModelValue(intent.value);await this.saveHistory(intentKey,{plan,expires:Date.now()+86400000});}
    // Planning improves relevance, but it must never be a single point of failure.
    // When a provider returns malformed planning JSON, continue with the original question.
    // Provider/service outages are still handled later by the actual answer call.
@@ -297,10 +298,10 @@ export class GuideService{
   // Raw manual categories must not crowd out concrete player instructions.
   for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
-  const remember=async (facts,answer='')=>{if(conversationKey)await this.storage.put(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
+  const remember=async (facts,answer='')=>{if(conversationKey)await this.saveHistory(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
    const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
-   const cacheKey='cache:'+digest,cached=await this.storage.get(cacheKey);
+   const cacheKey='cache:answer:'+uid+':'+(conversationId||'new')+':'+digest,cached=await this.storage.get(cacheKey);
    if(cached&&cached.expires>Date.now()){await remember(cached.body.facts,cached.body.answer);return {status:200,body:{...cached.body,remaining:slot.remaining}}};
    const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f);const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}
    if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
@@ -334,7 +335,7 @@ export class GuideService{
    if(!parsed.answer){await release();return {status:200,body:{facts:[],answer:'目前資料不足以可靠回答這題。',message:'目前資料不足以可靠回答這題。'}}}
    if(!facts.length){await remember([],parsed.answer);return {status:200,body:{facts:[],answer:parsed.answer,message:parsed.answer,provider:reply.provider,version:this.manifest.version,intent:plan,remaining:slot.remaining}}}
    const body={facts,answer:parsed.answer,provider:reply.provider,version:this.manifest.version,message:parsed.answer,intent:plan};
-   await this.storage.put(cacheKey,{body,expires:Date.now()+86400000});await remember(facts,parsed.answer);return {status:200,body:{...body,remaining:slot.remaining}};
+   await this.saveHistory(cacheKey,{body,expires:Date.now()+86400000});await remember(facts,parsed.answer);return {status:200,body:{...body,remaining:slot.remaining}};
   }catch(error){await release();throw error}finally{this.requestReads=null}
  }
 }

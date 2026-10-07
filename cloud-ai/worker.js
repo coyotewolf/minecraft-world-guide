@@ -8,9 +8,14 @@ export class GuideCoordinator extends DurableObject{
  availability(){return this.service.availability()}
  async adminReport(roster){const [report,official]=await Promise.all([quotaReport(this.ctx.storage,dayKey(),roster,await this.service.availability()),this.providerQuotas.report()]);for(const p of report.providers){p.official=official.providers.find(o=>o.provider===p.provider);p.providerRemaining=p.official?.remaining??null;p.providerRemainingReason=p.official?.reason||p.providerRemainingReason}return report}
  adminChange(change,adminId){return changeQuota(this.ctx.storage,change,adminId)}
- async ask(uid,question,conversationId,cloudTurns=[],requestId){
+ async forget(uid,cid){
+  const epochKey='history-epoch:'+uid+':'+cid,active=[...this.inflight.keys()].some(k=>k.startsWith('request:'+uid+':'+cid+':'));
+  await this.ctx.storage.transaction(async tx=>{const prefixes=['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':'];const existing=await tx.get('conversation:'+uid+':'+cid);const pages=await Promise.all(prefixes.map(prefix=>tx.list({prefix,limit:1})));if(!active&&!existing&&pages.every(p=>!p.size))return;await tx.put(epochKey,(await tx.get(epochKey)||0)+1);await tx.delete('conversation:'+uid+':'+cid);for(const prefix of ['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':']){let after;do{const page=await tx.list({prefix,limit:100,...(after?{startAfter:after}:{})});const keys=[...page.keys()];if(!keys.length)break;after=keys.at(-1);await tx.delete(keys);if(keys.length<100)break}while(true)}});
+ }
+ async ask(uid,question,conversationId,cloudTurns=null,requestId){
   const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+requestId:null;
   if(key&&this.inflight.has(key))return this.inflight.get(key);
+  const epochKey=conversationId?'history-epoch:'+uid+':'+conversationId:null,epoch=epochKey?(await this.ctx.storage.get(epochKey)||0):0;
   const run=(async()=>{
    if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);
    try{
@@ -20,8 +25,11 @@ export class GuideCoordinator extends DurableObject{
     // Each request gets isolated mutable retrieval/model state while shared
     // quota counters remain protected by Durable Object storage transactions.
     const service=new GuideService(this.ctx.storage,this.env);
+    if(epochKey)service.historyEpoch={key:epochKey,value:epoch};
     const result=await service.ask(uid,question,conversationId,cloudTurns);
-    if(key&&result.status===200)await this.ctx.storage.put(key,{question,result,expires:Date.now()+86400000});
+    if(epochKey&&(await this.ctx.storage.get(epochKey)||0)!==epoch)return {status:409,body:{error:'對話已變更，請重新開啟聊天室後再傳送。'}};
+    if(key&&result.status===200)await service.saveHistory(key,{question,result,expires:Date.now()+86400000});
+    if(epochKey&&(await this.ctx.storage.get(epochKey)||0)!==epoch)return {status:409,body:{error:'對話已變更，請重新開啟聊天室後再傳送。'}};
     return result;
    }catch(error){
     const m=String(error?.message||'');
@@ -56,11 +64,16 @@ export default {async fetch(request,env){
    return send(await coordinator.adminReport(roster));
   }catch{return send({error:'無法讀取問答用量，請稍後重試。'},503)}
  }
+ if(new URL(request.url).pathname==='/forget'&&request.method==='POST'){
+  const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入玩家帳號。'},401);
+  let cid;try{const input=JSON.parse(await boundedBody(request));cid=questionBody({question:'清除對話',conversationId:input.conversationId}).conversationId;if(!cid)throw Error()}catch{return send({error:'對話格式不正確。'},400)}
+  await env.GUIDE.getByName('aoi-free-guide').forget(uid,cid);return send({ok:true});
+ }
  if(new URL(request.url).pathname!=='/ask'||request.method!=='POST')return send({error:'找不到這個功能。'},404);
  try{if(Number(request.headers.get('Content-Length')||0)>4096)return send({error:'問題過長。'},413);let text;try{text=await boundedBody(request)}catch{return send({error:'問題過長。'},413)}let body;try{body=questionBody(JSON.parse(text))}catch{return send({error:'請輸入 1～600 字的問題。'},400)}
  const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入已通過審核的玩家帳號。'},401);
- let cloudTurns=[];
- if(body.conversationId){try{const url=new URL(env.SUPABASE_URL+'/rest/v1/assistant_messages');url.search=new URLSearchParams({select:'role,text',user_id:'eq.'+uid,conversation_id:'eq.'+body.conversationId,order:'created_at.desc,id.desc',limit:'24'});const r=await fetch(url,{headers:{Authorization:request.headers.get('Authorization'),apikey:env.SUPABASE_KEY},signal:AbortSignal.timeout(5000)});if(r.ok){const messages=(await r.json()).reverse();if(messages.at(-1)?.role==='user'&&messages.at(-1).text===body.question)messages.pop();for(const m of messages){if(m.role==='user')cloudTurns.push({user:String(m.text).slice(0,600),assistant:''});else if(cloudTurns.length&&!/免費.*(?:用完|無法)|暫時.*(?:忙碌|連線|回覆|無法)|等候較久/.test(m.text))cloudTurns.at(-1).assistant=String(m.text).slice(0,1600)}cloudTurns=cloudTurns.filter(t=>t.assistant).slice(-10)}}catch{}}
+ let cloudTurns=null;
+ if(body.conversationId){try{const url=new URL(env.SUPABASE_URL+'/rest/v1/assistant_messages');url.search=new URLSearchParams({select:'role,text',user_id:'eq.'+uid,conversation_id:'eq.'+body.conversationId,order:'created_at.desc,id.desc',limit:'24'});const r=await fetch(url,{headers:{Authorization:request.headers.get('Authorization'),apikey:env.SUPABASE_KEY},signal:AbortSignal.timeout(5000)});if(r.ok){cloudTurns=[];const messages=(await r.json()).reverse();if(messages.at(-1)?.role==='user'&&messages.at(-1).text===body.question)messages.pop();for(const m of messages){if(m.role==='user')cloudTurns.push({user:String(m.text).slice(0,600),assistant:''});else if(cloudTurns.length&&!/免費.*(?:用完|無法)|暫時.*(?:忙碌|連線|回覆|無法)|等候較久/.test(m.text))cloudTurns.at(-1).assistant=String(m.text).slice(0,1600)}cloudTurns=cloudTurns.filter(t=>t.assistant).slice(-10)}}catch{}}
  const result=await env.GUIDE.getByName('aoi-free-guide').ask(uid,body.question,body.conversationId,cloudTurns,body.requestId);return send(result.body,result.status);
  }catch{return send({error:'問答暫時無法連線，解包搜尋仍可使用。'},503)}
 }};

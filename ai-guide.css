@@ -7,3 +7,5 @@
 #assistant-more{align-self:center;margin:8px 0 0;padding:5px 10px;font-size:12px;flex-shrink:0}
 
 .assistant-header button{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;padding:6px}.assistant-header svg{pointer-events:none;flex-shrink:0}
+
+#assistant-delete-panel{margin:0;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--raised);flex-shrink:0}#assistant-delete-panel[hidden]{display:none}#assistant-delete-panel p{margin:0 0 8px;font-size:13px;line-height:1.5;overflow-wrap:anywhere}.assistant-delete-warning{color:var(--muted)}.assistant-delete-actions{display:flex;justify-content:flex-end;gap:8px}.assistant-delete-actions button{padding:6px 12px}#assistant-delete-confirm{border-color:#a65e4e}.assistant-delete-message{display:flex;align-items:center;justify-content:center;margin:7px 0 0 auto;width:30px;height:30px;min-height:30px;padding:4px;color:var(--muted);background:transparent}.assistant-delete-message:hover,.assistant-delete-message:focus-visible{color:var(--ink);background:var(--raised)}.assistant-delete-message svg{pointer-events:none}
