@@ -267,13 +267,14 @@ export class GuideService{
    .filter(f=>!plan||plan.facet!=='companions'||hasNamedSubject||f.category==='companions')
    .map(f=>{
     const hay=(f.title+' '+f.search+' '+(f.labels||[]).join(' ')).toLowerCase();
+    const namedMatch=gameplayFocus.some(t=>hay.includes(t)||t.includes(f.title.toLowerCase()));
     const focusScore=gameplayFocus.reduce((n,t)=>n+(hay.includes(t)||t.includes(f.title.toLowerCase())?Math.min(18,t.length*2):0),0);
-    return {f,score:rank(f)+focusScore||(!hasNamedSubject&&plan?.facet==='companions'?1:0)};
+    return {f,namedMatch,score:rank(f)+focusScore||(!hasNamedSubject&&plan?.facet==='companions'?1:0)};
    })
-   // Do not hard-filter whole-pack gameplay by the retrieval locator. A locator
-   // can anchor on a related item (for example "召喚魔法：X") while the useful
-   // gameplay record is the named boss/creature X itself.
-   .filter(x=>x.score>0)
+   // Named companion acquisition must stay on the named creature; generic
+   // companion cards must not crowd out runtime taming evidence. Other facets
+   // may bridge related item anchors (for example "召喚魔法：X" -> boss X).
+   .filter(x=>x.score>0&&!(plan?.facet==='companions'&&hasNamedSubject&&!x.namedMatch))
    .sort((a,b)=>b.score-a.score)
    .slice(0,plan?.mode==='list'?48:12)
    .map(x=>x.f);
