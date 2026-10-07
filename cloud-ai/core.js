@@ -219,7 +219,7 @@ export class GuideService{
    // Provider/service outages are still handled later by the actual answer call.
 
    }
-   normalizedQuestion=plan.query;
+   if(plan)normalizedQuestion=plan.query;
   }
   this.stage='retrieval';const search=await retrieveMany(this.manifest,[normalizedQuestion,...(plan?.queries||[])],file=>this.read(file),{advanced:plan?.progress==='advanced',list:plan?.mode==='list'});const current=search.facts;
   const contextual=!plan&&previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
