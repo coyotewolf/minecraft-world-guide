@@ -64,7 +64,12 @@ jobs:
             total += rows.length;
           }
           if (total !== index.count) throw new Error('Knowledge count mismatch: ' + total + ' != ' + index.count);
-          console.log('Validated gameplay knowledge records:', total);
+          const all = index.shards.flatMap(shard => JSON.parse(fs.readFileSync('data/ai/' + shard.file, 'utf8')));
+          const gundyr = all.find(row => row.id === 'runtime:slu:item:gundyr_axespear');
+          if (!gundyr || !String(gundyr.playerSummary).includes('最大耐久度：1800')) throw new Error('SLU runtime item extraction missing Gundyr durability');
+          const runtimeCount = all.filter(row => String(row.id||'').startsWith('runtime:slu:item:')).length;
+          if (runtimeCount < 700) throw new Error('SLU runtime item extraction incomplete: ' + runtimeCount);
+          console.log('Validated gameplay knowledge records:', total, 'SLU runtime items:', runtimeCount);
           NODE
 
       - name: Verify Traditional Chinese translation dictionaries

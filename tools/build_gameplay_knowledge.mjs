@@ -39,6 +39,53 @@ for(const pack of inventory)for(const m of pack.mods||[])knowledge.push({
   labels:[pack.file,m.id,m.name].filter(Boolean),source:'目前整合包模組清單',playerTitle:m.name||m.id,
   playerSummary:clip([m.description,'目前安裝版本：'+(m.version||'未知'),'安裝檔：'+pack.file].filter(Boolean).join('\n'),1000)
 });
+
+// SLU used to expose only recipes/tags to the assistant. The actual Item
+// classes contain durability, repair material, armor material and procedure
+// references, so keep a compact bytecode-derived runtime map in gameplay data.
+const runtimeNames={};
+try{
+  const nameIndex=read('data/ai/translation-registry-index.json');
+  for(const file of nameIndex.shards||[])Object.assign(runtimeNames,read('data/ai/'+file));
+}catch{}
+function registryFieldId(field){return field?'slu:'+field.toLowerCase():''}
+function runtimeSummary(id,row){
+  const lines=['物品：slu:'+id,'程式類別：'+row.c];
+  if(row.s)lines.push('基底類別：'+row.s);
+  if(row.t){
+    if(Number.isFinite(row.t.durability))lines.push('最大耐久度：'+row.t.durability);
+    if(Number.isFinite(row.t.miningSpeed))lines.push('挖掘速度：'+row.t.miningSpeed);
+    if(Number.isFinite(row.t.tierAttackBonus))lines.push('Tier 攻擊加成：'+row.t.tierAttackBonus);
+    if(Number.isFinite(row.t.enchantability))lines.push('附魔能力：'+row.t.enchantability);
+    if(row.t.repairRegistryField)lines.push('修復材料：'+registryFieldId(row.t.repairRegistryField));
+  }
+  if(row.a){
+    const suffix=id.match(/_(helmet|chestplate|leggings|boots)$/)?.[1],slot={boots:0,leggings:1,chestplate:2,helmet:3}[suffix];
+    if(slot!==undefined&&Array.isArray(row.a.baseDurabilityBySlot)&&Number.isFinite(row.a.durabilityMultiplier))lines.push('最大耐久度：'+row.a.baseDurabilityBySlot[slot]*row.a.durabilityMultiplier);
+    if(slot!==undefined&&Array.isArray(row.a.defenseBySlot))lines.push('護甲值：'+row.a.defenseBySlot[slot]);
+    if(Number.isFinite(row.a.enchantability))lines.push('附魔能力：'+row.a.enchantability);
+    if(Number.isFinite(row.a.toughness))lines.push('韌性：'+row.a.toughness);
+    if(Number.isFinite(row.a.knockbackResistance))lines.push('擊退抗性：'+row.a.knockbackResistance);
+    if(row.a.repairRegistryField)lines.push('修復材料：'+registryFieldId(row.a.repairRegistryField));
+  }
+  if(Array.isArray(row.p)&&row.p.length)lines.push('直接呼叫程序：'+row.p.join('、'));
+  return lines.join('\n');
+}
+try{
+  const runtime=read('data/ai/slu-item-runtime-map.json');
+  for(const [id,row] of Object.entries(runtime)){
+    const registry='slu:'+id,name=runtimeNames[registry]||registry,summary=runtimeSummary(id,row);
+    knowledge.push({
+      id:'runtime:slu:item:'+id,kind:'runtime',title:name+' · 物品程式設定',category:'物品程式設定',
+      search:clip([name,registry,row.c,row.s,...(row.p||[]),'耐久 durability 最大耐久 修復 repair 損壞 damage 無限耐久 unbreakable 護甲 armor 附魔 enchantability'].filter(Boolean).join(' '),1400),
+      labels:[name,registry,row.c].filter(Boolean),
+      source:'使用者提供的魂系 SLU JAR：net/mcreator/slu/item/'+row.c+'.class',
+      playerTitle:name+' 的程式設定',playerSummary:summary,runtimeEvidence:true,
+      retrievalText:summary,retrievalScope:'直接由目前 SLU JAR 的 Item class bytecode 與其 Tier／ArmorMaterial 實作整理；程序造成的額外效果需再查被呼叫的 procedure。'
+    });
+  }
+}catch(error){console.warn('SLU runtime item map unavailable:',error.message)}
+
 const out=new URL('../data/ai/',import.meta.url);
 const shardSize=220,index=[];
 for(let i=0;i<knowledge.length;i+=shardSize){
