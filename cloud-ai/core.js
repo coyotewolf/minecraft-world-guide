@@ -2,9 +2,10 @@ import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
 import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.js';
 import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
+import {resolveSubjects} from '../subject-resolver.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v25-general-dependency-evidence';
+export const ANSWER_CACHE_VERSION='zh-tw-v26-typed-subject-aliases';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -202,8 +203,9 @@ export class GuideService{
   const release=()=>this.storage.transaction(async tx=>{await tx.put(uk,Math.max(0,(await tx.get(uk)||0)-1));await tx.put(gk,Math.max(0,(await tx.get(gk)||0)-1))});
   this.requestReads=new Map();this.assetReadCount=0;
   try{
-  this.stage='bootstrap';await this.loadBootstrap();
+  this.stage='bootstrap';await this.loadBootstrap();if(this.bootstrap?.subjectRegistry)this.manifest._subjectRegistry??=this.bootstrap.subjectRegistry;
   let normalizedQuestion=question.replace(/簑釉龍|簑鮋龍|蓑釉龍/g,'蓑鮋龍');
+  const subjectMatches=resolveSubjects(this.bootstrap?.subjectRegistry,normalizedQuestion).map(({id,type,name})=>({id,type,name}));
   let plan=null;
   if(this.env.CONVERSATION_PLANNER==='true'){
    this.stage='intent';
@@ -212,7 +214,7 @@ export class GuideService{
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion,subjectMatches}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
    if(intent){plan=parseModelValue(intent.value);await this.storage.put(intentKey,{plan,expires:Date.now()+86400000});}
    // Planning improves relevance, but it must never be a single point of failure.
    // When a provider returns malformed planning JSON, continue with the original question.
@@ -221,7 +223,7 @@ export class GuideService{
    }
    if(plan)normalizedQuestion=plan.query;
   }
-  this.stage='retrieval';const search=await retrieveMany(this.manifest,[normalizedQuestion,...(plan?.queries||[])],file=>this.read(file),{advanced:plan?.progress==='advanced',list:plan?.mode==='list'});const current=search.facts;
+  this.stage='retrieval';const search=await retrieveMany(this.manifest,[question,normalizedQuestion,...(plan?.queries||[])],file=>this.read(file),{advanced:plan?.progress==='advanced',list:plan?.mode==='list'});const current=search.facts;
   const contextual=!plan&&previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
   // Unnamed conversational requests also get playable facts. The model can
   // infer intent without a growing list of hard-coded recommendation phrases.
@@ -278,7 +280,7 @@ export class GuideService{
    .sort((a,b)=>b.score-a.score)
    .slice(0,plan?.mode==='list'?48:12)
    .map(x=>x.f);
-  const candidates=[];
+  const candidates=current.filter(f=>f.registrySubject);
   if(plan?.mode==='list'&&!['drops','bossDrops'].includes(plan.facet)&&broad.length>4){
    const names=broad.filter(f=>f.kind==='collection'||f.kind==='inventory');
    const entries=[];let listBytes=0;for(const f of names){const entry=(f.playerTitle||f.title)+'：'+f.playerSummary;const size=new TextEncoder().encode(entry).length;if(listBytes+size>5500)continue;entries.push(entry);listBytes+=size}
@@ -304,7 +306,7 @@ export class GuideService{
    if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
     const supplement=async queries=>{
      this.stage='supplemental-evidence';const topic=(plan?.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
-     const retained=[];let reserved=0;for(const f of [...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].slice(0,1)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
+     const retained=[];let reserved=0;for(const f of [...current.filter(f=>f.registrySubject),...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].filter((f,i,all)=>all.findIndex(x=>x.id===f.id)===i).slice(0,2)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
      const pool=[...retained,...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
      for(const f of pool){const key=f.definitionKey||f.id;if(ids.has(key))continue;ids.add(key);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;

@@ -5,6 +5,19 @@ class Store{constructor(){this.values=new Map();this.queue=Promise.resolve()}asy
 const fact={id:'test-id',title:'魔法之眼',search:'魔法之眼',text:'森林豪宅寶箱',labels:[],shard:'one.json'};
 function setup(){const storage=new Store(),env={FREE_ONLY_ACK:'true',AI:{run:async()=>({response:{answer:'這是根據資料整理的回答。',factIds:['1']}})},ASSETS:{fetch:async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[{file:'one.json',terms:'魔法之眼'}]}:[fact])}};return {storage,env,service:new GuideService(storage,env)}}
 const trophyPlan={query:'首領 獎盃 掉落',mode:'list',facet:'bossDrops',focus:['獎盃','trophy'],useHistory:false,progress:'advanced',exclude:[]};
+test('raw typed question reaches the first writer even if the planner drops the book type',async()=>{
+ const fs=await import('node:fs/promises'),storage=new Store(),counts=new Map();let calls=0;
+ const env={FREE_ONLY_ACK:'true',CONVERSATION_PLANNER:'true',ASSETS:{fetch:async r=>{const file=r.url.split('/').at(-1);counts.set(file,(counts.get(file)||0)+1);try{return Response.json(JSON.parse(await fs.readFile(new URL('../data/ai/'+file,import.meta.url),'utf8')))}catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{
+  const context=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));
+  if(++calls===1)return {response:{...trophyPlan,query:'法術書 容量 用途',mode:'mechanism',facet:'none',focus:['容量']}};
+  assert(context.facts[0].title.includes('擴充'));
+  assert(context.facts[0].text.includes('正常最高 III'));
+  assert(context.facts[0].text.includes('Northstar'));
+  assert(context.retrievalCoverage.resolvedSubjects.some(r=>r.id==='create:capacity'&&r.type==='enchantment'));
+  return {response:{answer:'容量是增加背罐空氣上限的附魔，最高 III。',factIds:['1']}};
+ }}};
+ const result=await new GuideService(storage,env).ask('u','容量 附魔書可以做什麼');assert.equal(result.status,200);assert.equal(calls,2);assert(counts.size<=40);assert([...counts.values()].every(n=>n===1));assert.equal(await storage.get('user:'+dayKey()+':u'),1);
+});
 const trophyCatalog={references:2,scope:'測試資料的直接掉落表，不含伺服器覆寫',rows:['契瑟德','蓋布拉','馬爾庫特'].map((name,i)=>({itemName:name+'獎盃',itemId:'test:'+i+'_trophy',sourceName:name,sourceId:'test:'+i,boss:true,detail:'此掉落表每次執行必出，數量 1。'}))};
 
 test('an evidence gap still reaches chat AI with explicit bounded scope instead of a fixed fallback',async()=>{

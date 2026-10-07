@@ -1,6 +1,42 @@
 import fs from 'node:fs/promises';import test from 'node:test';import assert from 'node:assert/strict';import {retrieve,tokens} from './ai-search.js';import {playerEvidence} from './ai-evidence.js';
 import {retrieveMany} from './ai-search.js';
 import {modelEvidence} from './ai-evidence.js';
+import {resolveSubjects} from './subject-resolver.js';
+
+test('typed aliases resolve books to enchantments, preserve collisions, and avoid item-name substrings',()=>{
+ const records=[{id:'pack:volume',type:'enchantment',name:'擴充',aliases:['容量','Capacity']},{id:'other:volume',type:'enchantment',name:'容量',aliases:['Capacity']},{id:'spell:volume',type:'effect',name:'容量',aliases:['Capacity']}];
+ assert.deepEqual(resolveSubjects({records},'容量 附魔書有什麼用').map(r=>r.id),['pack:volume','other:volume']);
+ assert.equal(resolveSubjects({records},'Capacity 附魔書').length,2);
+ assert.equal(resolveSubjects({records},'capacity_card 材料').length,0);
+ assert.equal(resolveSubjects({records},'法術書的容量').length,0);
+});
+
+test('installed enchantment aliases retrieve capacity mechanics instead of spell-book storage',async()=>{
+ for(const query of ['容量 附魔書可以做什麼','容量附魔書有啥用','附魔書「容量」是幹嘛的','擴充附魔最高幾級','Capacity 附魔效果']){
+  const manifest=await read('manifest.json'),result=await retrieveMany(manifest,[query],read);
+  assert.equal(result.facts[0].registrySubject.id,'create:capacity',query);
+  assert(result.facts[0].playerSummary.includes('正常最高 III'));
+  assert(result.facts[0].playerSummary.includes('Northstar'));
+  assert(result.coverage.resolvedSubjects.some(r=>r.type==='enchantment'&&r.id==='create:capacity'));
+  assert(!result.facts.some(f=>f.source?.includes('iss_guide_book')),query);
+  assert(result.coverage.readShards<=16);
+ }
+});
+
+test('an unfamiliar typed subject locates its definition and cross-mod runtime without generic book anchors',async()=>{
+ const row={id:'pack:echo',type:'enchantment',name:'迴響',aliases:['回音','Echo'],description:'增加裝備回音範圍。',source:'pack.jar!lang/zh_tw.json',refs:[{file:'runtime',factId:'handler'}]};
+ const manifest={subjectRegistry:'typed',shards:[{file:'runtime',terms:'EchoEnchantment',kinds:['行為']},{file:'manual',terms:'附魔書 法術書',kinds:['手冊']}]};
+ const pages={typed:{records:[row]},'coverage-index.json':{subjects:{'附魔書':[['manual',['手冊']]]}},runtime:[{id:'handler',title:'模組行為 · EchoHandler',text:'EchoEnchantment.canApplyAtEnchantingTable',search:'EchoEnchantment',runtimeEvidence:true}],manual:[{id:'wrong',title:'附魔書',search:'附魔書',text:'不相關的卷軸'}]};
+ const result=await retrieveMany(manifest,['回音 附魔書可以做什麼'],async f=>pages[f]);
+ assert.equal(result.facts[0].registrySubject.id,'pack:echo');assert(result.facts.some(f=>f.id==='handler'));assert(!result.facts.some(f=>f.id==='wrong'));
+});
+
+test('installed typed lookup also supports unrelated mod enchantments and status-effect wording',async()=>{
+ for(const [query,id,text] of [['雲端之上 附魔书有什麼效果','create_sa:above_the_clouds','無限制'],['霜寒附魔書有什麼用','northstar:frostbite','冰凍傷害'],['失明效果是什麼','minecraft:blindness','名稱']]){
+  const result=await retrieveMany(await read('manifest.json'),[query],read);
+  assert.equal(result.facts[0].registrySubject.id,id,query);assert(result.facts[0].playerSummary.includes(text));
+ }
+});
 
 test('reference follow-up finds related configuration definitions beyond shortened search text',async()=>{
  const manifest={shards:[{file:'actor',terms:'試驗獸 馴服',ids:['test'],kinds:['馴服與餵食']},{file:'config',terms:'設定',ids:['test'],kinds:['模組資料']}]};

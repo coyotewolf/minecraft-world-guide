@@ -1,4 +1,5 @@
 import {routineExcerpt} from './evidence-integrity.js';
+import {resolveSubjects,subjectFact} from './subject-resolver.js';
 const stop=new Set(['請問','在哪','哪裡','怎麼','如何','可以','我想','取得','掉落','製作','合成','配方','材料','機率','什麼','多少','它的','那它','得到','需要','要怎','麼取']);
 export function tokens(q){const text=String(q).toLowerCase(),out=text.match(/[a-z0-9_:.-]+/g)||[];out.push(...out.flatMap(t=>t.split(/[.:]/).filter(part=>part.length>=3&&/[a-z]/.test(part))));for(const run of text.match(/[\u3400-\u9fff]+/g)||[]){if(run.length>2)out.push(run);for(let i=0;i<run.length-1;i++)out.push(run.slice(i,i+2))}return [...new Set(out)].filter(t=>t.length>1&&!stop.has(t))}
 export const recommendation=q=>/無聊|幹嘛|做什麼|玩什麼|推薦|下一個目標|不知道.*(做|玩)|有什麼.*(玩|做)|新手|入門|開始玩|嗨|你好/.test(q);
@@ -18,7 +19,7 @@ export async function activityPool(manifest,q,read,options={}){
  for(const row of [...matched,...playable.flatMap(article=>rows.filter(f=>f.article===article))])if(!picks.some(f=>f.id===row.id))picks.push(row);
  return picks.slice(0,12);
 }
-export async function retrieve(manifest,q,read){const query=expanded(q),terms=tokens(query),wanted=intent(q);let anchors=[],files=[],reviewed=[];if(manifest.reviewed){manifest._reviewed??=await read(manifest.reviewed);reviewed=manifest._reviewed.filter(f=>f.matchAll?.every(group=>group.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))}const picks=recommendation(q)?await activityPool(manifest,q,read):[];if(manifest.entityIndex){manifest._entities??=await read(manifest.entityIndex);const normalized=q.toLowerCase();const matched=Object.keys(manifest._entities).filter(n=>normalized.includes(n));anchors=matched.filter(n=>!matched.some(other=>other.length>n.length&&other.includes(n)));files=[...new Set(anchors.flatMap(n=>manifest._entities[n]))]}const ranked=manifest.shards.map(s=>{let n=terms.reduce((n,t)=>n+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0);if(n&&wanted&&s.kinds?.includes(wanted))n+=2;if(files.includes(s.file))n+=100;return {s,n}}).filter(x=>x.n>0&&(!files.length||files.includes(x.s.file))).sort((a,b)=>b.n-a.n);const found=[];for(const {s} of ranked.slice(0,8))found.push(...rank(await read(s.file),query,24,anchors));return [...reviewed,...rank(found,query),...picks].filter((f,i,all)=>all.findIndex(v=>v.id===f.id)===i).slice(0,18)}
+export async function retrieve(manifest,q,read){if(manifest.subjectRegistry)return (await retrieveMany(manifest,[q],read)).facts.slice(0,18);const query=expanded(q),terms=tokens(query),wanted=intent(q);let anchors=[],files=[],reviewed=[];if(manifest.reviewed){manifest._reviewed??=await read(manifest.reviewed);reviewed=manifest._reviewed.filter(f=>f.matchAll?.every(group=>group.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))}const picks=recommendation(q)?await activityPool(manifest,q,read):[];if(manifest.entityIndex){manifest._entities??=await read(manifest.entityIndex);const normalized=q.toLowerCase();const matched=Object.keys(manifest._entities).filter(n=>normalized.includes(n));anchors=matched.filter(n=>!matched.some(other=>other.length>n.length&&other.includes(n)));files=[...new Set(anchors.flatMap(n=>manifest._entities[n]))]}const ranked=manifest.shards.map(s=>{let n=terms.reduce((n,t)=>n+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0);if(n&&wanted&&s.kinds?.includes(wanted))n+=2;if(files.includes(s.file))n+=100;return {s,n}}).filter(x=>x.n>0&&(!files.length||files.includes(x.s.file))).sort((a,b)=>b.n-a.n);const found=[];for(const {s} of ranked.slice(0,8))found.push(...rank(await read(s.file),query,24,anchors));return [...reviewed,...rank(found,query),...picks].filter((f,i,all)=>all.findIndex(v=>v.id===f.id)===i).slice(0,18)}
 
 // Bilingual action vocabulary locates code and JSON fields; it adds search
 // terms only, never assumed mechanics or game facts.
@@ -32,6 +33,7 @@ const actionQuery=q=>q+' '+[
  [/自動|輸送|收納/, 'inventory insert extract automation transfer logistics'],
  [/攻擊|傷害|技能|法術|射擊|開砲/, 'attack damage hurt ability effect fire shoot projectile'],
  [/耐久|損壞|會壞|不會壞|不消耗耐久|無限耐久/, 'durability maxDamage damageValue hurtAndBreak isDamageable unbreakable damage item properties'],
+ [/附魔|魔咒|enchant/i, 'enchantment enchant canApplyAtEnchantingTable compatible level'],
  [/烹|料理|加熱/, 'cook cooking heat temperature fuel'],
  [/啟動|使用|操作|互動|開啟/, 'use activate interact handle'],
  [/種植|收成|生長/, 'plant harvest grow']
@@ -48,11 +50,14 @@ export async function retrieveMany(manifest,queries,read,options={}){
  const normalized=[...new Set(queries.filter(q=>typeof q==='string'&&q.trim()).map(q=>q.trim().slice(0,180)))].slice(0,4),cache=new Map();
  const once=file=>{if(!cache.has(file))cache.set(file,read(file));return cache.get(file)};
  if(!manifest._coverage)manifest._coverage=await once('coverage-index.json').catch(()=>({subjects:{}}));
+ if(manifest.subjectRegistry&&!manifest._subjectRegistry)manifest._subjectRegistry=await once(manifest.subjectRegistry);
+ const typedByQuery=normalized.map(q=>resolveSubjects(manifest._subjectRegistry,q));
  const locator=manifest._coverage.subjects||{};
  let codeLookup={};if(options.related){const words=normalized.flatMap(tokens).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)).sort((a,b)=>b.length-a.length);const prefixes=[...new Set(words.map(t=>t[0]))].slice(0,4);for(const prefix of prefixes){const file=manifest._coverage.codeLookup?.[prefix];if(file)Object.assign(codeLookup,await once(file))}}
- const anchorsByQuery=[];const choices=normalized.map(q=>{
-  const matched=Object.keys(locator).filter(n=>q.toLowerCase().includes(n));const names=matched.filter(n=>!matched.some(o=>o.length>n.length&&o.includes(n)));anchorsByQuery.push(names);
-  const files=new Map();for(const name of names)for(const entry of locator[name]){const [file,kinds]=Number.isInteger(entry)?manifest._coverage.files[entry]:entry;files.set(file,kinds)};
+ const anchorsByQuery=[];const choices=normalized.map((q,index)=>{
+  const typed=typedByQuery[index],matched=Object.keys(locator).filter(n=>q.toLowerCase().includes(n));const names=typed.length?typed.map(r=>r.id):matched.filter(n=>!matched.some(o=>o.length>n.length&&o.includes(n)));anchorsByQuery.push(names);
+  const files=new Map();for(const name of names)for(const entry of locator[name]||[]){const [file,kinds]=Number.isInteger(entry)?manifest._coverage.files[entry]:entry;files.set(file,kinds)};
+  for(const row of typed)for(const ref of row.refs||[]){const shard=manifest.shards.find(s=>s.file===ref.file);if(shard)files.set(ref.file,shard.kinds||['模組行為'])}
   if(options.related&&files.size){const mods=new Set(manifest.shards.filter(s=>files.has(s.file)).flatMap(s=>s.ids||[]));for(const s of manifest.shards)if(s.ids?.some(id=>mods.has(id)))files.set(s.file,s.kinds||['其他'])}
   const referenced=new Set(tokens(q).flatMap(t=>(codeLookup[t]||[]).map(i=>manifest._coverage.files[i][0])));
   const terms=tokens(actionQuery(q));return manifest.shards.map(s=>{const score=terms.reduce((sum,t)=>sum+(s.terms.toLowerCase().includes(t)?(t.length>2?3:1):0),0)+(files.has(s.file)?100:0)+(referenced.has(s.file)?300:0);return {s,score,kinds:files.get(s.file)||s.kinds||['其他']}}).filter(x=>x.score>0&&(!files.size||files.has(x.s.file))).sort((a,b)=>b.score-a.score||a.s.file.localeCompare(b.s.file));
@@ -62,7 +67,10 @@ export async function retrieveMany(manifest,queries,read,options={}){
  // subject locator cannot exclude runtime, config or manual evidence anymore.
  const covered=choices.map(()=>new Set());for(let round=0;round<16&&picked.size<16;round++)for(let i=0;i<choices.length;i++){const row=choices[i].find(x=>x.kinds.some(k=>!covered[i].has(k)));if(row){if(picked.size<16)picked.set(row.s.file,row);for(const kind of row.kinds)covered[i].add(kind)}}
  for(let i=0;i<16&&picked.size<16;i++)for(const list of choices){const row=list[i];if(row&&picked.size<16)picked.set(row.s.file,row)}
- const pages=await Promise.all([...picked.keys()].map(once)),all=pages.flat();
+ const pages=await Promise.all([...picked.keys()].map(once)),resolved=[...new Map(typedByQuery.flat().map(r=>[r.type+':'+r.id,r])).values()];
+ const typedFacts=resolved.map(row=>subjectFact(row,manifest.subjectRegistry));
+ const assignments=new Map();for(const row of resolved)for(const ref of row.refs||[]){if(!assignments.has(ref.factId))assignments.set(ref.factId,[]);assignments.get(ref.factId).push(row.id)}
+ const all=pages.flat().map(f=>assignments.has(f.id)?{...f,labels:[...(f.labels||[]),...assignments.get(f.id)]}:f);
  const ranked=normalized.map((q,i)=>{
   const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows.map((f,i)=>({f:focusRuntime(f,q),score:rows.length-i})).sort((a,b)=>(b.score+(b.f.actionScore||0))-(a.score+(a.f.actionScore||0))).map(x=>x.f);
   const words=[...new Set(tokens(actionQuery(q+' '+q.replace(/([a-z])([A-Z])/g,'$1 $2'))).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)&&!['config','cache','main','data','item','items'].includes(t)))];
@@ -71,8 +79,9 @@ export async function retrieveMany(manifest,queries,read,options={}){
  for(let i=0;i<36;i++)for(const list of ranked){const f=list[i];if(f&&!facts.some(x=>x.id===f.id))facts.push(f)}
  // Keep curated reviewed evidence, and concrete activities appropriate to progress.
  if(manifest.reviewed){const reviewed=await once(manifest.reviewed);facts.unshift(...reviewed.filter(f=>normalized.some((q,i)=>{const relevant=!anchorsByQuery[i].length||anchorsByQuery[i].some(n=>(f.title+' '+(f.labels||[]).join(' ')+' '+f.search).toLowerCase().includes(n));return relevant&&(f.matchAll?.every(g=>g.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))})))}
- if(normalized.some(recommendation))facts.push(...await activityPool(manifest,normalized[0],once,options));
- return {facts:[...new Map(facts.map(f=>[f.id,f])).values()].slice(0,48),coverage:{queries:normalized,subjects:[...new Set(anchorsByQuery.flat())],readShards:picked.size,totalShards:manifest.shards.length,matchedShards:new Set(choices.flatMap(x=>x.map(r=>r.s.file))).size,evidenceKinds:[...new Set([...picked.values()].flatMap(x=>x.kinds))],bounded:true,note:'搜尋涵蓋多種資料，但本輪最多讀取 16 個資料檔；沒有找到不能推論整包不存在。來源摘要仍須核對條件。'}};
+ facts.unshift(...typedFacts);
+ if(!resolved.length&&normalized.some(recommendation))facts.push(...await activityPool(manifest,normalized[0],once,options));
+ return {facts:[...new Map(facts.map(f=>[f.id,f])).values()].slice(0,48),coverage:{queries:normalized,subjects:[...new Set(anchorsByQuery.flat())],resolvedSubjects:resolved.map(({id,type,name,aliases})=>({id,type,name,aliases})),readShards:picked.size,totalShards:manifest.shards.length,matchedShards:new Set(choices.flatMap(x=>x.map(r=>r.s.file))).size,evidenceKinds:[...new Set([...picked.values()].flatMap(x=>x.kinds))],bounded:true,note:'搜尋涵蓋多種資料，但本輪最多讀取 16 個資料檔；沒有找到不能推論整包不存在。來源摘要仍須核對條件。'}};
 }
 
 export function referenceQueries(facts,q){

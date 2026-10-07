@@ -1,0 +1,13 @@
+# Typed subject resolution
+
+The old locator covered items and entities but omitted enchantment names. Generic book anchors and recommendation words such as「做什麼」could then retrieve unrelated spell-book instructions. The planner could also drop the player's item type.
+
+`subject-registry.json` adds installed enchantment and status-effect names, aliases, original language descriptions, and class references across mods. Enabled resource packs follow `options.txt` order. Invalid language JSON is recorded in `errors` and skipped; localization-only entries are explicitly not proof of availability or mechanics. The current snapshot contains 131 enchantment names and 355 effect names; 31 records have linked runtime references. This is name coverage, not a full manual audit of every effect.
+
+`subject-resolver.js` retains the requested type, distinguishes whole English names from item-ID substrings, and preserves same-name collisions. `retrieveMany` gives direct subject evidence priority and links runtime records by identity rather than a generic enchanted-book anchor. Original player wording survives semantic planning. Planning receives verified name/type matches; the writer receives resolved identities and evidence scope. Named uses do not fall back to activity menus. Dependency supplements retain direct subject facts. Existing shard and asset-read budgets remain in force.
+
+Capacity is separately reviewed against installed Create 6.0.8, Northstar 0.6.5 and Clockwork 0.5.6 class/config evidence. Its aliases include 容量、擴充、扩容、Capacity. The current enabled translation calls it 擴充. It increases backtank air capacity, has normal maximum level III, and uses configurable defaults 900 + 300 × level. These defaults are not a claim about the actual server. Northstar extends applicable equipment via oxygen_sources; Clockwork's gas backtank overrides capacity. Reviewed summaries are guarded against changed JAR hashes.
+
+Rebuild locally with `python tools/build_subject_registry.py --instance <current .minecraft directory>`, then run `node tools/build_coverage_index.mjs` and `node tools/build_assistant_bootstrap.mjs`. CI consumes the committed installed-data snapshot because it has no access to the player's instance. Keep the manifest and bootstrap versions aligned.
+
+Validation on 2026-10-08: 78 tests passed, including natural capacity-book variants, unrelated installed enchantments, status effects, same-name collisions, and a cold first-writer test whose planner deliberately loses the book type. The latter checks actual installed assets, retained mechanic/override evidence, deduplicated reads, a maximum of 40 assets, and a single player quota charge. Model generation in this test is simulated; it is not a live provider-response acceptance test.

@@ -16,6 +16,8 @@ on:
       - "ai-search.js"
       - "ai-evidence.js"
       - "evidence-integrity.js"
+      - "subject-resolver.js"
+      - "tools/build_subject_registry.py"
       - "ai-search.test.js"
       - ".github/workflows/deploy-cloud-ai.yml"
   workflow_dispatch:
