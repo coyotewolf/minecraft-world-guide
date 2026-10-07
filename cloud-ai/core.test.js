@@ -86,6 +86,17 @@ test('capture request prioritizes companion acquisition conditions over passive 
  await service.ask('u','都不想，有什麼特殊的東西可以抓嗎');assert(input.facts[0].text.includes('戰鬥壓制後餵食'));assert(!input.facts.some(f=>f.title==='上龍操作'));
 });
 
+test('named boss follow-up can bridge from a summon-item anchor to the boss gameplay record',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
+ const boss={id:'collection:boss:test:gundyr',kind:'collection',category:'bosses',title:'審判者 古達',search:'審判者 古達 test:boss_gundyr bosses',labels:['bosses'],playerSummary:'主要掉落池 古達的靈魂 ×1、傳說 古達的斧槍 ×1、法術石 ×1'};
+ const summon={id:'summon',title:'召喚魔法：古達',search:'召喚魔法：古達 配方',playerSummary:'可製作召喚魔法：古達。'};
+ const pages={'manifest.json':{version:'v1',shards:[{file:'summon.json',terms:'召喚魔法 古達'}]},'coverage-index.json':{subjects:{'召喚魔法：古達':[['summon.json',['配方']]]}},'summon.json':[summon],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[{file:'bosses.json'}]},'bosses.json':[boss],'relation-knowledge.json':{references:0,scope:'測試直接掉落表',rows:[]}};
+ env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{query:'召喚魔法：古達 召喚 古達 掉落 裝備',queries:[],mode:'mechanism',facet:'bossDrops',relationSide:'source',focus:['古達'],useHistory:true,progress:'advanced',exclude:[]}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));const idx=input.facts.findIndex(f=>f.text.includes('傳說 古達的斧槍'));assert(idx>=0);return {response:{answer:'可以召喚古達；擊敗後主要掉古達的靈魂、傳說 古達的斧槍與法術石。',factIds:[String(idx+1)]}}};
+ const result=await service.ask('u','合成「召喚魔法：古達」是可以召喚古達出來打得嗎?打他會掉裝備嗎?',undefined,[{user:'古達是什麼',assistant:'有召喚魔法：古達。'}]);
+ assert.equal(result.status,200);assert.match(result.body.answer,/傳說 古達的斧槍/);assert(result.body.facts.some(f=>f.id===boss.id));
+});
+
 test('creature behavior question still retains checked building risk evidence',async()=>{
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('player-playbook.json')?[{id:'safety',category:'dragon-behavior',title:'蓑鮋龍的建築安全',search:'蓑鮋龍 原木 建築安全',playerSummary:'拆相連原木，不區分玩家放置；木屋不能保證安全。'}]:[]);
