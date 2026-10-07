@@ -60,3 +60,9 @@ test('referenced settings are discovered before answering across crafting, logis
   assert(referenceQueries([runtime],query).some(q=>q.includes('DeviceConfig.'+field)),query);
  }
 });
+
+test('model evidence preserves distinct installed item identities even when translations share the same display name',async()=>{
+ const {localizeModelEvidence}=await import('./ai-evidence.js');
+ const r=localizeModelEvidence('ingredient=pack:red_token; result=pack:blue_token',text=>text.replace(/pack:(?:red|blue)_token/g,'憑證'));
+ assert(r.includes('憑證（pack:red_token）'));assert(r.includes('憑證（pack:blue_token）'));assert(!r.includes('\uE000'));
+});

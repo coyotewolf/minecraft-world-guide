@@ -25,3 +25,7 @@ test('only fixed official endpoints receive scoped credentials and raw failures 
  let calls=0;const p=new ProviderQuotas({CLOUDFLARE_QUOTA_TOKEN:'test-credential-analytics-only'},async(url,options)=>{calls++;assert.equal(url,'https://api.cloudflare.com/client/v4/graphql');const body=JSON.parse(options.body);assert.equal(body.variables.account,'d89184d96d606cf21e6593474488a452');assert(!body.query.includes('modelId'));return Response.json({errors:[{message:'test-credential-analytics-only secret provider response'}]})});
  const r=await p.report();assert.equal(calls,1);assert(!JSON.stringify(r).includes('test-credential-analytics-only'));assert.equal(r.providers[1].remaining,null);await p.report();assert.equal(calls,1);
 });
+test('a billing prerequisite is a distinct blocker, never authorization to activate billing or fabricate remaining quota',async()=>{
+ let calls=0;const p=new ProviderQuotas({GOOGLE_QUOTA_SERVICE_ACCOUNT:'configured'},async(url,options)=>{calls++;assert(String(url).startsWith('https://monitoring.googleapis.com/'));assert.equal(options.method,undefined);return Response.json({error:{message:'This API method requires billing to be enabled.'}},{status:403})});
+ p.googleToken=async()=>'test-scoped-token';const r=await p.report();assert.equal(r.providers[0].status,'billing_required');assert.equal(r.providers[0].remaining,null);assert(r.providers[0].reason.includes('未綁定'));assert.equal(calls,2);assert(!JSON.stringify(r).includes('test-scoped-token'));
+});

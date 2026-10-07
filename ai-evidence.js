@@ -1,4 +1,8 @@
 export const displayName=s=>String(s||'').replace(/\s*\([a-z0-9_.-]+:[^)]*\)/g,'');
+export function localizeModelEvidence(text,localize){
+ const ids=[];const protectedText=String(text).replace(/\b[a-z][a-z0-9_.-]*:[a-z][a-z0-9_./-]*/g,id=>{ids.push(id);return '\uE000'+(ids.length-1)+'\uE001'});
+ return localize(protectedText).replace(/\uE000(\d+)\uE001/g,(_,i)=>{const id=ids[Number(i)],name=localize(id);return name===id?id:name+'（'+id+'）'});
+}
 export function playerEvidence(f){
  const names=(f.labels||[]).map(displayName).filter(n=>n&&!/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(n));
  let title=f.playerTitle||((f.title||'').includes(' · ')?(f.title.split(' · ')[0]+'：'+names.slice(0,3).join('、')):f.title);

@@ -1,10 +1,10 @@
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
 import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.js';
-import {modelEvidence} from '../ai-evidence.js';
+import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v23-evidence-before-generation';
+export const ANSWER_CACHE_VERSION='zh-tw-v24-preserved-evidence-identities';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -206,13 +206,13 @@ export class GuideService{
    const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const cacheKey='cache:'+digest,cached=await this.storage.get(cacheKey);
    if(cached&&cached.expires>Date.now()){await remember(cached.body.facts,cached.body.answer);return {status:200,body:{...cached.body,remaining:slot.remaining}}};
-   const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f);const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}
+   const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f);const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}
    if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
     const supplement=async queries=>{
      this.stage='supplemental-evidence';const topic=(plan?.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
      const retained=[];let reserved=0;for(const f of [...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].slice(0,1)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
      const pool=[...retained,...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
-     for(const f of pool){const key=f.definitionKey||f.id;if(ids.has(key))continue;ids.add(key);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
+     for(const f of pool){const key=f.definitionKey||f.id;if(ids.has(key))continue;ids.add(key);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;
     };
     const references=hasNamedSubject&&plan?.mode!=='chat'?referenceQueries(current,normalizedQuestion):[];
