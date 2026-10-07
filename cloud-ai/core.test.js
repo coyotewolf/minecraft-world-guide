@@ -73,9 +73,10 @@ test('cached semantic plan and answer avoid repeated provider work',async()=>{
  await service.ask('u','魔法之眼');await service.ask('u','魔法之眼');assert.equal(calls,2);
 });
 
-test('failed planner refunds the question and does not reach answer generation',async()=>{
- const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.AI.run=async()=>({response:{unexpected:true}});
- const result=await service.ask('u','哪些王有獎盃');assert.equal(result.status,503);assert.equal(await storage.get('user:'+dayKey()+':u'),0);assert.equal(await storage.get('global:'+dayKey()),0);
+test('malformed planner output degrades to direct retrieval instead of failing the question',async()=>{
+ const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
+ env.AI.run=async()=>({response:++calls===1?{unexpected:true}:{answer:'森林豪宅寶箱。',factIds:['1']}});
+ const result=await service.ask('u','魔法之眼怎麼拿');assert.equal(result.status,200);assert.equal(result.body.answer,'森林豪宅寶箱。');assert.equal(calls,2);assert.equal(await storage.get('user:'+dayKey()+':u'),1);assert.equal(await storage.get('global:'+dayKey()),1);
 });
 
 test('capture request prioritizes companion acquisition conditions over passive ride instructions',async()=>{
@@ -123,6 +124,22 @@ test('provider diagnostics distinguish daily quota, short limits and configurati
  assert.equal(providerFailure(403,{error:{message:'private-key-never-store'}}).code,'configuration');
  assert(!JSON.stringify(providerFailure(403,{error:{message:'private-key-never-store'}})).includes('private-key'));
 });
+test('transient Gemini transport failure is retried inside the same question',async()=>{
+ let calls=0;const spent=[];const result=await providerAnswer({gemini_api:'test-only'},'prompt',async()=>true,async(...x)=>spent.push(x),async()=>{if(++calls===1)throw Error('temporary network');return Response.json({candidates:[{content:{parts:[{text:'ok'}]}}]})});
+ assert.equal(result.provider,'gemini');assert.equal(result.value,'ok');assert.equal(calls,2);assert.equal(spent.some(x=>x[0]==='gemini'&&x[1]>0),false);
+});
+
+test('transient Cloudflare binding failure is retried inside the same question',async()=>{
+ let calls=0;const result=await providerAnswer({AI:{run:async()=>{if(++calls===1)throw Error('temporary service');return {response:'ok'}}}},'prompt',async()=>true,async()=>{});
+ assert.equal(result.provider,'cloudflare');assert.equal(result.value,'ok');assert.equal(calls,2);
+});
+
+test('answer-review failure keeps the valid grounded draft',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';env.ANSWER_REVIEW='true';let calls=0;
+ env.AI.run=async()=>({response:++calls===1?{...trophyPlan,query:'魔法之眼',mode:'mechanism',facet:'none',focus:[]}:calls===2?{answer:'森林豪宅寶箱。',factIds:['1']}:{unexpected:true}});
+ const result=await service.ask('u','魔法之眼怎麼拿');assert.equal(result.status,200);assert.equal(result.body.answer,'森林豪宅寶箱。');assert.equal(calls,3);
+});
+
 test('invalid primary output falls back instead of pretending knowledge is missing',async()=>{
  const failures=[];const result=await providerAnswer({GEMINI_API_KEY:'test-only',AI:{run:async()=>({response:'{"answer":"有依據的回答","factIds":["1"]}'})}},'prompt',async()=>true,async()=>{},async()=>Response.json({candidates:[{content:{parts:[{text:'truncated {'}]}}]}),async(p,f)=>failures.push(f.code),v=>{try{return !!JSON.parse(v).answer}catch{return false}});
  assert.equal(result.provider,'cloudflare');assert.deepEqual(failures,['invalid_answer']);
