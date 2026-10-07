@@ -182,7 +182,7 @@ async function send(ai,retrying=false){
    const response=await fetch(snapshot.cfg.aiEndpoint.replace(/\/$/,'')+'/ask',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({question,conversationId,requestId}),signal:AbortSignal.any([signal,AbortSignal.timeout(90000)])});
    const answer=await response.json();if(!response.ok){if(identity===owner)host.dataset.availability=JSON.stringify({code:answer.code,diagnostic:answer.diagnostic,stage:answer.stage,providers:answer.providers,lastFailures:answer.lastFailures});const e=Error(answer.error||'小助手暫時無法回覆，試試搜尋。');e.retryAt=answer.retryAt;throw e}
    facts=answer.facts||[];text=answer.answer||answer.message||(facts.length?'我找到相關資料，但目前無法整理成完整回答。':'目前資料不足以可靠回答這題。');
-   if(identity===owner){host.dataset.provider=answer.provider||'none';host.dataset.intent=JSON.stringify(answer.intent||null)};
+   if(identity===owner){delete host.dataset.availability;host.dataset.provider=answer.provider||'none';host.dataset.intent=JSON.stringify(answer.intent||null)};
   }else{
    const read=async file=>{const r=await fetch('data/ai/'+file,{signal});if(!r.ok)throw Error('資料暫時無法讀取。');return r.json()};
    manifest??=await read('manifest.json');await loadTranslations();facts=await retrieve(manifest,question,read);facts=facts.slice(0,5).map(localizeFact);text=facts.length?'搜尋到這些資料：':'沒有找到資料，試試物品中文名或原文名。';

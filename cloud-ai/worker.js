@@ -6,7 +6,7 @@ export class GuideCoordinator extends DurableObject{
  constructor(ctx,env){super(ctx,env);this.service=new GuideService(ctx.storage,env);this.queue=Promise.resolve()}
  availability(){return this.service.availability()}
  async adminReport(roster){return quotaReport(this.ctx.storage,dayKey(),roster,await this.service.availability())}
- adminChange(change,adminId){const next=this.queue.then(()=>changeQuota(this.ctx.storage,change,adminId));this.queue=next.catch(()=>{});return next}
+ adminChange(change,adminId){return changeQuota(this.ctx.storage,change,adminId)}
  ask(uid,question,conversationId,cloudTurns=[],requestId){const next=this.queue.then(async()=>{if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);try{const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+requestId:null;const cached=key?await this.ctx.storage.get(key):null;if(cached?.expires>Date.now())return cached.question===question?cached.result:{status:409,body:{error:'訊息內容已更改，請重新傳送。'}};const result=await this.service.ask(uid,question,conversationId,cloudTurns);if(key&&result.status===200)await this.ctx.storage.put(key,{question,result,expires:Date.now()+86400000});return result}catch(error){const m=String(error?.message||'');const diagnostic=/subrequest/i.test(m)?'request_budget':/memory/i.test(m)?'memory':/knowledge_unavailable/.test(m)?'knowledge':/json/i.test(m)?'knowledge_format':'processing';return {status:503,body:{error:'小助手暫時連線不穩，請稍後重試。',code:'server_error',diagnostic,stage:this.service.stage||'unknown'}}}});this.queue=next.catch(()=>{});return next}
  async alarm(){await this.service.cleanup();await this.ctx.storage.setAlarm(Date.now()+86400000)}
 }

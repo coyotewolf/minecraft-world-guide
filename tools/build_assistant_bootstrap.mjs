@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const base=new URL('../data/ai/',import.meta.url),read=file=>JSON.parse(fs.readFileSync(new URL(file,base),'utf8'));
+const manifest=read('manifest.json'),names={};
+for(const file of read('translation-registry-index.json').shards)Object.assign(names,read(file));
+Object.assign(names,read('zh-tw-core-names.json').map||{});
+const gameplay=read('gameplay-knowledge-index.json').shards.flatMap(s=>read(s.file));
+const body=JSON.stringify({version:manifest.version,names,gameplay,playbook:read('player-playbook.json')});
+if(Buffer.byteLength(body)>24000000)throw Error('Assistant bootstrap exceeds the asset size budget');
+fs.writeFileSync(new URL('assistant-bootstrap.json',base),body);
+console.log('Assistant bootstrap:',Object.keys(names).length,'names,',gameplay.length,'gameplay entries,',Buffer.byteLength(body),'bytes');

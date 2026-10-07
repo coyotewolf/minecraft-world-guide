@@ -4,7 +4,7 @@ import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v18-reference-follow-up';
+export const ANSWER_CACHE_VERSION='zh-tw-v19-batched-reference-follow-up';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -66,16 +66,17 @@ export function providerFailure(status,body={},retryHeader=null){
 }
 export class GuideService{
  constructor(storage,env){this.storage=storage;this.env=env;this.manifest=null;this.playbook=null;this.gameplay=null;this.translations=null;this.translationMatchers=null}
- async read(name){const response=await this.env.ASSETS.fetch(new Request('https://knowledge.invalid/'+name));if(!response.ok)throw Error('knowledge_unavailable');return response.json()}
+ async read(name){if(this.requestReads?.has(name))return this.requestReads.get(name);if(this.requestReads&&++this.assetReadCount>40)throw Error('subrequest_budget');const result=(async()=>{const response=await this.env.ASSETS.fetch(new Request('https://knowledge.invalid/'+name));if(!response.ok)throw Error('knowledge_unavailable');return response.json()})();this.requestReads?.set(name,result);return result}
+ async loadBootstrap(){if(this.bootstrap!==undefined)return;const b=await this.read('assistant-bootstrap.json').catch(()=>null);this.bootstrap=b&&b.version===this.manifest.version&&b.names&&!Array.isArray(b.names)&&Array.isArray(b.gameplay)&&Array.isArray(b.playbook)?b:null}
  async loadTranslations(){
   if(this.translations)return this.translations;
-  const merged={};
-  try{
+  const merged=this.bootstrap?.names||{};
+  if(!this.bootstrap){try{
    const index=await this.read('translation-registry-index.json');
    const pages=await Promise.all((index.shards||[]).map(file=>this.read(file)));
    for(const page of pages)Object.assign(merged,page||{});
   }catch{}
-  try{Object.assign(merged,(await this.read('zh-tw-core-names.json'))?.map||{})}catch{}
+  try{Object.assign(merged,(await this.read('zh-tw-core-names.json'))?.map||{})}catch{}}
   this.translations=merged;
   const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const keys=Object.keys(merged).filter(x=>x.length>=2&&merged[x]&&merged[x]!==x).sort((a,b)=>b.length-a.length);
@@ -123,7 +124,9 @@ export class GuideService{
   const slot=await this.storage.transaction(async tx=>{const limit=await playerLimit(tx,uid),u=await tx.get(uk)||0,g=await tx.get(gk)||0,m=await tx.get(mk)||{at:0,n:0};if(u>=limit||g>=400)return {error:'今日免費問答額度已用完，仍可搜尋解包資料。',status:429};if(Date.now()-m.at<60000&&m.n>=4)return {error:'提問稍快，請等一分鐘再試。',status:429};await tx.put(uk,u+1);await tx.put(gk,g+1);await tx.put(mk,Date.now()-m.at<60000?{at:m.at,n:m.n+1}:{at:Date.now(),n:1});return {remaining:Math.max(0,limit-u-1)}});
   if(slot.error)return {status:slot.status,body:slot};
   const release=()=>this.storage.transaction(async tx=>{await tx.put(uk,Math.max(0,(await tx.get(uk)||0)-1));await tx.put(gk,Math.max(0,(await tx.get(gk)||0)-1))});
+  this.requestReads=new Map();this.assetReadCount=0;
   try{
+  this.stage='bootstrap';await this.loadBootstrap();
   let normalizedQuestion=question.replace(/簑釉龍|簑鮋龍|蓑釉龍/g,'蓑鮋龍');
   let plan=null;
   if(this.env.CONVERSATION_PLANNER==='true'){
@@ -146,8 +149,8 @@ export class GuideService{
   const hasNamedSubject=(search.coverage.subjects||[]).length>0||Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name));
   const playable=hasNamedSubject||plan&&plan.mode!=='recommendation'?[]:await activityPool(this.manifest,normalizedQuestion,file=>this.read(file),{advanced:plan?.progress==='advanced'});
   this.stage='translations';await this.loadTranslations();
-  this.stage='playbook';this.playbook??=await this.read('player-playbook.json').catch(()=>[]);
-  this.stage='gameplay';this.gameplay??=await (async()=>{
+  this.stage='playbook';this.playbook??=this.bootstrap?.playbook||await this.read('player-playbook.json').catch(()=>[]);
+  this.stage='gameplay';this.gameplay??=this.bootstrap?.gameplay||await (async()=>{
     try{
       const index=await this.read('gameplay-knowledge-index.json');
       const pages=await Promise.all((index.shards||[]).map(x=>this.read(x.file)));
@@ -228,6 +231,6 @@ export class GuideService{
    if(!facts.length){await remember([],parsed.answer);return {status:200,body:{facts:[],answer:parsed.answer,message:parsed.answer,provider:reply.provider,version:this.manifest.version,intent:plan,remaining:slot.remaining}}}
    const body={facts,answer:parsed.answer,provider:reply.provider,version:this.manifest.version,message:parsed.answer,intent:plan};
    await this.storage.put(cacheKey,{body,expires:Date.now()+86400000});await remember(facts,parsed.answer);return {status:200,body:{...body,remaining:slot.remaining}};
-  }catch(error){await release();throw error}
+  }catch(error){await release();throw error}finally{this.requestReads=null}
  }
 }

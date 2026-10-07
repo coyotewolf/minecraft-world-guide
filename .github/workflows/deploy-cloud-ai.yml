@@ -12,6 +12,7 @@ on:
       - "tools/build_gameplay_knowledge.mjs"
       - "tools/build_relation_knowledge.mjs"
       - "tools/build_coverage_index.mjs"
+      - "tools/build_assistant_bootstrap.mjs"
       - "ai-search.js"
       - "ai-evidence.js"
       - "ai-search.test.js"
@@ -46,6 +47,7 @@ jobs:
           node tools/build_gameplay_knowledge.mjs
           node tools/build_relation_knowledge.mjs
           node tools/build_coverage_index.mjs
+          node tools/build_assistant_bootstrap.mjs
 
       - name: Verify generated knowledge
         shell: bash
