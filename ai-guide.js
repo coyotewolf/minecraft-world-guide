@@ -50,11 +50,10 @@ function paint(forceScroll=false){
  $('#assistant-messages').innerHTML=state.messages.length?state.messages.map(m=>`<div class="assistant-message ${m.role==='user'?'from-player':'from-helper'}">${m.text?`<p>${h(m.text)}</p>`:''}${factsView(m.facts)}</div>`).join(''):'<div class="assistant-message from-helper"><p>想找材料、比較龍、規劃下一步，或只是想找點事做，都可以直接問我。</p></div>';
  const messages=$('#assistant-messages');messages.scrollTop=forceScroll||nearBottom?messages.scrollHeight:oldTop;
  $('#assistant-send').disabled=busy||!auth.active||!auth.cfg.aiEndpoint;
- $('#assistant-search').disabled=busy;
  $('#assistant-new').disabled=busy;
  $('#assistant-more').hidden=!state.hasEarlier;
  $('#assistant-more').disabled=busy||!cloudReady;
- $('#assistant-status').textContent=busy?'小助手正在查資料…':!auth.active?'登入玩家帳號後可使用 AI 與跨裝置聊天紀錄；搜尋仍可直接使用。':syncWarning?'聊天紀錄暫存這台裝置，連線恢復後會再同步。':cloudReady?'聊天紀錄已同步到帳號。':'正在同步聊天紀錄…';
+ $('#assistant-status').textContent=busy?'小助手正在查資料…':!auth.active?'登入玩家帳號後可使用 AI 與跨裝置聊天紀錄；也可使用網站上方的搜尋。':syncWarning?'聊天紀錄暫存這台裝置，連線恢復後會再同步。':cloudReady?'聊天紀錄已同步到帳號。':'正在同步聊天紀錄…';
  updateHistoryControl();
  $('#assistant-retry').hidden=!retryQuestion;
  $('#assistant-retry').disabled=busy;
@@ -153,7 +152,7 @@ export function syncAssistant(options){
  auth=options;const uid=options.user?.id||'guest';
  if(host&&uid===identity){paint();if(cloudEnabled()&&!cloudReady)void hydrateCloud();return}
  cancelAiGuide();historyEpoch++;identity=uid;cloudReady=false;syncWarning=false;retryQuestion=null;history=[];state=load(uid);host?.remove();host=document.createElement('aside');host.id='assistant-host';document.body.append(host);
- host.innerHTML=`<button id="assistant-launcher" aria-expanded="false" aria-controls="assistant-window"><span aria-hidden="true">✦</span> 問問小助手</button><section id="assistant-window" role="dialog" aria-labelledby="assistant-title" hidden><header class="assistant-header"><h2 id="assistant-title">問問小助手</h2><div><button id="assistant-new" title="開始新對話" aria-label="開始新對話"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/><path d="M12 7v7m-3.5-3.5h7"/></svg></button><button id="assistant-close" title="最小化聊天室" aria-label="縮小聊天室"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 17h14"/></svg></button></div></header><div class="assistant-history-row"><label for="assistant-history">對話</label><select id="assistant-history"><option>目前對話</option></select></div><button id="assistant-more" type="button" hidden>載入更早訊息</button><div id="assistant-messages" role="log" aria-live="polite"></div><p id="assistant-status" role="status"></p><form id="assistant-form"><label class="assistant-input-label" for="assistant-input">訊息</label><textarea id="assistant-input" maxlength="600" rows="2" placeholder="可以直接問比較、推薦、玩法、材料或取得方式…" required></textarea><div class="assistant-actions"><button id="assistant-search" type="button">搜尋</button><button id="assistant-retry" type="button" hidden>重試上個問題</button><button id="assistant-send" class="primary" type="submit">傳送 ➤</button></div></form></section>`;
+ host.innerHTML=`<button id="assistant-launcher" aria-expanded="false" aria-controls="assistant-window"><span aria-hidden="true">✦</span> 問問小助手</button><section id="assistant-window" role="dialog" aria-labelledby="assistant-title" hidden><header class="assistant-header"><h2 id="assistant-title">問問小助手</h2><div><button id="assistant-new" title="開始新對話" aria-label="開始新對話"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a3 3 0 0 1-3 3H9l-6 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/><path d="M12 7v7m-3.5-3.5h7"/></svg></button><button id="assistant-close" title="最小化聊天室" aria-label="縮小聊天室"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 17h14"/></svg></button></div></header><div class="assistant-history-row"><label for="assistant-history">對話</label><select id="assistant-history"><option>目前對話</option></select></div><button id="assistant-more" type="button" hidden>載入更早訊息</button><div id="assistant-messages" role="log" aria-live="polite"></div><p id="assistant-status" role="status"></p><form id="assistant-form"><label class="assistant-input-label" for="assistant-input">訊息</label><textarea id="assistant-input" maxlength="600" rows="2" placeholder="可以直接問比較、推薦、玩法、材料或取得方式…" required></textarea><div class="assistant-actions"><button id="assistant-retry" type="button" hidden>重試上個問題</button><button id="assistant-send" class="primary" type="submit">傳送 ➤</button></div></form></section>`;
  $('#assistant-launcher').onclick=()=>$('#assistant-window').hidden?openAssistant():closeAssistant();
  $('#assistant-close').onclick=closeAssistant;
  $('#assistant-retry').onclick=()=>{if(retryQuestion){$('#assistant-input').value=retryQuestion;send(true,true)}};
@@ -161,7 +160,6 @@ export function syncAssistant(options){
  $('#assistant-history').onchange=e=>void switchConversation(e.target.value);
  $('#assistant-more').onclick=()=>void loadCloudConversation(state.conversationId,true);
  $('#assistant-form').onsubmit=e=>{e.preventDefault();send(true)};
- $('#assistant-search').onclick=()=>send(false);
  $('#assistant-input').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();if(!$('#assistant-send').disabled)send(true)}};
  host.onkeydown=e=>{if(e.key==='Escape'&&!$('#assistant-window').hidden)closeAssistant()};
  paint();void hydrateCloud();void loadTranslations().then(()=>paint());
