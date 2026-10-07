@@ -42,17 +42,93 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  if(options.schema)messages[0].content+='\n輸出 JSON 格式：'+JSON.stringify(options.schema);
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
  const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
+ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
  if(geminiKey&&await canUse('gemini',0)){
-  await options.onUsage?.('gemini','attempt');
-  const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},body:JSON.stringify({...(system?{systemInstruction:{parts:[{text:system.content}]}}:{}),contents:messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),generationConfig:{temperature:options.temperature??0.45,maxOutputTokens:outputTokens,responseMimeType:'application/json',responseJsonSchema:options.schema||SCHEMA}}),signal:AbortSignal.timeout(25000)}).catch(()=>null);
-  if(r?.ok){const data=await r.json().catch(()=>({}));await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');if(valid(value))return {value,provider:'gemini'};await onFailure('gemini',{code:'invalid_answer',delay:0})}
-  else
-  if(r){await options.onUsage?.('gemini','error');const details=await r.json().catch(()=>({}));const wait=providerFailure(r.status,details,r.headers.get('Retry-After'));await onSpend('gemini',wait.delay,0);await onFailure('gemini',wait)}else{await options.onUsage?.('gemini','error');await onSpend('gemini',60000,0);await onFailure('gemini',{code:'connection',delay:60000})}
+  let terminalFailure=null;
+  for(let attempt=0;attempt<2;attempt++){
+   await options.onUsage?.('gemini','attempt');
+   const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},
+    body:JSON.stringify({
+     ...(system?{systemInstruction:{parts:[{text:system.content}]}}:{}),
+     contents:messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),
+     generationConfig:{temperature:options.temperature??0.45,maxOutputTokens:outputTokens,responseMimeType:'application/json',responseJsonSchema:options.schema||SCHEMA}
+    }),
+    signal:AbortSignal.timeout(25000)
+   }).catch(()=>null);
+
+   if(r?.ok){
+    const data=await r.json().catch(()=>({}));
+    await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});
+    const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+    if(valid(value))return {value,provider:'gemini'};
+    // Bad JSON/schema output is a response-quality problem, not a provider outage.
+    // Record it for diagnostics but do not globally cool down Gemini.
+    await onFailure('gemini',{code:'invalid_answer',delay:0});
+    terminalFailure=null;
+    break;
+   }
+
+   await options.onUsage?.('gemini','error');
+   if(!r){
+    terminalFailure={code:'connection',delay:15000};
+    if(attempt===0){await wait(250);continue}
+    break;
+   }
+
+   const details=await r.json().catch(()=>({}));
+   const failure=providerFailure(r.status,details,r.headers.get('Retry-After'));
+   terminalFailure=failure;
+   // Retry one short-lived upstream/server failure inside the same player request.
+   if(r.status>=500&&attempt===0){await wait(250);continue}
+   break;
+  }
+  if(terminalFailure){
+   await onSpend('gemini',terminalFailure.delay,0);
+   await onFailure('gemini',terminalFailure);
+  }
  }
+
  if(env.AI&&await canUse('cloudflare',estimate)){
-  // Reserve worst-case tokens before invoking the free binding, even on errors.
-  await onSpend('cloudflare',0,estimate);await options.onUsage?.('cloudflare','attempt');
-  try{const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),max_tokens:outputTokens,temperature:options.temperature??0.45});const settled=qwenNeurons(value.usage);if(settled!==null)await onSpend('cloudflare',0,settled-estimate);await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});const answer=value.response??value.choices?.[0]?.message?.content;if(valid(answer))return {value:answer,provider:'cloudflare'};await onFailure('cloudflare',{code:'invalid_answer',delay:0})}catch{await options.onUsage?.('cloudflare','error');await onSpend('cloudflare',60000,0);await onFailure('cloudflare',{code:'service',delay:60000})}
+  // Reserve the first worst-case invocation before using the free binding.
+  await onSpend('cloudflare',0,estimate);
+  let terminalFailure=null;
+  for(let attempt=0;attempt<2;attempt++){
+   await options.onUsage?.('cloudflare','attempt');
+   try{
+    const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{
+     messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),
+     max_tokens:outputTokens,
+     temperature:options.temperature??0.45
+    });
+    const settled=qwenNeurons(value.usage);
+    if(settled!==null)await onSpend('cloudflare',0,settled-estimate);
+    await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});
+    const answer=value.response??value.choices?.[0]?.message?.content;
+    if(valid(answer))return {value:answer,provider:'cloudflare'};
+    await onFailure('cloudflare',{code:'invalid_answer',delay:0});
+    terminalFailure=null;
+    break;
+   }catch{
+    await options.onUsage?.('cloudflare','error');
+    terminalFailure={code:'service',delay:15000};
+    if(attempt===0){
+     // Keep the budget conservative for the retry because a failed binding call
+     // may still have consumed provider work even when usage metadata is absent.
+     if(!await canUse('cloudflare',estimate))break;
+     await onSpend('cloudflare',0,estimate);
+     await wait(250);
+     continue;
+    }
+    break;
+   }
+  }
+  if(terminalFailure){
+   await onSpend('cloudflare',terminalFailure.delay,0);
+   await onFailure('cloudflare',terminalFailure);
+  }
  }
  return null;
 }
