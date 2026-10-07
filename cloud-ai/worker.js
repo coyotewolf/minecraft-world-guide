@@ -4,11 +4,34 @@ import {DurableObject} from 'cloudflare:workers';
 import {GuideService,approvedUser,approvedIdentity,questionBody,dayKey} from './core.js';
 async function boundedBody(request){if(!request.body)return '';const reader=request.body.getReader(),chunks=[];let size=0;while(true){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>4096){await reader.cancel();throw Error('body_too_large')}chunks.push(value)}const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}return new TextDecoder().decode(bytes)}
 export class GuideCoordinator extends DurableObject{
- constructor(ctx,env){super(ctx,env);this.service=new GuideService(ctx.storage,env);this.queue=Promise.resolve();this.providerQuotas=new ProviderQuotas(env)}
+ constructor(ctx,env){super(ctx,env);this.env=env;this.service=new GuideService(ctx.storage,env);this.inflight=new Map();this.providerQuotas=new ProviderQuotas(env)}
  availability(){return this.service.availability()}
  async adminReport(roster){const [report,official]=await Promise.all([quotaReport(this.ctx.storage,dayKey(),roster,await this.service.availability()),this.providerQuotas.report()]);for(const p of report.providers){p.official=official.providers.find(o=>o.provider===p.provider);p.providerRemaining=p.official?.remaining??null;p.providerRemainingReason=p.official?.reason||p.providerRemainingReason}return report}
  adminChange(change,adminId){return changeQuota(this.ctx.storage,change,adminId)}
- ask(uid,question,conversationId,cloudTurns=[],requestId){const next=this.queue.then(async()=>{if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);try{const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+requestId:null;const cached=key?await this.ctx.storage.get(key):null;if(cached?.expires>Date.now())return cached.question===question?cached.result:{status:409,body:{error:'訊息內容已更改，請重新傳送。'}};const result=await this.service.ask(uid,question,conversationId,cloudTurns);if(key&&result.status===200)await this.ctx.storage.put(key,{question,result,expires:Date.now()+86400000});return result}catch(error){const m=String(error?.message||'');const diagnostic=/subrequest/i.test(m)?'request_budget':/memory/i.test(m)?'memory':/knowledge_unavailable/.test(m)?'knowledge':/json/i.test(m)?'knowledge_format':'processing';return {status:503,body:{error:'小助手暫時連線不穩，請稍後重試。',code:'server_error',diagnostic,stage:this.service.stage||'unknown'}}}});this.queue=next.catch(()=>{});return next}
+ async ask(uid,question,conversationId,cloudTurns=[],requestId){
+  const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+requestId:null;
+  if(key&&this.inflight.has(key))return this.inflight.get(key);
+  const run=(async()=>{
+   if(!await this.ctx.storage.getAlarm())await this.ctx.storage.setAlarm(Date.now()+86400000);
+   try{
+    const cached=key?await this.ctx.storage.get(key):null;
+    if(cached?.expires>Date.now())return cached.question===question?cached.result:{status:409,body:{error:'訊息內容已更改，請重新傳送。'}};
+    // Never serialize every player's model work behind one global promise.
+    // Each request gets isolated mutable retrieval/model state while shared
+    // quota counters remain protected by Durable Object storage transactions.
+    const service=new GuideService(this.ctx.storage,this.env);
+    const result=await service.ask(uid,question,conversationId,cloudTurns);
+    if(key&&result.status===200)await this.ctx.storage.put(key,{question,result,expires:Date.now()+86400000});
+    return result;
+   }catch(error){
+    const m=String(error?.message||'');
+    const diagnostic=/subrequest/i.test(m)?'request_budget':/memory/i.test(m)?'memory':/knowledge_unavailable/.test(m)?'knowledge':/json/i.test(m)?'knowledge_format':'processing';
+    return {status:503,body:{error:'小助手暫時連線不穩，請稍後重試。',code:'server_error',diagnostic}};
+   }
+  })();
+  if(key)this.inflight.set(key,run);
+  try{return await run}finally{if(key&&this.inflight.get(key)===run)this.inflight.delete(key)}
+ }
  async alarm(){await this.service.cleanup();await this.ctx.storage.setAlarm(Date.now()+86400000)}
 }
 export default {async fetch(request,env){
