@@ -4,7 +4,7 @@ import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v21-action-handler-and-reference';
+export const ANSWER_CACHE_VERSION='zh-tw-v22-recommendation-candidate-diversity';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -146,7 +146,7 @@ export class GuideService{
   const contextual=!plan&&previous.context?await retrieve(this.manifest,previous.context+' '+normalizedQuestion,file=>this.read(file)):[];
   // Unnamed conversational requests also get playable facts. The model can
   // infer intent without a growing list of hard-coded recommendation phrases.
-  const hasNamedSubject=(search.coverage.subjects||[]).length>0||Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name));
+  const hasNamedSubject=!(plan?.mode==='recommendation'&&plan.facet==='none')&&((search.coverage.subjects||[]).length>0||Object.keys(this.manifest._entities||{}).some(name=>normalizedQuestion.toLowerCase().includes(name)));
   const playable=hasNamedSubject||plan&&plan.mode!=='recommendation'?[]:await activityPool(this.manifest,normalizedQuestion,file=>this.read(file),{advanced:plan?.progress==='advanced'});
   this.stage='translations';await this.loadTranslations();
   this.stage='playbook';this.playbook??=this.bootstrap?.playbook||await this.read('player-playbook.json').catch(()=>[]);
@@ -196,6 +196,7 @@ export class GuideService{
   const completeActivity=f=>{const guide=f.id.startsWith('activity-')&&activityGuides.get('article:'+f.article);return guide?.playerSummary?{...f,playerSummary:guide.playerSummary,source:guide.source}:f};
   const currentPlayer=current.filter(f=>f.playerSummary).map(completeActivity),contextPlayer=contextual.filter(f=>f.playerSummary).map(completeActivity),broadPlayer=broad.filter(f=>f.playerSummary);
   const playablePlayer=playable.map(completeActivity);
+  if(plan?.mode==='recommendation')for(const f of playablePlayer)candidates.push(f);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
   for(const f of [...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);

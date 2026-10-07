@@ -241,3 +241,12 @@ test('whole-pack gameplay layer retrieves Tetra, MineColonies, Create and Valkyr
   assert.match(result.body.answer,/整包玩法知識/);
  }
 });
+
+
+test('completed named equipment does not restrict a new recommendation to that equipment',async()=>{
+ const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
+ const pages={'manifest.json':{version:'v1',activities:'activities.json',shards:[{file:'existing.json',terms:'既有機器'}]},'coverage-index.json':{subjects:{'既有機器':[['existing.json',['操作']]]}},'existing.json':[{...fact,title:'既有機器',search:'既有機器'}],'activities.json':[{title:'新成品挑戰',group:'機械',article:'artillery',firstStep:'先準備新成品材料。'}],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[]}};
+ env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'既有機器做好了 找新目標',mode:'recommendation',facet:'none',focus:['既有機器']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert(x.facts.some(f=>f.title==='新成品挑戰'));return {response:{answer:'今天做新成品挑戰。',factIds:['1']}}};
+ assert.equal((await service.ask('u','既有機器做好了，幫我決定新目標')).status,200);
+});
