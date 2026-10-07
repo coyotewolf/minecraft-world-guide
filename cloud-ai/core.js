@@ -4,7 +4,7 @@ import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v20-automatic-reference-follow-up';
+export const ANSWER_CACHE_VERSION='zh-tw-v21-action-handler-and-reference';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -214,7 +214,7 @@ export class GuideService{
    if(this.env.ANSWER_REVIEW==='true'&&plan&&plan.mode!=='chat'&&compact.length){
     const supplement=async queries=>{
      this.stage='supplemental-evidence';const topic=(plan.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
-     const retained=[];let reserved=0;for(const f of [...sent.filter(f=>f.runtimeEvidence),...sent.filter(f=>!f.runtimeEvidence)].slice(0,2)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
+     const retained=[];let reserved=0;for(const f of [...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].slice(0,1)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
      const pool=[...retained,...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
      for(const f of pool){if(ids.has(f.id))continue;ids.add(f.id);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;

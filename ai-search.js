@@ -31,6 +31,12 @@ const actionQuery=q=>q+' '+[
  [/自動|輸送|收納/, 'inventory insert extract automation'],
  [/攻擊|傷害|技能|法術/, 'attack damage hurt ability effect']
 ].filter(([pattern])=>pattern.test(q)).map(([,words])=>words).join(' ');
+function focusRuntime(f,q){
+ if(!f.runtimeEvidence)return f;
+ const words=tokens(actionQuery(q)).filter(t=>/^[a-z]{4,}$/.test(t)),lines=String(f.text||'').split('\n');let best=-1,score=0;
+ for(let i=0;i<lines.length;i++){const m=lines[i].match(/\b(?:public|private|protected)\s+(?:static\s+)?[\w<>]+\s+(\w+)\s*\(/);if(!m)continue;const hits=words.filter(w=>m[1].toLowerCase().includes(w)).length,n=hits*(/^(?:handle|try|perform|apply|process)/i.test(m[1])?300:100);if(n>score){score=n;best=i}}
+ return best<0?f:{...f,actionScore:score,retrievalText:lines.slice(best,best+65).join('\n').slice(0,2600)};
+}
 // Bounded multi-query retrieval balances evidence kinds before reading shards.
 // Secondary queries broaden wording, never add game facts to the prompt.
 export async function retrieveMany(manifest,queries,read,options={}){
@@ -53,7 +59,7 @@ export async function retrieveMany(manifest,queries,read,options={}){
  for(let i=0;i<16&&picked.size<16;i++)for(const list of choices){const row=list[i];if(row&&picked.size<16)picked.set(row.s.file,row)}
  const pages=await Promise.all([...picked.keys()].map(once)),all=pages.flat();
  const ranked=normalized.map((q,i)=>{
-  const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows;
+  const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows.map((f,i)=>({f:focusRuntime(f,q),score:rows.length-i})).sort((a,b)=>(b.score+(b.f.actionScore||0))-(a.score+(a.f.actionScore||0))).map(x=>x.f);
   const words=[...new Set(tokens(actionQuery(q+' '+q.replace(/([a-z])([A-Z])/g,'$1 $2'))).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)&&!['config','cache','main','data','item','items'].includes(t)))];
   return rows.map((f,index)=>{let bonus=0,line=-1;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const matches=words.filter(w=>m[1].toLowerCase().includes(w)).length;const score=concrete?(exact?1500:500*Math.max(1,matches)):50;if(score>bonus){bonus=score;line=j}}}return {f:line>=0?{...f,retrievalText:lines.slice(Math.max(0,line-3),line+20).map((text,j)=>j===Math.min(3,line)?text.slice(0,2000):text.slice(0,500)).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
  });const facts=[];
