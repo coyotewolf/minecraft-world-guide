@@ -22,7 +22,7 @@ export function geminiBalances(limits,usage,now=Date.now()){
  return [...rows.values()].map(r=>({...r,remaining:r.used===null?null:Math.max(0,r.limit-r.used)}));
 }
 export function cloudflareBalance(body){
- if(body.errors?.length)throw Error('provider_query');const accounts=body.data?.viewer?.accounts;
+ if(body.errors?.length){const message=String(body.errors[0]?.message||'');const error=Error(/unknown|cannot query|undefined|not defined|invalid.*(?:argument|query)|type.*expected/i.test(message)?'query_schema':/permission|access|auth|token/i.test(message)?'permission':'provider_query');error.identifier=message.match(/(?:field|type|argument) [\"']?([A-Za-z_][A-Za-z0-9_]{0,63})/i)?.[1]||null;error.stage='cloudflare-analytics';throw error}const accounts=body.data?.viewer?.accounts;
  if(!Array.isArray(accounts)||accounts.length!==1)throw Error('invalid_data');const groups=accounts[0].aiInferenceAdaptiveGroups;
  if(!Array.isArray(groups))throw Error('invalid_data');let used=0;
  for(const g of groups)used+=number(g.sum?.totalNeurons);
@@ -30,7 +30,7 @@ export function cloudflareBalance(body){
 }
 async function json(fetcher,url,options={}){
  const response=await fetcher(url,{...options,signal:AbortSignal.timeout(12000)});
- if(!response.ok)throw Error(response.status===401||response.status===403?'permission':response.status===429?'rate_limit':'provider_unavailable');
+ if(!response.ok){const body=await response.json().catch(()=>({})),reason=(body.error?.details||[]).find(x=>x.reason)?.reason;const code=reason==='SERVICE_DISABLED'?'api_disabled':response.status===401||response.status===403?'permission':response.status===429?'rate_limit':response.status===400?'bad_request':'provider_unavailable';const error=Error(code);error.stage=String(url).includes('oauth2')?'google-auth':String(url).includes('monitoring')?'google-metrics':'cloudflare-analytics';error.httpStatus=response.status;throw error;}
  return response.json();
 }
 const b64=bytes=>btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -67,7 +67,7 @@ export class ProviderQuotas{
   if(this.pending)return this.pending;
   this.pending=(async()=>{const rows=await Promise.all(['gemini','cloudflare'].map(async provider=>{
    const configured=!!this.env[provider==='gemini'?'GOOGLE_QUOTA_SERVICE_ACCOUNT':'CLOUDFLARE_QUOTA_TOKEN'];if(!configured)return {provider,status:'not_connected',remaining:null,reason:'尚未設定官方用量的只讀連線。'};
-   try{return {...await this[provider](now),fetchedAt:now,date:providerDay(provider,now)}}catch(e){const code=['permission','configuration','rate_limit','no_data','incomplete_data','reset_overlap'].includes(e.message)?e.message:'provider_unavailable';return {provider,status:code,remaining:null,reason:'官方用量讀取失敗（'+code+'）；不使用本站計數或舊日數字代替。',fetchedAt:now,date:providerDay(provider,now)}}
+   try{return {...await this[provider](now),fetchedAt:now,date:providerDay(provider,now)}}catch(e){const code=['permission','configuration','rate_limit','no_data','incomplete_data','reset_overlap','api_disabled','bad_request','query_schema','provider_query'].includes(e.message)?e.message:'provider_unavailable';return {provider,status:code,remaining:null,diagnostic:{stage:e.stage||provider,httpStatus:e.httpStatus||null,identifier:e.identifier||null},reason:'官方用量讀取失敗（'+code+(e.stage?' / '+e.stage:'')+(e.identifier?' / '+e.identifier:'')+'）；不使用本站計數或舊日數字代替。',fetchedAt:now,date:providerDay(provider,now)}}
   }));const value={providers:rows};this.cache={value,expires:now+60000,geminiDay:providerDay('gemini',now),cfDay:providerDay('cloudflare',now)};return value})().finally(()=>{this.pending=null});return this.pending;
  }
 }
