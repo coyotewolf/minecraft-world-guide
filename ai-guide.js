@@ -81,7 +81,10 @@ async function ensureConversation(title){
  const {data,error}=await auth.db.from('assistant_conversations').select('id').eq('id',id).eq('user_id',owner).maybeSingle();
  if(error)throw error;
  if(!data){
-  if(state.cloudKnown||state.messages.some(m=>m.synced))throw Error('這段對話已從帳號刪除，請開始新對話。');
+  if(state.cloudKnown||state.messages.some(m=>m.synced)){
+   const access=await auth.db.rpc('player_status');if(access.error||access.data?.active!==true)throw Error('請重新登入後同步聊天紀錄。');
+   const deleted=Error('這段對話已從帳號刪除，請開始新對話。');deleted.code='conversation_deleted';throw deleted;
+  }
   const created=state.messages[0]?.created_at||nowIso();
   const inserted=await auth.db.from('assistant_conversations').insert({id,user_id:owner,title:clean,created_at:created,updated_at:nowIso()});
   if(inserted.error)throw inserted.error;
@@ -230,7 +233,11 @@ async function send(ai,retrying=false){
  const userMessage=normalizeMessage({role:'user',text:question,created_at:nowIso()});const requestId=retrying&&retryRequestId?retryRequestId:userMessage.id;if(!retrying)state.messages.push(userMessage);retryQuestion=null;$('#assistant-input').value='';save();paint(true);
  try{
   if(ai&&cloudEnabled()){
-   try{await ensureConversation(question.slice(0,80));if(!retrying)await cloudMessage(userMessage,conversationId,owner);await refreshHistory()}catch{syncWarning=true}
+   try{await ensureConversation(question.slice(0,80));if(!retrying)await cloudMessage(userMessage,conversationId,owner);await refreshHistory()}catch(e){
+    if(identity!==owner||state.conversationId!==conversationId||signal.aborted)return;
+    if(e.code==='conversation_deleted'){history=history.filter(c=>c.id!==conversationId);state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false};retryQuestion=null;retryRequestId=null;statusNotice='這段對話已刪除，已為你開新對話。問題留在輸入框，可重新傳送。';save();$('#assistant-input').value=question;return}
+    syncWarning=true;
+   }
   }
   let facts=[],text='';
   if(ai){
