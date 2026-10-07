@@ -31,6 +31,7 @@ const actionQuery=q=>q+' '+[
  [/配方|製作|合成/, 'recipe ingredients result craft crafting construct'],
  [/自動|輸送|收納/, 'inventory insert extract automation transfer logistics'],
  [/攻擊|傷害|技能|法術|射擊|開砲/, 'attack damage hurt ability effect fire shoot projectile'],
+ [/耐久|損壞|會壞|不會壞|不消耗耐久|無限耐久/, 'durability maxDamage damageValue hurtAndBreak isDamageable unbreakable damage item properties'],
  [/烹|料理|加熱/, 'cook cooking heat temperature fuel'],
  [/啟動|使用|操作|互動|開啟/, 'use activate interact handle'],
  [/種植|收成|生長/, 'plant harvest grow']
