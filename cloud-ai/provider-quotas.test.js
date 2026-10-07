@@ -22,6 +22,6 @@ test('missing read-only credentials makes no network requests and returns a trut
  const p=new ProviderQuotas({},()=>assert.fail('no credentials'));const r=await p.report();assert(r.providers.every(x=>x.remaining===null&&x.status==='not_connected'));
 });
 test('only fixed official endpoints receive scoped credentials and raw failures never reach the admin',async()=>{
- let calls=0;const p=new ProviderQuotas({CLOUDFLARE_QUOTA_TOKEN:'test-credential'},async(url,options)=>{calls++;assert.equal(url,'https://api.cloudflare.com/client/v4/graphql');const body=JSON.parse(options.body);assert.equal(body.variables.account,'d89184d96d606cf21e6593474488a452');assert(!body.query.includes('modelId'));return Response.json({errors:[{message:'test-credential secret provider response'}]})});
- const r=await p.report();assert.equal(calls,1);assert(!JSON.stringify(r).includes('test-credential'));assert.equal(r.providers[1].remaining,null);await p.report();assert.equal(calls,1);
+ let calls=0;const p=new ProviderQuotas({CLOUDFLARE_QUOTA_TOKEN:'test-credential-analytics-only'},async(url,options)=>{calls++;assert.equal(url,'https://api.cloudflare.com/client/v4/graphql');const body=JSON.parse(options.body);assert.equal(body.variables.account,'d89184d96d606cf21e6593474488a452');assert(!body.query.includes('modelId'));return Response.json({errors:[{message:'test-credential-analytics-only secret provider response'}]})});
+ const r=await p.report();assert.equal(calls,1);assert(!JSON.stringify(r).includes('test-credential-analytics-only'));assert.equal(r.providers[1].remaining,null);await p.report();assert.equal(calls,1);
 });
