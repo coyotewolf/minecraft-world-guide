@@ -262,7 +262,21 @@ export class GuideService{
     return score;
   };
   const curated=(this.playbook||[]).map(f=>({f,score:rank(f)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,activity?8:6).map(x=>x.f).filter(f=>!flying||!['playbook:dragon-terrain-berk-safe','playbook:dragon-terrain-berk-matrix'].includes(f.id));
-  const broad=(this.gameplay||[]).filter(f=>!plan||plan.facet!=='companions'||hasNamedSubject||f.category==='companions').filter(f=>!hasNamedSubject||search.coverage.subjects.some(n=>(f.title+' '+f.search+' '+(f.labels||[]).join(' ')).toLowerCase().includes(n))).map(f=>({f,score:rank(f)||(!hasNamedSubject&&plan?.facet==='companions'?1:0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,plan?.mode==='list'?48:12).map(x=>x.f);
+  const gameplayFocus=[...(plan?.focus||[]),...(search.coverage.subjects||[])].map(x=>String(x).toLowerCase()).filter(x=>x.length>=2);
+  const broad=(this.gameplay||[])
+   .filter(f=>!plan||plan.facet!=='companions'||hasNamedSubject||f.category==='companions')
+   .map(f=>{
+    const hay=(f.title+' '+f.search+' '+(f.labels||[]).join(' ')).toLowerCase();
+    const focusScore=gameplayFocus.reduce((n,t)=>n+(hay.includes(t)||t.includes(f.title.toLowerCase())?Math.min(18,t.length*2):0),0);
+    return {f,score:rank(f)+focusScore||(!hasNamedSubject&&plan?.facet==='companions'?1:0)};
+   })
+   // Do not hard-filter whole-pack gameplay by the retrieval locator. A locator
+   // can anchor on a related item (for example "召喚魔法：X") while the useful
+   // gameplay record is the named boss/creature X itself.
+   .filter(x=>x.score>0)
+   .sort((a,b)=>b.score-a.score)
+   .slice(0,plan?.mode==='list'?48:12)
+   .map(x=>x.f);
   const candidates=[];
   if(plan?.mode==='list'&&!['drops','bossDrops'].includes(plan.facet)&&broad.length>4){
    const names=broad.filter(f=>f.kind==='collection'||f.kind==='inventory');
