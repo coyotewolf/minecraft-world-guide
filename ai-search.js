@@ -76,6 +76,6 @@ export async function retrieveMany(manifest,queries,read,options={}){
 
 export function referenceQueries(facts,q){
  const terms=tokens(actionQuery(q)).filter(t=>/^[a-z][a-z0-9_]*$/.test(t)&&t.length>=4),refs=new Map();
- for(const f of facts.filter(f=>f.runtimeEvidence))for(const ref of String(f.retrievalText||f.text||'').match(/\b[A-Za-z0-9_]*config[A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){1,4}/gi)||[]){const text=ref.toLowerCase(),score=terms.reduce((sum,t)=>sum+(text.includes(t)?t.length:0),0);refs.set(ref,Math.max(score+(f.actionScore||0)/100,refs.get(ref)||0))}
+ for(const f of facts.filter(f=>f.runtimeEvidence))for(const ref of String(f.retrievalText||f.text||'').match(/\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){1,4}/g)||[]){const root=ref.split('.')[0];if(!/^[A-Z]/.test(root)&&!/config|settings|options|rules/i.test(root))continue;if(['Math','String','Integer','Double','Long','Float','List','Set','Map','Arrays','Objects','Optional','InteractionResult','SoundSource','SoundEvents','ParticleTypes'].includes(root))continue;const text=ref.toLowerCase(),score=terms.reduce((sum,t)=>sum+(text.includes(t)?t.length:0),0);refs.set(ref,Math.max(score+(f.actionScore||0)/100,refs.get(ref)||0))}
  return [...refs].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([ref])=>(ref+' '+ref.replace(/([a-z])([A-Z])/g,'$1 $2').split(/[.\s_]+/).filter(t=>t.length>=4&&!/config|cache|^main$|^data$/i.test(t)).join(' ')).slice(0,100));
 }

@@ -66,3 +66,11 @@ test('model evidence preserves distinct installed item identities even when tran
  const r=localizeModelEvidence('ingredient=pack:red_token; result=pack:blue_token',text=>text.replace(/pack:(?:red|blue)_token/g,'憑證'));
  assert(r.includes('憑證（pack:red_token）'));assert(r.includes('憑證（pack:blue_token）'));assert(!r.includes('\uE000'));
 });
+
+test('dependency follow-up is not restricted to classes named Config and ignores library plumbing',async()=>{
+ const {referenceQueries}=await import('./ai-search.js');
+ for(const ref of ['MachineSettings.requiredFuel','ModTags.Blocks.HEAT_SOURCES','RecipeRules.requiredTool','CreatureOptions.allowedFoods']){
+  const r=referenceQueries([{runtimeEvidence:true,text:'public void handleUse(){ Math.max(1,2); if(ok) check('+ref+'); InteractionResult.SUCCESS; }'}],'操作條件');
+  assert(r.some(q=>q.includes(ref)));assert(!r.some(q=>q.includes('Math.max')||q.includes('InteractionResult.SUCCESS')));
+ }
+});
