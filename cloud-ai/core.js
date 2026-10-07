@@ -1,10 +1,10 @@
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
 import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
-import {retrieve,activityPool,retrieveMany} from '../ai-search.js';
+import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.js';
 import {modelEvidence} from '../ai-evidence.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v19-batched-reference-follow-up';
+export const ANSWER_CACHE_VERSION='zh-tw-v20-automatic-reference-follow-up';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -212,16 +212,22 @@ export class GuideService{
    this.stage='provider';let reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
    if(!reply){await release();const availability=await this.availability();return {status:503,body:{error:availability.message,code:availability.code,retryAt:availability.retryAt,providers:availability.providers,lastFailures:availability.lastFailures}}}
    if(this.env.ANSWER_REVIEW==='true'&&plan&&plan.mode!=='chat'&&compact.length){
-    const validateReview=value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)&&(x.searchQueries===undefined||Array.isArray(x.searchQueries)&&x.searchQueries.length<=3&&x.searchQueries.every(q=>typeof q==='string'&&q.trim()&&q.length<=100))};
-    for(let pass=0;pass<2;pass++){
-     this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
-     if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
-     reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
-     if(pass||!extra?.length)break;
-     this.stage='supplemental-evidence';const additional=await retrieveMany(this.manifest,extra.map(q=>normalizedQuestion+' '+q),file=>this.read(file),{related:true});
-     const pool=[...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
+    const supplement=async queries=>{
+     this.stage='supplemental-evidence';const topic=(plan.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
+     const retained=[];let reserved=0;for(const f of [...sent.filter(f=>f.runtimeEvidence),...sent.filter(f=>!f.runtimeEvidence)].slice(0,2)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
+     const pool=[...retained,...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
      for(const f of pool){if(ids.has(f.id))continue;ids.add(f.id);const evidence=modelEvidence(f),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:this.localize(evidence.text)},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;
+    };
+    const references=hasNamedSubject?referenceQueries(current,normalizedQuestion):[];
+    if(references.length)await supplement(references.slice(0,1));
+    const validateReview=value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)&&(x.searchQueries===undefined||Array.isArray(x.searchQueries)&&x.searchQueries.length<=3&&x.searchQueries.every(q=>typeof q==='string'&&q.trim()&&q.length<=100))};
+    for(let pass=0;pass<2;pass++){
+     this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:search.coverage.supplemental?0:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
+     if(!reviewed){await release();const state=await this.availability();return {status:503,body:{error:state.message,code:state.code,retryAt:state.retryAt,providers:state.providers,lastFailures:state.lastFailures}}}
+     reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
+     if(pass||!extra?.length||search.coverage.supplemental)break;
+     await supplement(extra);
     }
    }
    const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));

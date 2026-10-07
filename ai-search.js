@@ -54,12 +54,18 @@ export async function retrieveMany(manifest,queries,read,options={}){
  const pages=await Promise.all([...picked.keys()].map(once)),all=pages.flat();
  const ranked=normalized.map((q,i)=>{
   const rows=rank(options.related?all.map(f=>({...f,search:(f.search||'')+' '+(f.text||'')})):all,actionQuery(q),options.related?120:36,options.related?[]:anchorsByQuery[i]);if(!options.related)return rows;
-  const words=tokens(actionQuery(q)).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t));
-  return rows.map((f,index)=>{let bonus=0,line=-1;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const score=concrete?(exact?1000:500):50;if(score>bonus){bonus=score;line=j}}}return {f:line>=0?{...f,retrievalText:lines.slice(Math.max(0,line-3),line+20).map((text,j)=>j===Math.min(3,line)?text.slice(0,2000):text.slice(0,500)).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
+  const words=[...new Set(tokens(actionQuery(q+' '+q.replace(/([a-z])([A-Z])/g,'$1 $2'))).filter(t=>/^[a-z][a-z0-9_]{4,}$/.test(t)&&!['config','cache','main','data','item','items'].includes(t)))];
+  return rows.map((f,index)=>{let bonus=0,line=-1;const lines=String(f.text||'').split('\n');for(let j=0;j<lines.length;j++){const m=lines[j].match(/\b(?:public|private|protected)[^;]{0,160}\b([A-Za-z_$][\w$]*)\s*=([^;]+)/);if(m&&words.some(w=>m[1].toLowerCase().startsWith(w))){const concrete=/["']|List\.of|\b(?:true|false|\d+(?:\.\d+)?)\b/.test(m[2]);const exact=words.includes(m[1].toLowerCase());const matches=words.filter(w=>m[1].toLowerCase().includes(w)).length;const score=concrete?(exact?1500:500*Math.max(1,matches)):50;if(score>bonus){bonus=score;line=j}}}return {f:line>=0?{...f,retrievalText:lines.slice(Math.max(0,line-3),line+20).map((text,j)=>j===Math.min(3,line)?text.slice(0,2000):text.slice(0,500)).join('\n').slice(0,2600)}:f,score:rows.length-index+bonus}}).sort((a,b)=>b.score-a.score).slice(0,36).map(x=>x.f);
  });const facts=[];
  for(let i=0;i<36;i++)for(const list of ranked){const f=list[i];if(f&&!facts.some(x=>x.id===f.id))facts.push(f)}
  // Keep curated reviewed evidence, and concrete activities appropriate to progress.
  if(manifest.reviewed){const reviewed=await once(manifest.reviewed);facts.unshift(...reviewed.filter(f=>normalized.some((q,i)=>{const relevant=!anchorsByQuery[i].length||anchorsByQuery[i].some(n=>(f.title+' '+(f.labels||[]).join(' ')+' '+f.search).toLowerCase().includes(n));return relevant&&(f.matchAll?.every(g=>g.some(t=>q.includes(t)))||f.topics?.some(t=>q.includes(t)))})))}
  if(normalized.some(recommendation))facts.push(...await activityPool(manifest,normalized[0],once,options));
  return {facts:[...new Map(facts.map(f=>[f.id,f])).values()].slice(0,48),coverage:{queries:normalized,subjects:[...new Set(anchorsByQuery.flat())],readShards:picked.size,totalShards:manifest.shards.length,matchedShards:new Set(choices.flatMap(x=>x.map(r=>r.s.file))).size,evidenceKinds:[...new Set([...picked.values()].flatMap(x=>x.kinds))],bounded:true,note:'搜尋涵蓋多種資料，但本輪最多讀取 16 個資料檔；沒有找到不能推論整包不存在。來源摘要仍須核對條件。'}};
+}
+
+export function referenceQueries(facts,q){
+ const terms=tokens(actionQuery(q)).filter(t=>/^[a-z][a-z0-9_]*$/.test(t)&&t.length>=4),refs=new Map();
+ for(const f of facts.filter(f=>f.runtimeEvidence))for(const ref of String(f.text||'').match(/\b[A-Za-z0-9_]*config[A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*){1,4}/gi)||[]){const text=ref.toLowerCase(),score=terms.reduce((sum,t)=>sum+(text.includes(t)?t.length:0),0);if(score>0)refs.set(ref,Math.max(score,refs.get(ref)||0))}
+ return [...refs].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([ref])=>(ref+' '+ref.replace(/([a-z])([A-Z])/g,'$1 $2').split(/[.\s_]+/).filter(t=>t.length>=4&&!/config|cache|^main$|^data$/i.test(t)).join(' ')).slice(0,100));
 }
