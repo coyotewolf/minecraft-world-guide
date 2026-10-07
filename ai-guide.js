@@ -139,7 +139,7 @@ async function hydrateCloud(){
    if(checked.error)throw checked.error;
    if(identity!==owner||state.conversationId!==cid||busy||deleting)return;
    currentCloudExists=!!checked.data;
-   if(!checked.data){state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false};retryQuestion=null;retryRequestId=null;save();await refreshHistory();cloudReady=true;syncWarning=false;statusNotice='這段對話已從帳號刪除。';paint();return}
+   if(!checked.data){const access=await auth.db.rpc('player_status');if(access.error||access.data?.active!==true)throw Error('請重新登入後同步聊天紀錄。');if(identity!==owner||state.conversationId!==cid)return;state={conversationId:newConversationId(),messages:[],oldestAt:null,hasEarlier:false};retryQuestion=null;retryRequestId=null;save();await refreshHistory();cloudReady=true;syncWarning=false;statusNotice='這段對話已從帳號刪除。';paint();return}
   }
   await migrateLocal();
   if(identity!==owner||state.conversationId!==cid||busy)return;
