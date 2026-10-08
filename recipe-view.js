@@ -1,5 +1,6 @@
 // Inventory artwork is extracted from this pack's item models and textures.
 export const STATION_ITEMS={
+ 'saintsdragons:draconic_crucible_smelting':'saintsdragons:draconic_crucible','saintsdragons:draconic_crucible':'saintsdragons:draconic_crucible',
  'create:crushing':'create:crushing_wheel','create:splashing':'create:encased_fan',
  'sophisticatedbackpacks:backpack_upgrade':'minecraft:crafting_table','sophisticatedbackpacks:smithing_backpack_upgrade':'minecraft:smithing_table','farmersdelight:cooking':'farmersdelight:cooking_pot','farmersdelight:cutting':'farmersdelight:cutting_board','ae2:inscriber':'ae2:inscriber',
  'minecraft:crafting_shaped':'minecraft:crafting_table','minecraft:crafting_shapeless':'minecraft:crafting_table','sophisticatedbackpacks:basic_backpack':'minecraft:crafting_table','framedblocks:frame':'minecraft:crafting_table','enderstorage:create_recipe':'minecraft:crafting_table','enderstorage:recolour_recipe':'minecraft:crafting_table',
@@ -27,6 +28,9 @@ export function createRecipeView({h,image,nameOf,tagName,stationName,heatName,ta
   else if(r.ingredient)body=`<div class="recipe-materials">${ingredientView(r.ingredient)}</div>`;
   if(r.tool)body+=`<p>工具</p><div class="recipe-materials">${ingredientView(r.tool)}</div>`;
   if(r.sequence)body+=`<ol class="recipe-sequence">${r.sequence.map(s=>`<li>${stationView(s.type)}<div class="recipe-materials">${(s.ingredients||[]).map(x=>ingredientView(x)).join('')}</div></li>`).join('')}</ol>`;
+  if(r.required_heat_level!=null)body+=`<p class="recipe-heat">最低熱度 ${h(r.required_heat_level)}${r.required_heat_level===2?'：烈焰粉或熾熱煤炭':r.required_heat_level===3?'：龍之吐息或對應三級燃料':''}</p>`;
+  const ticks=r.processing_time??r.cookingtime;
+  if(ticks!=null)body+=`<p class="recipe-time">單次加工 ${h(ticks)} 遊戲刻（正常刻速約 ${h(ticks/20)} 秒）</p>`;
   const results=r.results||[r.result].filter(Boolean);
   return `<section class="panel game-recipe">${stationView(r.type)}${body}${r.heatRequirement&&r.heatRequirement!=='none'?`<p class="recipe-heat">${image('create:blaze_burner')}${h(heatName(r.heatRequirement))}</p>`:''}${r.loops?`<p>重複 ${h(r.loops)} 次</p>`:''}<div class="recipe-results"><span aria-hidden="true">→</span>${results.map(x=>ingredientView(x,{output:true})).join('')}</div></section>`;
  }
