@@ -1,5 +1,7 @@
-export function tutorialReference(article,{h,image,tutorialText}){
- return (article.referenceSections||[]).map(section=>`<section class="tutorial-reference"><h2>${h(section.title)}</h2><div class="tutorial-reference-grid">${section.rows.map(row=>`<article class="tutorial-reference-card"><div class="tutorial-reference-heading">${row.item?`<button class="tutorial-reference-icon" data-recipe="${h(row.item)}" aria-label="${h(row.title)}，查看配方" data-item-hint="${h(row.title)}">${image(row.item)}</button>`:''}<h3>${h(row.title)}</h3></div><p>${tutorialText(row.text,article)}</p>${row.recipe?`<button data-recipe="${h(row.item)}">查看合成格位</button>`:''}</article>`).join('')}</div></section>`).join('');
+export function tutorialReference(article,{h,image,tutorialText,renderRecipe}){
+ const references=(article.referenceSections||[]).map(section=>`<section class="tutorial-reference"><h2>${h(section.title)}</h2><div class="tutorial-reference-grid">${section.rows.map(row=>`<article class="tutorial-reference-card"><div class="tutorial-reference-heading">${row.item?`<button class="tutorial-reference-icon" data-recipe="${h(row.item)}" aria-label="${h(row.title)}，查看配方" data-item-hint="${h(row.title)}">${image(row.item)}</button>`:''}<h3>${h(row.title)}</h3></div><p>${tutorialText(row.text,article)}</p>${row.recipe?`<button data-recipe="${h(row.item)}">查看合成格位</button>`:''}</article>`).join('')}</div></section>`).join('');
+ const recipes=(article.recipeSections||[]).map(section=>`<section class="tutorial-reference tutorial-recipe-section"><h2>${h(section.title)}</h2>${section.text?`<p>${tutorialText(section.text,article)}</p>`:''}${section.recipes.map(recipe=>`<div class="tutorial-recipe-example"><h3>${h(recipe.title)}</h3>${renderRecipe(recipe.raw)}</div>`).join('')}</section>`).join('');
+ return references+recipes;
 }
 export function tutorialSourceFiles(article,{h}){
  const files=[...(article.sourceFiles||[]),...(article.unpackedSources||[])];

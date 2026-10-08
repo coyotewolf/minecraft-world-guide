@@ -1,5 +1,6 @@
 // Inventory artwork is extracted from this pack's item models and textures.
 export const STATION_ITEMS={
+ 'create:crushing':'create:crushing_wheel','create:splashing':'create:encased_fan',
  'sophisticatedbackpacks:backpack_upgrade':'minecraft:crafting_table','sophisticatedbackpacks:smithing_backpack_upgrade':'minecraft:smithing_table','farmersdelight:cooking':'farmersdelight:cooking_pot','farmersdelight:cutting':'farmersdelight:cutting_board','ae2:inscriber':'ae2:inscriber',
  'minecraft:crafting_shaped':'minecraft:crafting_table','minecraft:crafting_shapeless':'minecraft:crafting_table','sophisticatedbackpacks:basic_backpack':'minecraft:crafting_table','framedblocks:frame':'minecraft:crafting_table','enderstorage:create_recipe':'minecraft:crafting_table','enderstorage:recolour_recipe':'minecraft:crafting_table',
  'minecraft:smelting':'minecraft:furnace','minecraft:blasting':'minecraft:blast_furnace','minecraft:smoking':'minecraft:smoker','minecraft:stonecutting':'minecraft:stonecutter','minecraft:smithing_transform':'minecraft:smithing_table',
