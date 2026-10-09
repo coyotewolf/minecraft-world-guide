@@ -30,6 +30,10 @@ jobs:
         working-directory: cloud-ai
       - run: ./node_modules/.bin/esbuild app.js --bundle --minify --format=esm --target=es2022 --outfile=assets/app.min.js
       - run: node --check assets/app.min.js
+      - name: Refresh public bundle cache key
+        env:
+          SITE_REVISION: ${{ github.sha }}
+        run: node tools/version_public_bundle.mjs
       - run: node tools/prepare_public_site.mjs
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
