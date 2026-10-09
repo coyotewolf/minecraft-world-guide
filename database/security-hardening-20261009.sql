@@ -40,7 +40,7 @@ create trigger assistant_conversations_storage_delete after delete on public.ass
 create trigger assistant_messages_storage_write before insert or update on public.assistant_messages for each row execute function private.track_assistant_storage();
 create trigger assistant_messages_storage_delete after delete on public.assistant_messages for each row execute function private.track_assistant_storage();
 create or replace function private.is_admin() returns boolean language sql stable security definer set search_path='' as $fn$
- select private.valid_session() and auth.jwt()->>'aal'='aal2' and exists(select 1 from private.admins where user_id=auth.uid())
+ select private.valid_session() and coalesce(auth.jwt()->>'aal','aal1')='aal2' and exists(select 1 from private.admins where user_id=auth.uid())
 $fn$;
 create function private.needs_admin_mfa() returns boolean language sql stable security definer set search_path='' as $fn$
  select private.valid_session() and coalesce(auth.jwt()->>'aal','aal1')<>'aal2' and exists(select 1 from private.admins where user_id=auth.uid())
