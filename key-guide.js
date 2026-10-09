@@ -1,4 +1,4 @@
-export const KEY_VERSION='20261005-v1';
+export const KEY_VERSION='20261010-v1';
 export function keyLabel(value){
  const [key,modifier]=String(value||'key.keyboard.unknown').split(':');
  const labels={'key.keyboard.unknown':'不設定','key.mouse.left':'滑鼠左鍵','key.mouse.right':'滑鼠右鍵','key.mouse.middle':'滑鼠中鍵','key.mouse.4':'滑鼠側鍵 4','key.mouse.5':'滑鼠側鍵 5','key.keyboard.grave.accent':'`','key.keyboard.space':'Space','key.keyboard.left.shift':'左 Shift','key.keyboard.right.shift':'右 Shift','key.keyboard.left.control':'左 Ctrl','key.keyboard.right.control':'右 Ctrl','key.keyboard.left.alt':'左 Alt','key.keyboard.right.alt':'右 Alt','key.keyboard.caps.lock':'Caps Lock','key.keyboard.backslash':'\\','key.keyboard.left.bracket':'[','key.keyboard.right.bracket':']','key.keyboard.comma':',','key.keyboard.period':'.','key.keyboard.apostrophe':"'",'key.keyboard.semicolon':';','key.keyboard.scroll.lock':'Scroll Lock'};
