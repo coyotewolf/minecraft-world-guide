@@ -110,3 +110,5 @@ test('dependency follow-up is not restricted to classes named Config and ignores
   assert(r.some(q=>q.includes(ref)));assert(!r.some(q=>q.includes('Math.max')||q.includes('InteractionResult.SUCCESS')));
  }
 });
+test('Minecraft SRG item fields become readable model evidence without changing identity',()=>{const f={runtimeEvidence:true,title:'餵食',text:'public Result use(){if(stack.is(Items.f_42579_))return SUCCESS;}'};const value=modelEvidence(f,{f_42579_:{constant:'BEEF',registryId:'minecraft:beef',name:'生牛肉'}});assert(value.text.includes('Items.f_42579_（生牛肉，minecraft:beef）'));});
+test('verified complete runtime summary survives the generic fragment truncation path',async()=>{const rows=await read('monsterexpansion-runtime-verified.json');assert(rows[0].retrievalText.includes('Items.f_42579_'));assert(modelEvidence(rows[0]).text.includes('生牛肉'));assert(modelEvidence(rows[0]).text.includes('未馴服'));assert(playerEvidence(rows[0]).text.includes('生牛肉'));});

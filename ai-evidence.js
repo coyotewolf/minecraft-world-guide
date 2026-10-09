@@ -28,9 +28,10 @@ function flatten(value,path='',out=[]){
  if(['string','number','boolean'].includes(typeof value))out.push((path||'value')+' = '+String(value));
  return out;
 }
-export function modelEvidence(f){
+export function modelEvidence(f,minecraftItemFields={}){
  const shown=playerEvidence(f);
- if(f.runtimeEvidence)return {title:f.title,text:'解包片段，必須檢查條件；片段未出現某行為不能證明不存在。\n本輪完整性：'+(f.retrievalScope||'只提供來源視窗；尚未確認完整程式路徑')+'\n'+String(f.retrievalText||f.text||'').slice(0,2600)};
+ if(f.runtimeVerified&&f.playerSummary)return {title:shown.title,text:shown.text+'\n證據範圍：'+(f.retrievalScope||'')};
+ if(f.runtimeEvidence)return {title:f.title,text:'解包片段，必須檢查條件；片段未出現某行為不能證明不存在。\n本輪完整性：'+(f.retrievalScope||'只提供來源視窗；尚未確認完整程式路徑')+'\n'+String(f.retrievalText||f.text||'').replace(/\bItems\.(f_\d+_)\b/g,(raw,field)=>{const item=minecraftItemFields[field];return item?raw+'（'+item.name+'，'+item.registryId+'）':raw;}).slice(0,2600)};
  if(f.playerSummary)return shown;
  const raw=String(f.text||'').trim();
  if(!raw.match(/^[\[{]/))return shown;

@@ -86,6 +86,9 @@ try{
   }
 }catch(error){console.warn('SLU runtime item map unavailable:',error.message)}
 
+// Complete, checked runtime mechanics are retained as readable evidence.
+for(const fact of read('data/ai/monsterexpansion-runtime-verified.json'))knowledge.push(fact);
+
 const out=new URL('../data/ai/',import.meta.url);
 const shardSize=220,index=[];
 for(let i=0;i<knowledge.length;i+=shardSize){

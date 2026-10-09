@@ -25,7 +25,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: npm run check
-      - run: node --test database/edge-security.test.mjs session-storage.test.js cloud-ai/client-access.test.js
+      - run: node --test database/edge-security.test.mjs session-storage.test.js account-loader.test.js cloud-ai/client-access.test.js
       - run: npm audit --package-lock-only --audit-level=high
         working-directory: cloud-ai
       - run: ./node_modules/.bin/esbuild app.js --bundle --minify --format=esm --target=es2022 --outfile=assets/app.min.js
