@@ -1,69 +1,52 @@
-name: Build website bundle
-
+name: Verify and publish website
 on:
   push:
     branches: [main]
-    paths:
-      - "*.js"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/build-site-bundle.yml"
+  pull_request:
   workflow_dispatch:
-
 permissions:
-  contents: write
-
+  contents: read
 concurrency:
-  group: website-bundle
+  group: website-publication-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  build:
+  security-checks:
+    name: security-checks
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: "22"
           cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build production bundle
-        run: ./node_modules/.bin/esbuild app.js --bundle --minify --format=esm --target=es2022 --outfile=assets/app.min.js
-
-      - name: Verify bundle
-        run: node --check assets/app.min.js
-
-      - name: Refresh bundle cache key
-        shell: bash
-        run: |
-          short="${GITHUB_SHA:0:8}"
-          node - "$short" <<'NODE'
-          const fs=require('fs');
-          const short=process.argv[2];
-          const file='index.html';
-          let s=fs.readFileSync(file,'utf8');
-          s=s.replace(/assets\/app\.min\.js\?v=[^"]+/,'assets/app.min.js?v='+short);
-          fs.writeFileSync(file,s);
-          NODE
-
-      - name: Commit built bundle
-        shell: bash
-        run: |
-          if git diff --quiet -- assets/app.min.js index.html; then
-            echo "Bundle already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/app.min.js index.html
-          git commit -m "Build latest website bundle"
-          git push
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run check
+      - run: node --test database/edge-security.test.mjs session-storage.test.js cloud-ai/client-access.test.js
+      - run: npm audit --package-lock-only --audit-level=high
+        working-directory: cloud-ai
+      - run: ./node_modules/.bin/esbuild app.js --bundle --minify --format=esm --target=es2022 --outfile=assets/app.min.js
+      - run: node --check assets/app.min.js
+      - run: node tools/prepare_public_site.mjs
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: _site
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: security-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish verified site
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

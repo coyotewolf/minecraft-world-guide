@@ -1,3 +1,4 @@
+import {boundedJson,RequestError,safeNewPassword} from './edge-security.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
 const url=Deno.env.get('SUPABASE_URL')!;
 const admin=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
@@ -9,7 +10,7 @@ function recovery(){return Array.from(crypto.getRandomValues(new Uint8Array(24))
 function check<T>(r:{data:T,error:any}):T {if(r.error)throw Error(r.error.message);return r.data}
 Deno.serve(async req=>{
  const origin=req.headers.get('origin')||'';
- const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':allowed.has(origin)?origin:'https://coyotewolf.github.io','Access-Control-Allow-Headers':'content-type,apikey,authorization,x-client-info,x-public-key','Access-Control-Allow-Methods':'POST,GET,OPTIONS','Vary':'Origin'};
+ const headers={'Content-Type':'application/json','Access-Control-Allow-Origin':allowed.has(origin)?origin:'https://coyotewolf.github.io','Access-Control-Allow-Headers':'content-type,apikey,authorization,x-client-info,x-public-key','Access-Control-Allow-Methods':'POST,GET,OPTIONS','Vary':'Origin','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
  const reply=(body:any,status=200)=>new Response(JSON.stringify(body),{status,headers});
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
  if(req.method==='GET')return reply({ok:true,mode:'game-id-password',recovery:true});
@@ -19,9 +20,7 @@ Deno.serve(async req=>{
  // database-backed per-account/IP limits and a global ceiling guard the public gateway.
  if(req.headers.get('x-public-key')!==publicKey)return reply({error:'網站金鑰無效'},401);
  try {
-  if(Number(req.headers.get('content-length')||0)>4096)return reply({error:'資料過長'},413);
-  const raw=await req.text();if(raw.length>4096)return reply({error:'資料過長'},413);
-  const body=JSON.parse(raw);const name=String(body.gameId||'').trim().normalize('NFKC');const key=name.toLowerCase();
+  const body=await boundedJson(req);const name=String(body.gameId||'').trim().normalize('NFKC');const key=name.toLowerCase();
   if(!/^[a-z0-9_\-\u4e00-\u9fff]{3,32}$/u.test(key))return reply({error:'遊戲 ID 需為 3–32 個字，使用英文、數字、底線、連字號或中文字'},400);
   const password=String(body.password||'');if(password.length<10||password.length>72||enc.encode(password).length>72)return reply({error:'網站密碼需至少 10 個字元，最多 72 個 UTF-8 位元組（英文或數字最多 72 字元）'},400);
   const action=body.action;if(!['register','login','recover','admin-reset'].includes(action))return reply({error:'操作無效'},400);
@@ -29,6 +28,7 @@ Deno.serve(async req=>{
   const bucket=await hash(ip);const limit=action==='register'?10:action==='recover'?5:30;
   for(const k of [action+':ip:'+bucket,action+':id:'+key])if(!check(await admin.rpc('rate_limit',{k,lim:limit,seconds:3600})))return reply({error:'嘗試次數過多，請稍後再試'},429);
   if(action==='register'&&!check(await admin.rpc('rate_limit',{k:'register:global',lim:80,seconds:3600})))return reply({error:'目前註冊繁忙，請稍後再試'},429);
+  if(action==='register'||action==='recover')await safeNewPassword(password);
   const email=(await hash(key))+'@players.invalid';
   let code:string|undefined;
   if(action==='admin-reset'){
@@ -70,5 +70,5 @@ Deno.serve(async req=>{
   if(login.error||!login.data.session)return reply({error:'ID 或網站密碼不正確'},401);
   const approved=check(await admin.rpc('account_status',{gkey:key}));
   return reply({session:login.data.session,recoveryCode:code,approved:!!approved});
- }catch(e){console.error('player-auth request failed',e instanceof Error?e.message:'unknown');return reply({error:'暫時無法完成，請稍後再試'},500)}
+ }catch(e){if(e instanceof RequestError)return reply({error:e.message},e.status);console.error('player-auth request failed');return reply({error:'暫時無法完成，請稍後再試'},500)}
 });

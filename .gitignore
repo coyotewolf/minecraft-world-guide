@@ -7,3 +7,5 @@ test-results/
 data/equipment-shape.json
 data/languages.json
 data/recipes.json
+
+_site/

@@ -1,1 +1,13 @@
-{"name":"aoi-free-cloud-guide","private":true,"type":"module","scripts":{"check":"node --test core.test.js quota-admin.test.js provider-quotas.test.js chat-deletion.test.js ../ai-search.test.js","preview-deploy":"wrangler deploy --dry-run --outdir .wrangler/dry-run","deploy":"wrangler deploy"},"devDependencies":{"wrangler":"4.147.0"}}
+{
+  "name": "aoi-free-cloud-guide",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --test core.test.js quota-admin.test.js provider-quotas.test.js chat-deletion.test.js ../ai-search.test.js client-access.test.js",
+    "preview-deploy": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.149.0"
+  }
+}

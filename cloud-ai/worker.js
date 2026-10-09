@@ -1,3 +1,4 @@
+import {clientAccess} from './client-access.js';
 import {ProviderQuotas} from './provider-quotas.js';
 import {quotaChange,changeQuota,quotaReport} from './quota-admin.js';
 import {DurableObject} from 'cloudflare:workers';
@@ -43,9 +44,8 @@ export class GuideCoordinator extends DurableObject{
  async alarm(){await this.service.cleanup();await this.ctx.storage.setAlarm(Date.now()+86400000)}
 }
 export default {async fetch(request,env){
- const origin=request.headers.get('Origin');const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin'};
- if(origin!==env.SITE_ORIGIN)return new Response(JSON.stringify({error:'不允許此網站使用。'}),{status:403,headers});
- headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS';headers['Access-Control-Allow-Headers']='Authorization, Content-Type';
+ const access=clientAccess(request,env),headers=access.headers;
+ if(access.status)return new Response(JSON.stringify({error:access.error}),{status:access.status,headers});
  const send=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
  if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!(env.GEMINI_API_KEY||env.gemini_api),fallback:!!env.AI});
