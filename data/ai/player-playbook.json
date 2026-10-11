@@ -231,5 +231,24 @@
     "source": "本站教學：夥伴、坐騎與龍族",
     "playerTitle": "想玩龍：找一隻還沒收集或沒練熟的坐騎",
     "playerSummary": "先從坐騎收藏挑一隻未取得的龍或夥伴，查地點、食物與馴服條件；已經有很多坐騎的話，就在基地附近測騎乘、召回、戰鬥能力與地形破壞風險。"
+  },
+  {
+    "id": "playbook:podzol-acquisition",
+    "title": "灰壤（Podzol）：取得方式與大量生產",
+    "category": "block-acquisition",
+    "playerTitle": "灰壤（Podzol）怎麼取得：2×2 杉木樹苗製造、絲綢之觸採集",
+    "search": "灰壤 灰化土 灰土 灰壤方塊 Podzol minecraft:podzol 怎麼取得 如何獲得 哪裡有 怎麼做 種植 量產 生產 杉木 杉木樹苗 2x2 2×2 大型杉木 巨型杉木 巨型松木 骨粉 絲綢之觸 精準採集 絲綢觸碰 silk touch 巨型針葉林 原生杉木針葉林 原生松木針葉林 竹林 流浪商人 終界使者",
+    "labels": [
+      "灰壤",
+      "Podzol",
+      "minecraft:podzol",
+      "杉木樹苗",
+      "絲綢之觸",
+      "大型杉木",
+      "流浪商人"
+    ],
+    "source": "Minecraft Java Edition 1.20.1 原版灰壤生成、掉落與交易機制；Minecraft Wiki：Podzol、Spruce、Tutorial:Tree farming（模組／伺服器特殊覆寫未驗證）",
+    "evidenceScope": "原版 Java 1.20.1 可靠取得方式，非對伺服器額外配方或模組改寫的實測。",
+    "playerSummary": "灰壤（Podzol，minecraft:podzol）是原版方塊。最適合大量生產的方法：準備 4 株杉木樹苗，在泥土或草方塊上排成 2×2，保留大型杉木所需的向上生長空間，使用骨粉催生（或等待自然生長）。長成大型杉木／巨型松木時，樹底附近的泥土、草方塊、粗泥、菌絲土、纏根泥土、苔蘚方塊等適用地面會轉成灰壤；可重複種植製造。要把灰壤挖起來帶走，須用附有「絲綢之觸」的工具，鏟子挖最快；不用絲綢之觸挖只會掉普通泥土。自然尋找：原生杉木針葉林（old_growth_spruce_taiga）、原生松木針葉林（old_growth_pine_taiga）、竹林（bamboo_jungle）。流浪商人也可能以 3 個綠寶石出售 3 個灰壤；手持灰壤的終界使者被擊殺時也可能掉落。若只是讓原地地表變成灰壤，不必挖走，也就不需要絲綢之觸。這是原版 1.20.1 的取得方法；自訂生態域、交易與掉落可能受伺服器或模組修改。"
   }
 ]
