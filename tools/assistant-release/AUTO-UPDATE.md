@@ -1,12 +1,14 @@
-# 統一發布與自動更新（0.1.7）
+# 統一發布與自動更新（0.1.8）
 
-玩家需先手動安裝一次 0.1.7。往後 Windows 會背景檢查官方版本、下載並驗證、等待遊戲關閉後備份及替換 JAR，下次啟動生效。不會強制關遊戲或修改其他模組、登入設定、聊天資料。現有 0.1.6 以下沒有更新器，無法直接取得此功能。
+玩家需先手動安裝一次 0.1.8。往後 Windows 會背景檢查官方版本、下載並驗證、等待遊戲關閉後備份及替換 JAR，下次啟動生效。不會強制關遊戲或修改其他模組、登入設定、聊天資料。現有 0.1.6 以下沒有更新器，無法直接取得此功能。
 
 支援目前 Windows／MultiMC；使用 Forge 提供的實例路徑，因此其他 Windows 啟動器也可使用相同機制，但尚未逐一實機驗收。自訂 JAR 檔名或開發環境會停止自動替換；Linux／macOS 保留手動更新。正常安裝檔名為 `aoi-ai-assistant-1.20.1-版本.jar`，不要同時放兩版。
 
+玩家只需一個模組 JAR；固定更新助手由模組產生，無需另裝程式。下載新版 JAR 暫存，關閉後取代舊版，mods 始終只保留一個生效版本。
+
 ## 玩家操作與負荷
 
-- 啟動後約 20～90 秒檢查，以後每 6 小時檢查一次；錯誤隔 1 小時重試。
+- 每次啟動遊戲約 5 秒後，在背景檢查一次；同一次啟動不會定時再次檢查。檢查失敗也不定時重試，可用 `/ai 更新` 手動重試，或下次啟動再檢查。
 - `/ai 更新` 或 `/ai update` 可立即檢查，不需登入 AI；有新版本時在聊天室通知。
 - `config/aoi_assistant-client.toml` 中 `autoUpdate=false` 可關閉。已下載但尚未套用時關閉此設定，替換工具也會停止。
 - 更新清單由 GitHub Pages 快取提供，不呼叫 AI 或公告 Worker，不消耗 AI 配額。下載與驗證都在背景執行緒；正常情況只讀取小型清單，有新版才下載 JAR。
@@ -18,7 +20,7 @@
 在目前專案根目錄執行一個命令，`Site` 要指向已取得最新 `main` 的攻略網站 Git 工作目錄：
 
 ```powershell
-& .\outputs\minecraft-world-guide\minecraft-client\tools\release.ps1 -Site .\work\site-auto-update -Version 0.1.8 -Publish
+& .\outputs\minecraft-world-guide\minecraft-client\tools\release.ps1 -Site .\work\site-auto-update -Version 0.1.9 -Publish
 ```
 
 這會設定版本、執行客戶端／指令／公告／簽章測試及隔離替換測試、產生正式 JAR／原始碼／SHA256、簽署更新清單、更新網站下載入口，提交指定的發布檔案並推送。既有 Pages CI 驗證通過後公開。若省略 `-Publish`，只準備檔案供審查，不推送；發布前更新 CHANGELOG 說明本版變更。
