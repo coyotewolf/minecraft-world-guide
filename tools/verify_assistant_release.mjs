@@ -1,0 +1,7 @@
+import fs from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';import crypto from 'node:crypto';import assert from 'node:assert/strict';
+const site=fileURLToPath(new URL('../',import.meta.url));
+const key=crypto.createPublicKey({key:Buffer.from('MCowBQYDK2VwAyEAPst1u2K9Kq65tPnb+8yNziHhymHeK6GDXnxkP4xHt7c=','base64'),format:'der',type:'spki'});
+const envelope=JSON.parse(await fs.readFile(path.join(site,'downloads/aoi-assistant-latest.json'),'utf8')),payload=Buffer.from(envelope.payload,'base64');assert.ok(crypto.verify(null,payload,key,Buffer.from(envelope.signature,'base64')),'Release signature invalid');
+const m=JSON.parse(payload);assert.match(m.version,/^(?:0|[1-9]\d{0,5})\.(?:0|[1-9]\d{0,5})\.(?:0|[1-9]\d{0,5})$/);assert.equal(m.protocol,1);assert.equal(m.modId,'aoi_assistant');assert.equal(m.minecraft,'1.20.1');assert.equal(m.loader,'forge');assert.equal(m.channel,'stable');
+const name=`aoi-ai-assistant-1.20.1-${m.version}.jar`;assert.equal(m.url,'https://coyotewolf.github.io/minecraft-world-guide/downloads/'+name);assert.ok(m.bytes>=10000&&m.bytes<=16777216);assert.ok(Date.parse(m.expiresAt)>Date.parse(m.publishedAt));
+const jar=await fs.readFile(path.join(site,'downloads',name));assert.equal(jar.length,m.bytes);assert.equal(crypto.createHash('sha256').update(jar).digest('hex'),m.sha256);console.log('Signed assistant release verified:',m.version,m.sha256);

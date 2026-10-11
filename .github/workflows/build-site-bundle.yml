@@ -24,6 +24,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
+      - run: node tools/verify_assistant_release.mjs
       - run: npm run check
       - run: node --test database/edge-security.test.mjs session-storage.test.js account-loader.test.js cloud-ai/client-access.test.js cloud-ai/announcements.test.js
       - run: npm audit --package-lock-only --audit-level=high
