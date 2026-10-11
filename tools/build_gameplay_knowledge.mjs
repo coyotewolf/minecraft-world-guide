@@ -86,6 +86,13 @@ try{
   }
 }catch(error){console.warn('SLU runtime item map unavailable:',error.message)}
 
+// Player-reviewed acquisition facts also enter the searchable gameplay corpus.
+// Acquisition queries can bypass the conversational playbook, so keep these
+// records in both indexes rather than depending on playbook-only selection.
+for(const fact of read('data/ai/player-playbook.json')){
+  if(fact.category==='block-acquisition')knowledge.push({...fact,kind:'mechanic'});
+}
+
 // Complete, checked runtime mechanics are retained as readable evidence.
 for(const fact of read('data/ai/monsterexpansion-runtime-verified.json'))knowledge.push(fact);
 
