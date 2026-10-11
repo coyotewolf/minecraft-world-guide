@@ -84,6 +84,7 @@
         "health": "不需要先戰鬥或降低虛顎龍的血量。直接手持歌萊果對野生個體按右鍵，每次消耗1個，每次20%機率馴服。失敗不會在野生馴服分支回血；回血與餵食冷卻是已馴服後的一般餵食機制。"
       }
     },
-    "evidenceScope": "目前安裝0.9.51 JAR食物／生態域標籤、完整mobInteract野生與已馴服分支及canSpawnHere已查核；不是遠端伺服器或遊戲內驗收。"
+    "evidenceScope": "目前安裝0.9.51 JAR食物／生態域標籤、完整mobInteract野生與已馴服分支及canSpawnHere已查核；不是遠端伺服器或遊戲內驗收。",
+    "shard": "saintsdragons-runtime-verified.json"
   }
 ]

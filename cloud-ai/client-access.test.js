@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {clientAccess} from './client-access.js';
+import {ANSWER_CACHE_VERSION} from './core.js';
 let source=await readFile(new URL('./worker.js',import.meta.url),'utf8');
 source=source.replace("import {DurableObject} from 'cloudflare:workers';",'class DurableObject { constructor(ctx,env){this.ctx=ctx;this.env=env;} }');
 source=source.replace(/from '(\.\.?\/[^']+)'/g,(_,path)=>`from '${new URL(path,import.meta.url).href}'`);
@@ -78,10 +79,17 @@ class Store {
  async setAlarm(){}
 }
 test('coordinator reuses successful request UUID and rejects changed content',async()=>{
- const storage=new Store();await storage.put('request:owner:cid:rid',{question:'q',result:{status:200,body:{answer:'cached'}},expires:Date.now()+10000});
+ const storage=new Store();await storage.put('request:owner:cid:'+ANSWER_CACHE_VERSION+':rid',{question:'q',result:{status:200,body:{answer:'cached'}},expires:Date.now()+10000});
  const c=new GuideCoordinator({storage},{});assert.equal((await c.ask('owner','q','cid',[],'rid')).body.answer,'cached');assert.equal((await c.ask('owner','changed','cid',[],'rid')).status,409);
 });
 test('forget isolates account caches and preserves daily usage',async()=>{
  const storage=new Store();await storage.put('request:a:cid:rid',{expires:Date.now()+1000});await storage.put('request:b:cid:rid',{answer:'private'});await storage.put('user:day:a',5);
  const c=new GuideCoordinator({storage},{});await c.forget('a','cid');assert.equal(await storage.get('request:a:cid:rid'),undefined);assert.equal((await storage.get('request:b:cid:rid')).answer,'private');assert.equal(await storage.get('user:day:a'),5);
+});
+
+test('coordinator ignores pre-policy retry responses and forget deletes versioned caches',async()=>{
+ const storage=new Store();await storage.put('request:owner:cid:rid',{question:'q',result:{status:200,body:{answer:'old wrong food'}},expires:Date.now()+10000});
+ const c=new GuideCoordinator({storage},{FREE_ONLY_ACK:'false'});const result=await c.ask('owner','q','cid',[],'rid');assert.notEqual(result.body.answer,'old wrong food');assert.notEqual(result.status,200);
+ const current='request:owner:cid:'+ANSWER_CACHE_VERSION+':rid';await storage.put(current,{question:'q',result:{status:200,body:{answer:'current'}},expires:Date.now()+10000});
+ await c.forget('owner','cid');assert.equal(await storage.get(current),undefined);assert.equal(await storage.get('request:owner:cid:rid'),undefined);
 });
