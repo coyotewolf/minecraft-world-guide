@@ -5,11 +5,12 @@ import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {resolveSubjects} from '../subject-resolver.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v28-complete-runtime-food';
+import {normalizeGameContext,sceneQuery,SCENE_POLICY} from './game-context.js';
+export const ANSWER_CACHE_VERSION='zh-tw-v29-game-scene';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
-export function questionBody(body){if(typeof body?.question!=='string'||!body.question.trim()||body.question.length>600)throw Error('請輸入 1～600 字的問題。');if(body.conversationId!==undefined&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.conversationId)||typeof body.conversationId!=='string'))throw Error('對話代碼無效。');if(body.requestId!==undefined&&(typeof body.requestId!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.requestId)))throw Error('訊息代碼無效。');return {question:body.question.trim(),conversationId:body.conversationId,requestId:body.requestId}}
+export function questionBody(body){if(typeof body?.question!=='string'||!body.question.trim()||body.question.length>600)throw Error('請輸入 1～600 字的問題。');if(body.conversationId!==undefined&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.conversationId)||typeof body.conversationId!=='string'))throw Error('對話代碼無效。');if(body.requestId!==undefined&&(typeof body.requestId!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.requestId)))throw Error('訊息代碼無效。');return {question:body.question.trim(),conversationId:body.conversationId,requestId:body.requestId,gameContext:normalizeGameContext(body.gameContext)}}
 function parseModelValue(value){
  if(typeof value!=='string')return value;
  try{return JSON.parse(value.replace(/^\s*<think>[\s\S]*?<\/think>\s*/,''))}catch{return null}
@@ -189,7 +190,8 @@ export class GuideService{
  }
  async cleanup(){for(const prefix of ['conversation:','request:','cache:','user:','global:','neurons:','usage:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:','request:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
  async saveHistory(key,value){if(!this.historyEpoch)return this.storage.put(key,value);return this.storage.transaction(async tx=>{if((await tx.get(this.historyEpoch.key)||0)===this.historyEpoch.value)await tx.put(key,value)})}
- async ask(uid,question,conversationId,cloudTurns=null){
+ async ask(uid,question,conversationId,cloudTurns=null,gameContext=null){
+  gameContext=normalizeGameContext(gameContext);const sceneTerms=sceneQuery(question,gameContext);
   if(this.env.FREE_ONLY_ACK!=='true')return {status:503,body:{error:'雲端問答尚未啟用。請使用解包資料搜尋。'}};
   this.stage='manifest';this.manifest??=await this.read('manifest.json');
   const conversationKey=conversationId?'conversation:'+uid+':'+conversationId:null;
@@ -205,17 +207,17 @@ export class GuideService{
   this.requestReads=new Map();this.assetReadCount=0;
   try{
   this.stage='bootstrap';await this.loadBootstrap();if(this.bootstrap?.subjectRegistry)this.manifest._subjectRegistry??=this.bootstrap.subjectRegistry;
-  let normalizedQuestion=question.replace(/簑釉龍|簑鮋龍|蓑釉龍/g,'蓑鮋龍');
+  let normalizedQuestion=(question+' '+sceneTerms).trim().replace(/簑釉龍|簑鮋龍|蓑釉龍/g,'蓑鮋龍');
   const subjectMatches=resolveSubjects(this.bootstrap?.subjectRegistry,normalizedQuestion).map(({id,type,name})=>({id,type,name}));
   let plan=null;
   if(this.env.CONVERSATION_PLANNER==='true'){
    this.stage='intent';
    const priorTurns=previous.questions.slice(-6).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-6).length)[i]||''}));
-   const intentKey='cache:intent:'+uid+':'+(conversationId||'new')+':'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const intentKey='cache:intent:'+uid+':'+(conversationId||'new')+':'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion+JSON.stringify(gameContext))))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const intent=await this.model(INTENT_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question:normalizedQuestion,subjectMatches}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question,subjectMatches,gameContext}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
    if(intent){plan=parseModelValue(intent.value);await this.saveHistory(intentKey,{plan,expires:Date.now()+86400000});}
    // Planning improves relevance, but it must never be a single point of failure.
    // When a provider returns malformed planning JSON, continue with the original question.
@@ -299,12 +301,12 @@ export class GuideService{
   for(const f of [...broadPlayer.filter(f=>f.runtimeVerified&&gameplayFocus.some(t=>(f.title+' '+(f.labels||[]).join(' ')).toLowerCase().includes(t))),...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.saveHistory(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
-  if(!candidates.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
-   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase())))).map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(!candidates.length&&!plan&&!gameContext){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
+   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+this.manifest.version+uid+JSON.stringify(previous.questions)+JSON.stringify(previous.answers)+previous.context+JSON.stringify(priorIntent)+question.toLowerCase()+JSON.stringify(gameContext))))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const cacheKey='cache:answer:'+uid+':'+(conversationId||'new')+':'+digest,cached=await this.storage.get(cacheKey);
    if(cached&&cached.expires>Date.now()){await remember(cached.body.facts,cached.body.answer);return {status:200,body:{...cached.body,remaining:slot.remaining}}};
    const sent=[],compact=[],seen=new Set();let bytes=0;for(const f of candidates){if(f.id.startsWith('playbook:dragon-terrain-berk-')&&sent.some(x=>x.id==='playbook:dragon-terrain-berk-matrix'))continue;if(f.id==='playbook:dragon-terrain-berk-matrix'&&sent.some(x=>x.id.startsWith('playbook:dragon-terrain-berk-')))continue;const evidence=modelEvidence(f,this.bootstrap?.minecraftItemFields||{});const signature=evidence.text.replace(/\s/g,'');if(!signature||seen.has(signature))continue;seen.add(signature);const entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null};const size=new TextEncoder().encode(JSON.stringify(entry)).length;if(bytes+size>9000)continue;sent.push(f);compact.push(entry);bytes+=size;if(sent.length>=8)break}
-   if(!sent.length&&!plan){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
+   if(!sent.length&&!plan&&!gameContext){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
     const supplement=async queries=>{
      this.stage='supplemental-evidence';const topic=(plan?.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
      const retained=[];let reserved=0;for(const f of [...sent.filter(f=>f.runtimeVerified),...current.filter(f=>f.registrySubject),...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].filter((f,i,all)=>all.findIndex(x=>x.id===f.id)===i).slice(0,2)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f,this.bootstrap?.minecraftItemFields||{}))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
@@ -315,13 +317,13 @@ export class GuideService{
     const references=hasNamedSubject&&plan?.mode!=='chat'?referenceQueries(current,normalizedQuestion):[];
     if(references.length)await supplement(references);
    const requestedConstraints={flying,rideable,buildings,naturalChangesAllowed:/自然.*(?:沒關係|可以|不介意)/.test(q)};
-   const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,requestedConstraints,retrievalCoverage:search.coverage,facts:compact});
+   const prompt=CHAT_POLICY+'\n\n'+MECHANICS_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((q,i)=>({user:q,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,gameContext,conversationIntent:plan,requestedConstraints,retrievalCoverage:search.coverage,facts:compact});
    this.stage='provider';let reply=await this.model(prompt,value=>{const parsed=parseModelValue(value);return typeof parsed?.answer==='string'&&parsed.answer.trim().length>0&&parsed.answer.length<=1600&&Array.isArray(parsed.factIds)&&parsed.factIds.length<=4&&parsed.factIds.every(id=>Number(id)>=1&&Number(id)<=sent.length&&/^\d+$/.test(String(id)))});
    if(!reply){await release();const availability=await this.availability();return {status:503,body:{error:availability.message,code:availability.code,retryAt:availability.retryAt,providers:availability.providers,lastFailures:availability.lastFailures}}}
    if(this.env.ANSWER_REVIEW==='true'&&plan&&plan.mode!=='chat'&&compact.length){
     const validateReview=value=>{const x=parseModelValue(value);return typeof x?.answer==='string'&&x.answer.trim()&&x.answer.length<=1600&&Array.isArray(x.factIds)&&x.factIds.length<=3&&x.factIds.every(id=>/^\d+$/.test(String(id))&&Number(id)>=1&&Number(id)<=sent.length)&&(x.searchQueries===undefined||Array.isArray(x.searchQueries)&&x.searchQueries.length<=3&&x.searchQueries.every(q=>typeof q==='string'&&q.trim()&&q.length<=100))};
     for(let pass=0;pass<2;pass++){
-     this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:search.coverage.supplemental?0:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
+     this.stage='answer-review';const reviewed=await this.model(REVIEW_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns:previous.questions.slice(-3).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-3).length)[i]||''})),question,gameContext,conversationIntent:plan,retrievalCoverage:search.coverage,searchBudgetRemaining:search.coverage.supplemental?0:1-pass,facts:compact,draft:parseModelValue(reply.value)}),validateReview,{schema:REVIEW_SCHEMA,maxTokens:800,temperature:0.3});
      if(!reviewed)break;
      reply=reviewed;const extra=parseModelValue(reviewed.value).searchQueries;
      if(pass||!extra?.length||search.coverage.supplemental)break;

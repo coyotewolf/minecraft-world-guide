@@ -1,0 +1,13 @@
+export function mountAnnouncementAdmin(root,{db,h}){
+ let busy=false;
+ root.innerHTML='<h2>遊戲聊天室公告</h2><p>安裝 AI 小助手 0.1.6 以上的玩家，進入世界後會收到仍有效的公告；不必登入 AI 帳號。通常約兩分鐘內送達，網路異常時可能延後。每臺裝置顯示一次。</p><p>內容公開，請勿填入密碼或私人資料。撤回只能停止後續發送，無法收回已顯示的訊息。</p><form class="form-grid" data-notice-form><label>標題<input name="title" maxlength="80" required></label><label>內容<textarea name="body" maxlength="500" required rows="3"></textarea></label><label>有效時間<select name="hours"><option value="1">1 小時</option><option value="24" selected>1 天</option><option value="168">7 天</option><option value="720">30 天</option></select></label><p data-notice-preview class="detail-body"></p><button class="primary">發布到遊戲聊天室</button></form><p role="status" data-notice-status></p><button type="button" data-notice-refresh>重新整理</button><div data-notice-list></div>';
+ const form=root.querySelector('form'),status=root.querySelector('[data-notice-status]');
+ form.oninput=()=>{root.querySelector('[data-notice-preview]').textContent=`預覽：【公告】${form.elements.title.value} — ${form.elements.body.value}`};
+ async function load(){const {data,error}=await db.from('game_announcements').select('id,title,body,created_at,expires_at,withdrawn').order('created_at',{ascending:false}).limit(50);if(error)throw error;
+ root.querySelector('[data-notice-list]').innerHTML=data.map(n=>`<article class="card"><h3>${h(n.title)}</h3><p class="detail-body">${h(n.body)}</p><small>${n.withdrawn?'已撤回':Date.parse(n.expires_at)<=Date.now()?'已到期':'發布中'} · 到期 ${h(new Date(n.expires_at).toLocaleString('zh-TW'))}</small>${!n.withdrawn&&Date.parse(n.expires_at)>Date.now()?`<p><button type="button" data-withdraw-notice="${h(n.id)}">撤回公告</button></p>`:''}</article>`).join('')||'<p>尚未發布公告。</p>';
+ }
+ async function run(fn){if(busy)return;busy=true;for(const b of root.querySelectorAll('button'))b.disabled=true;try{await fn();await load()}catch(e){status.textContent='公告操作失敗：'+e.message}finally{busy=false;for(const b of root.querySelectorAll('button'))b.disabled=false}}
+ form.onsubmit=e=>{e.preventDefault();if(!form.reportValidity())return;void run(async()=>{const {error}=await db.rpc('publish_game_announcement',{t:form.elements.title.value,b:form.elements.body.value,h:Number(form.elements.hours.value)});if(error)throw error;status.textContent='已發布。玩家會在下一次檢查公告時收到。';form.reset();root.querySelector('[data-notice-preview]').textContent=''})};
+ root.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-notice-refresh'))void run(async()=>{});if(b.dataset.withdrawNotice)void run(async()=>{const {error}=await db.rpc('withdraw_game_announcement',{n:b.dataset.withdrawNotice});if(error)throw error;status.textContent='已撤回；快取最多約一分鐘後更新。'})};
+ void run(async()=>{});
+}
