@@ -94,7 +94,7 @@ for(const fact of read('data/ai/player-playbook.json')){
 }
 
 // Complete, checked runtime mechanics are retained as readable evidence.
-for(const fact of read('data/ai/monsterexpansion-runtime-verified.json'))knowledge.push(fact);
+for(const file of ['monsterexpansion-runtime-verified.json','saintsdragons-runtime-verified.json'])for(const fact of read('data/ai/'+file))knowledge.push(fact);
 
 const out=new URL('../data/ai/',import.meta.url);
 const shardSize=220,index=[];

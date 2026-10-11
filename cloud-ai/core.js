@@ -6,7 +6,8 @@ import {resolveSubjects} from '../subject-resolver.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
 import {normalizeGameContext,sceneQuery,SCENE_POLICY} from './game-context.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v30-podzol-knowledge';
+import {concreteMechanicsReply} from './specific-mechanics.js';
+export const ANSWER_CACHE_VERSION='zh-tw-v31-concrete-taming';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -295,10 +296,11 @@ export class GuideService{
   const completeActivity=f=>{const guide=f.id.startsWith('activity-')&&activityGuides.get('article:'+f.article);return guide?.playerSummary?{...f,playerSummary:guide.playerSummary,source:guide.source}:f};
   const currentPlayer=current.filter(f=>f.playerSummary).map(completeActivity),contextPlayer=contextual.filter(f=>f.playerSummary).map(completeActivity),broadPlayer=broad.filter(f=>f.playerSummary);
   const playablePlayer=playable.map(completeActivity);
+  const directPlayer=broadPlayer.filter(f=>f.kind==='collection').filter(f=>gameplayFocus.some(t=>f.title.toLowerCase()===t||t.includes(f.title.toLowerCase())));
   if(plan?.mode==='recommendation')for(const f of playablePlayer)candidates.push(f);
   // Keep direct, prior-topic and playable instructions in the bounded pool.
   // Raw manual categories must not crowd out concrete player instructions.
-  for(const f of [...broadPlayer.filter(f=>f.runtimeVerified&&gameplayFocus.some(t=>(f.title+' '+(f.labels||[]).join(' ')).toLowerCase().includes(t))),...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
+  for(const f of [...broadPlayer.filter(f=>f.runtimeVerified&&gameplayFocus.some(t=>(f.title+' '+(f.labels||[]).join(' ')).toLowerCase().includes(t))),...directPlayer,...curated.filter(f=>f.category!=='activity'&&(!plan||plan.mode==='mechanism'||plan.facet==='none'&&plan.mode!=='acquisition')),...currentPlayer.slice(0,2),...current.filter(f=>f.runtimeEvidence&&(hasNamedSubject||!plan||plan.mode==='mechanism')).slice(0,3),...playablePlayer.slice(0,3),...contextPlayer.slice(0,2),...broadPlayer.slice(0,2),...curated.filter(f=>f.category==='activity'&&(!plan||plan.mode==='recommendation')).slice(0,2),...currentPlayer.slice(2),...playablePlayer.slice(3),...broadPlayer.slice(2),...contextPlayer.slice(2)])if(!candidates.some(x=>x.id===f.id))candidates.push(f);
   for(let i=0;i<18;i++){for(const f of [current[i],contextual[i]])if(f&&!candidates.some(x=>x.id===f.id))candidates.push(f)}
   const remember=async (facts,answer='')=>{if(conversationKey)await this.saveHistory(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,String(answer||'')].slice(-4),intent:plan,context:facts.map(f=>f.title+' '+(f.labels||[]).join(' ')).join(' ').slice(0,1800),expires:Date.now()+86400000})};
   if(!candidates.length&&!plan&&!gameContext){await release();return {status:200,body:{facts:[],message:'目前解包索引沒有找到依據。請改用物品名稱或模組名稱搜尋。'}}};
@@ -309,7 +311,7 @@ export class GuideService{
    if(!sent.length&&!plan&&!gameContext){await release();return {status:200,body:{facts:[],message:'目前沒有足夠的資料確認這個問題，可以換個物品名稱問問看。'}}}
     const supplement=async queries=>{
      this.stage='supplemental-evidence';const topic=(plan?.focus||[]).join(' ').slice(0,70)||normalizedQuestion.slice(0,70),additional=await retrieveMany(this.manifest,queries.map(q=>topic+' '+normalizedQuestion.slice(0,60)+' '+q),file=>this.read(file),{related:true});
-     const retained=[];let reserved=0;for(const f of [...sent.filter(f=>f.runtimeVerified),...current.filter(f=>f.registrySubject),...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].filter((f,i,all)=>all.findIndex(x=>x.id===f.id)===i).slice(0,2)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f,this.bootstrap?.minecraftItemFields||{}))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
+     const retained=[];let reserved=0;for(const f of [...sent.filter(f=>f.runtimeVerified),...sent.filter(f=>directPlayer.some(d=>d.id===f.id)),...current.filter(f=>f.registrySubject),...current.filter(f=>f.runtimeEvidence&&f.actionScore),...sent].filter((f,i,all)=>all.findIndex(x=>x.id===f.id)===i).slice(0,3)){const size=new TextEncoder().encode(JSON.stringify(modelEvidence(f,this.bootstrap?.minecraftItemFields||{}))).length;if(retained.length&&reserved+size>4500)break;retained.push(f);reserved+=size}
      const pool=[...retained,...additional.facts,...sent],ids=new Set();sent.splice(0);compact.splice(0);let total=0;
      for(const f of pool){const key=f.definitionKey||f.id;if(ids.has(key))continue;ids.add(key);const evidence=modelEvidence(f,this.bootstrap?.minecraftItemFields||{}),entry={id:String(sent.length+1),title:this.localize(evidence.title),text:localizeModelEvidence(evidence.text,text=>this.localize(text)),sourceRef:f.source||'',evidenceScope:f.evidenceScope||'已收錄資料，須按實際內容核對',versionHash:f.sha256||null},size=new TextEncoder().encode(JSON.stringify(entry)).length;if(!entry.text||total+size>9000)continue;sent.push(f);compact.push(entry);total+=size;if(sent.length>=8)break}
      search.coverage.supplemental=additional.coverage;
@@ -331,7 +333,7 @@ export class GuideService{
      reply={...reply,value:{...draft,factIds:draft.factIds.map(id=>sent.findIndex(f=>f.id===oldFacts[Number(id)-1])+1).filter(id=>id>0).map(String)}};
     }
    }
-   const parsed=selectedReply(reply.value,sent.map((f,i)=>({...f,id:String(i+1)})));
+   const parsed=selectedReply(concreteMechanicsReply(parseModelValue(reply.value),sent,question,plan),sent.map((f,i)=>({...f,id:String(i+1)})));
    const facts=parsed.facts.map(({search,...f})=>this.localizeFact({...f,id:sent[Number(f.id)-1].id}));
    parsed.answer=this.localize(parsed.answer);
    if(!parsed.answer){await release();return {status:200,body:{facts:[],answer:'目前資料不足以可靠回答這題。',message:'目前資料不足以可靠回答這題。'}}}

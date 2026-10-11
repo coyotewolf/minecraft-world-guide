@@ -1,0 +1,89 @@
+[
+  {
+    "id": "runtime:saintsdragons:nulljaw:taming",
+    "kind": "runtime",
+    "category": "companions",
+    "title": "虛顎龍 · 馴服食物、地點與完整操作",
+    "playerTitle": "虛顎龍：歌萊果馴服與生成條件",
+    "labels": [
+      "虛顎龍",
+      "虛空顎龍",
+      "Nulljaw",
+      "saintsdragons:nulljaw",
+      "歌萊果",
+      "minecraft:chorus_fruit"
+    ],
+    "search": "虛顎龍 虛空顎龍 Nulljaw saintsdragons:nulljaw 馴服 餵食 吃什麼 食物 歌萊果 終界荒地 end_barrens 右鍵 20% 血量 戰鬥 打殘 mobInteract NULLJAW_FOODS",
+    "playerSummary": "目前安裝的聖徒群龍 0.9.51：虛顎龍的馴服食物只有歌萊果（minecraft:chorus_fruit），食品標籤 saintsdragons:foods/nulljaw 的 values 只有這一項；不接受生鮭魚、肉類或爆開的歌萊果。歌萊果可打破終界外島的歌萊枝取得，每個枝塊掉落0～1個。找野生虛顎龍的自然生成生態域是終界荒地（minecraft:end_barrens），不是泛指任何終界生態域。生成程式要求非和平難度、通過怪物亮度檢查、所在格與上方無液體且碰撞形狀為空，另有附近未馴服個體數限制；沒有指定座標高度或早晚時間，不能編造固定時間。手持歌萊果對未馴服的虛顎龍按右鍵；生存模式每次消耗1個，每次獨立20%機率馴服，失敗可再嘗試，餵5次不是保證成功。不需要先攻擊、打殘或降低血量；野生馴服失敗分支只送出失敗粒子，不會在此分支回血或設定餵食冷卻。已馴服後才有一般餵食的24 tick冷卻及回復6生命值，不能把這些條件套到野生馴服。以上以安裝JAR、食物與生態域標籤查核，未驗證遠端伺服器是否另改設定。",
+    "source": "核心saintsdragons-0.9.51+forge-1.20.1.jar::data/saintsdragons/tags/items/foods/nulljaw.json；data/saintsdragons/tags/worldgen/biome/has_nulljaw.json；com/leon/saintsdragons/server/entity/dragons/nulljaw/Nulljaw.java:286-315,590-740；ModTags.java:91；Minecraft 1.20.1::data/minecraft/loot_tables/blocks/chorus_plant.json（0～1歌萊果）",
+    "sha256": "23b74dbcef3008ec7762111f6f214db8f3a290de38f25067d864ebe6da510bc1",
+    "runtimeEvidence": true,
+    "runtimeVerified": true,
+    "retrievalComplete": true,
+    "retrievalScope": "目前安裝0.9.51 JAR食物／生態域標籤、完整mobInteract野生與已馴服分支及canSpawnHere已查核；不是遠端伺服器或遊戲內驗收。",
+    "verifiedAt": "2026-10-12",
+    "taming": {
+      "subject": "虛顎龍",
+      "aliases": [
+        "虛空顎龍",
+        "Nulljaw"
+      ],
+      "foodIds": [
+        "minecraft:chorus_fruit"
+      ],
+      "biomeIds": [
+        "minecraft:end_barrens"
+      ],
+      "requiresLowHealth": false,
+      "successProbability": 0.2,
+      "consumedPerAttempt": 1,
+      "requirements": {
+        "tame": [
+          [
+            "歌萊果"
+          ],
+          [
+            "終界荒地"
+          ],
+          [
+            "右鍵"
+          ],
+          [
+            "20%",
+            "百分之二十"
+          ]
+        ],
+        "food": [
+          [
+            "歌萊果"
+          ]
+        ],
+        "health": [
+          [
+            "不需要",
+            "不用",
+            "不必"
+          ],
+          [
+            "歌萊果"
+          ]
+        ]
+      },
+      "contradictions": [
+        "建議.{0,15}(生鮭魚|肉品|肉類)",
+        "(生鮭魚|肉品|肉類).{0,8}(可以馴服|可馴服|來馴服)",
+        "失敗.{0,10}(回復生命|恢復生命|回血|增加冷卻)",
+        "(?<!不)(需要|必須).{0,5}(打殘|減少血量|降低血量)",
+        "餵[5五]次就(一定|必定|保證)",
+        "不是歌萊果",
+        "歌萊果或(生鮭魚|肉類|肉品)"
+      ],
+      "answers": {
+        "tame": "虛顎龍要用歌萊果馴服。到終界外島的終界荒地找野生個體，手持歌萊果對牠按右鍵；生存模式每次消耗1個，每次有20%機率成功，失敗再餵，並不是5個就保證成功。歌萊果可打破終界外島的歌萊枝取得（每個枝塊掉落0～1個）。\n\n不需要先戰鬥或壓低血量。沒有指定早晚或固定高度；自然生成要求非和平難度並符合亮度與空間條件。",
+        "food": "餵歌萊果，可打破終界外島的歌萊枝取得（每個枝塊掉落0～1個）。手持歌萊果右鍵未馴服的虛顎龍，每次消耗1個、20%機率馴服；生鮭魚與肉類不是牠的馴服食物。",
+        "health": "不需要先戰鬥或降低虛顎龍的血量。直接手持歌萊果對野生個體按右鍵，每次消耗1個，每次20%機率馴服。失敗不會在野生馴服分支回血；回血與餵食冷卻是已馴服後的一般餵食機制。"
+      }
+    },
+    "evidenceScope": "目前安裝0.9.51 JAR食物／生態域標籤、完整mobInteract野生與已馴服分支及canSpawnHere已查核；不是遠端伺服器或遊戲內驗收。"
+  }
+]
