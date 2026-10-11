@@ -3,7 +3,7 @@ import {announcementFeed} from './announcements.js';
 import {ProviderQuotas} from './provider-quotas.js';
 import {quotaChange,changeQuota,quotaReport} from './quota-admin.js';
 import {DurableObject} from 'cloudflare:workers';
-import {GuideService,approvedUser,approvedIdentity,questionBody,dayKey} from './core.js';
+import {GuideService,approvedUser,approvedIdentity,questionBody,dayKey,ANSWER_CACHE_VERSION} from './core.js';
 async function boundedBody(request,max=4096){if(!request.body)return '';const reader=request.body.getReader(),chunks=[];let size=0;while(true){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>max){await reader.cancel();throw Error('body_too_large')}chunks.push(value)}const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}return new TextDecoder().decode(bytes)}
 export class GuideCoordinator extends DurableObject{
  constructor(ctx,env){super(ctx,env);this.env=env;this.service=new GuideService(ctx.storage,env);this.inflight=new Map();this.providerQuotas=new ProviderQuotas(env)}
@@ -16,7 +16,7 @@ export class GuideCoordinator extends DurableObject{
  }
  async ask(uid,question,conversationId,cloudTurns=null,requestId,gameContext=null){
   const contextKey=gameContext?JSON.stringify(gameContext):'';
-  const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+requestId:null;
+  const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+ANSWER_CACHE_VERSION+':'+requestId:null;
   if(key&&this.inflight.has(key)){const active=this.inflight.get(key);return active.question===question&&active.contextKey===contextKey?active.promise:{status:409,body:{error:'訊息內容已更改，請重新傳送。'}};}
   const epochKey=conversationId?'history-epoch:'+uid+':'+conversationId:null,epoch=epochKey?(await this.ctx.storage.get(epochKey)||0):0;
   const run=(async()=>{
