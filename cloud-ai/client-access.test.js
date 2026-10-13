@@ -93,3 +93,8 @@ test('coordinator ignores pre-policy retry responses and forget deletes versione
  const current='request:owner:cid:'+ANSWER_CACHE_VERSION+':rid';await storage.put(current,{question:'q',result:{status:200,body:{answer:'current'}},expires:Date.now()+10000});
  await c.forget('owner','cid');assert.equal(await storage.get(current),undefined);assert.equal(await storage.get('request:owner:cid:rid'),undefined);
 });
+
+test('local search request retry is cached, and older clients cannot reuse its action response',async()=>{
+ const storage=new Store(),key='request:owner:cid:'+ANSWER_CACHE_VERSION+':find';const action={version:1,type:'nearby_entities',query:'虛顎龍',radius:0};await storage.put(key,{question:'找牠',contextKey:'|localSearch:1',result:{status:200,body:{clientAction:action}},expires:Date.now()+10000});
+ const c=new GuideCoordinator({storage},{});assert.deepEqual((await c.ask('owner','找牠','cid',[],'find',null,true)).body.clientAction,action);assert.equal((await c.ask('owner','找牠','cid',[],'find',null,false)).status,409);
+});
