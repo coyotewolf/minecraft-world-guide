@@ -7,11 +7,11 @@ import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {registryAction,INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
 import {normalizeGameContext,sceneQuery,SCENE_POLICY} from './game-context.js';
 import {concreteMechanicsReply} from './specific-mechanics.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v33-registry-ids';
+export const ANSWER_CACHE_VERSION='zh-tw-v34-current-biome';
 export const SCHEMA={type:'object',properties:{answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
-export function questionBody(body){if(typeof body?.question!=='string'||!body.question.trim()||body.question.length>600)throw Error('請輸入 1～600 字的問題。');if(body.conversationId!==undefined&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.conversationId)||typeof body.conversationId!=='string'))throw Error('對話代碼無效。');if(body.requestId!==undefined&&(typeof body.requestId!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.requestId)))throw Error('訊息代碼無效。');if(body.clientSearchVersion!==undefined&&body.clientSearchVersion!==1)throw Error('本機搜尋版本無效。');if(body.clientRegistryVersion!==undefined&&body.clientRegistryVersion!==1)throw Error('ID查詢版本無效。');return {clientRegistryEnabled:body.clientRegistryVersion===1,clientSearchEnabled:body.clientSearchVersion===1,question:body.question.trim(),conversationId:body.conversationId,requestId:body.requestId,gameContext:normalizeGameContext(body.gameContext)}}
+export function questionBody(body){if(typeof body?.question!=='string'||!body.question.trim()||body.question.length>600)throw Error('請輸入 1～600 字的問題。');if(body.conversationId!==undefined&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.conversationId)||typeof body.conversationId!=='string'))throw Error('對話代碼無效。');if(body.requestId!==undefined&&(typeof body.requestId!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.requestId)))throw Error('訊息代碼無效。');if(body.clientSearchVersion!==undefined&&body.clientSearchVersion!==1)throw Error('本機搜尋版本無效。');if(body.clientRegistryVersion!==undefined&&body.clientRegistryVersion!==1)throw Error('ID查詢版本無效。');if(body.clientBiomeVersion!==undefined&&body.clientBiomeVersion!==1)throw Error('生態域查詢版本無效。');return {clientBiomeEnabled:body.clientBiomeVersion===1,clientRegistryEnabled:body.clientRegistryVersion===1,clientSearchEnabled:body.clientSearchVersion===1,question:body.question.trim(),conversationId:body.conversationId,requestId:body.requestId,gameContext:normalizeGameContext(body.gameContext)}}
 function parseModelValue(value){
  if(typeof value!=='string')return value;
  try{return JSON.parse(value.replace(/^\s*<think>[\s\S]*?<\/think>\s*/,''))}catch{return null}
@@ -191,7 +191,7 @@ export class GuideService{
  }
  async cleanup(){for(const prefix of ['conversation:','request:','cache:','user:','global:','neurons:','usage:','minute:','cooldown:']){let after;do{const page=await this.storage.list({prefix,limit:100,...(after?{startAfter:after}:{})});const obsolete=[];for(const [key,value] of page){after=key;const stale=['cache:','conversation:','request:'].includes(prefix)?value.expires<Date.now():prefix==='minute:'?value.at<Date.now()-86400000:prefix==='cooldown:'?value<Date.now():key.split(':')[1]<new Date(Date.now()-7*86400000).toISOString().slice(0,10);if(stale)obsolete.push(key)}if(obsolete.length)await this.storage.delete(obsolete);if(page.size<100)break}while(true)}}
  async saveHistory(key,value){if(!this.historyEpoch)return this.storage.put(key,value);return this.storage.transaction(async tx=>{if((await tx.get(this.historyEpoch.key)||0)===this.historyEpoch.value)await tx.put(key,value)})}
- async ask(uid,question,conversationId,cloudTurns=null,gameContext=null,clientSearchEnabled=false,clientRegistryEnabled=false){
+ async ask(uid,question,conversationId,cloudTurns=null,gameContext=null,clientSearchEnabled=false,clientRegistryEnabled=false,clientBiomeEnabled=false){
   gameContext=normalizeGameContext(gameContext);const sceneTerms=sceneQuery(question,gameContext);
   if(this.env.FREE_ONLY_ACK!=='true')return {status:503,body:{error:'雲端問答尚未啟用。請使用解包資料搜尋。'}};
   this.stage='manifest';this.manifest??=await this.read('manifest.json');
@@ -214,11 +214,11 @@ export class GuideService{
   if(this.env.CONVERSATION_PLANNER==='true'){
    this.stage='intent';
    const priorTurns=previous.questions.slice(-6).map((user,i)=>({user,assistant:previous.answers.slice(-previous.questions.slice(-6).length)[i]||''}));
-   const intentKey='cache:intent:'+uid+':'+(conversationId||'new')+':'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion+JSON.stringify(gameContext)+JSON.stringify([clientSearchEnabled,clientRegistryEnabled]))))).map(x=>x.toString(16).padStart(2,'0')).join('');
+   const intentKey='cache:intent:'+uid+':'+(conversationId||'new')+':'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ANSWER_CACHE_VERSION+uid+JSON.stringify(priorTurns)+JSON.stringify(priorIntent)+normalizedQuestion+JSON.stringify(gameContext)+JSON.stringify([clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled]))))).map(x=>x.toString(16).padStart(2,'0')).join('');
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const intent=await this.model(INTENT_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question,subjectMatches,gameContext,clientSearchEnabled,clientRegistryEnabled}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question,subjectMatches,gameContext,clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
    if(intent){plan=parseModelValue(intent.value);await this.saveHistory(intentKey,{plan,expires:Date.now()+86400000});}
    // Planning improves relevance, but it must never be a single point of failure.
    // When a provider returns malformed planning JSON, continue with the original question.
@@ -226,6 +226,11 @@ export class GuideService{
 
    }
    if(plan)normalizedQuestion=plan.query;
+  }
+  if(clientBiomeEnabled&&plan?.currentBiome===true){
+   const clientAction={version:1,type:'current_biome'};
+   if(conversationKey)await this.saveHistory(conversationKey,{questions:[...previous.questions,question].slice(-4),answers:[...previous.answers,''].slice(-4),intent:plan,context:'',expires:Date.now()+86400000});
+   return {status:200,body:{clientAction,intent:plan,remaining:slot.remaining,version:this.manifest.version}};
   }
   if(clientRegistryEnabled&&plan?.registryLookup){
    const resolved=registryAction(plan.registryLookup,gameContext);
