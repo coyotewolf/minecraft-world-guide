@@ -1,3 +1,4 @@
+import {contextKey,digest,normalizePlayerContext} from './player-context.js';
 import {clientAccess} from './client-access.js';
 import {announcementFeed} from './announcements.js';
 import {ProviderQuotas} from './provider-quotas.js';
@@ -12,10 +13,10 @@ export class GuideCoordinator extends DurableObject{
  adminChange(change,adminId){return changeQuota(this.ctx.storage,change,adminId)}
  async forget(uid,cid){
   const epochKey='history-epoch:'+uid+':'+cid,active=[...this.inflight.keys()].some(k=>k.startsWith('request:'+uid+':'+cid+':'));
-  await this.ctx.storage.transaction(async tx=>{const prefixes=['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':'];const existing=await tx.get('conversation:'+uid+':'+cid);const pages=await Promise.all(prefixes.map(prefix=>tx.list({prefix,limit:1})));if(!active&&!existing&&pages.every(p=>!p.size))return;await tx.put(epochKey,(await tx.get(epochKey)||0)+1);await tx.delete('conversation:'+uid+':'+cid);for(const prefix of ['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':']){let after;do{const page=await tx.list({prefix,limit:100,...(after?{startAfter:after}:{})});const keys=[...page.keys()];if(!keys.length)break;after=keys.at(-1);await tx.delete(keys);if(keys.length<100)break}while(true)}});
+  await this.ctx.storage.transaction(async tx=>{const prefixes=['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':','context-request:'+uid+':'+cid+':'];const existing=await tx.get('conversation:'+uid+':'+cid);const pages=await Promise.all(prefixes.map(prefix=>tx.list({prefix,limit:1})));if(!active&&!existing&&pages.every(p=>!p.size))return;await tx.put(epochKey,(await tx.get(epochKey)||0)+1);await tx.delete('conversation:'+uid+':'+cid);for(const prefix of ['request:'+uid+':'+cid+':','cache:intent:'+uid+':'+cid+':','cache:answer:'+uid+':'+cid+':','context-request:'+uid+':'+cid+':']){let after;do{const page=await tx.list({prefix,limit:100,...(after?{startAfter:after}:{})});const keys=[...page.keys()];if(!keys.length)break;after=keys.at(-1);await tx.delete(keys);if(keys.length<100)break}while(true)}});
  }
- async ask(uid,question,conversationId,cloudTurns=null,requestId,gameContext=null,clientSearchEnabled=false,clientRegistryEnabled=false,clientBiomeEnabled=false){
-  const contextKey=(gameContext?JSON.stringify(gameContext):'')+(clientSearchEnabled?'|localSearch:1':'')+(clientRegistryEnabled?'|registry:1':'')+(clientBiomeEnabled?'|biome:1':'');
+ async ask(uid,question,conversationId,cloudTurns=null,requestId,gameContext=null,clientSearchEnabled=false,clientRegistryEnabled=false,clientBiomeEnabled=false,clientContextEnabled=false){
+  const contextKey=(gameContext?JSON.stringify(gameContext):'')+(clientSearchEnabled?'|localSearch:1':'')+(clientRegistryEnabled?'|registry:1':'')+(clientBiomeEnabled?'|biome:1':'')+(clientContextEnabled?'|context:1':'');
   const key=requestId?'request:'+uid+':'+(conversationId||'new')+':'+ANSWER_CACHE_VERSION+':'+requestId:null;
   if(key&&this.inflight.has(key)){const active=this.inflight.get(key);return active.question===question&&active.contextKey===contextKey?active.promise:{status:409,body:{error:'訊息內容已更改，請重新傳送。'}};}
   const epochKey=conversationId?'history-epoch:'+uid+':'+conversationId:null,epoch=epochKey?(await this.ctx.storage.get(epochKey)||0):0;
@@ -29,7 +30,8 @@ export class GuideCoordinator extends DurableObject{
     // quota counters remain protected by Durable Object storage transactions.
     const service=new GuideService(this.ctx.storage,this.env);
     if(epochKey)service.historyEpoch={key:epochKey,value:epoch};
-    const result=await service.ask(uid,question,conversationId,cloudTurns,gameContext,clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled);
+    service.requestTrace={key,requestId,contextSuffix:contextKey.slice(gameContext?JSON.stringify(gameContext).length:0)};
+    const result=await service.ask(uid,question,conversationId,cloudTurns,gameContext,clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled,clientContextEnabled);
     if(epochKey&&(await this.ctx.storage.get(epochKey)||0)!==epoch)return {status:409,body:{error:'對話已變更，請重新開啟聊天室後再傳送。'}};
     if(key&&result.status===200)await service.saveHistory(key,{question,contextKey,result,expires:Date.now()+86400000});
     if(epochKey&&(await this.ctx.storage.get(epochKey)||0)!==epoch)return {status:409,body:{error:'對話已變更，請重新開啟聊天室後再傳送。'}};
@@ -43,6 +45,12 @@ export class GuideCoordinator extends DurableObject{
   if(key)this.inflight.set(key,{promise:run,question,contextKey});
   try{return await run}finally{if(key&&this.inflight.get(key)?.promise===run)this.inflight.delete(key)}
  }
+ async completeContext(uid,token,extra,request){
+  const data=normalizePlayerContext(extra),signature=await digest({data,request}),key='request:'+uid+':'+(request.conversationId||'new')+':context:'+token;
+  if(this.inflight.has(key)){const active=this.inflight.get(key);return active.contextKey===signature?active.promise:{status:409,body:{error:'提問快照已變更，請重新提問。'}};}
+  const run=(async()=>{try{return await new GuideService(this.ctx.storage,this.env).completePlayerContext(uid,token,data,request)}catch{return {status:503,body:{error:'補充資訊分析暫時無法完成，請稍後重試。'}}}})();
+  this.inflight.set(key,{promise:run,contextKey:signature});try{return await run}finally{this.inflight.delete(key)}
+ }
  async alarm(){await this.service.cleanup();await this.ctx.storage.setAlarm(Date.now()+86400000)}
 }
 export default {async fetch(request,env){
@@ -51,8 +59,8 @@ export default {async fetch(request,env){
  if(access.status)return new Response(JSON.stringify({error:access.error}),{status:access.status,headers});
  const send=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
- if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!(env.GEMINI_API_KEY||env.gemini_api),fallback:!!env.AI,gameContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0});
- if(new URL(request.url).pathname==='/status'&&request.method==='GET'){const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入玩家帳號。'},401);return send({...await env.GUIDE.getByName('aoi-free-guide').availability(),gameContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0})}
+ if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!(env.GEMINI_API_KEY||env.gemini_api),fallback:!!env.AI,gameContextVersion:1,playerContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0});
+ if(new URL(request.url).pathname==='/status'&&request.method==='GET'){const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入玩家帳號。'},401);return send({...await env.GUIDE.getByName('aoi-free-guide').availability(),gameContextVersion:1,playerContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0})}
  if(new URL(request.url).pathname==='/admin/quotas'&&['GET','POST'].includes(request.method)){
   try{
    const identity=await approvedIdentity(request,env);if(!identity?.admin)return send({error:'需要網站管理員權限。'},403);
@@ -75,8 +83,9 @@ export default {async fetch(request,env){
  if(new URL(request.url).pathname!=='/ask'||request.method!=='POST')return send({error:'找不到這個功能。'},404);
  try{if(Number(request.headers.get('Content-Length')||0)>131072)return send({error:'問題過長。'},413);let text;try{text=await boundedBody(request,131072)}catch{return send({error:'問題過長。'},413)}let body;try{body=questionBody(JSON.parse(text))}catch{return send({error:'請輸入 1～600 字的問題。'},400)}
  const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入已通過審核的玩家帳號。'},401);
+ if(body.continuation){const result=await env.GUIDE.getByName('aoi-free-guide').completeContext(uid,body.continuation.token,body.continuation.playerContext,{question:body.question,conversationId:body.conversationId,requestId:body.requestId,gameContext:body.gameContext});return send(result.body,result.status);}
  let cloudTurns=null;
  if(body.conversationId){try{const url=new URL(env.SUPABASE_URL+'/rest/v1/assistant_messages');url.search=new URLSearchParams({select:'role,text',user_id:'eq.'+uid,conversation_id:'eq.'+body.conversationId,order:'created_at.desc,id.desc',limit:'24'});const r=await fetch(url,{headers:{Authorization:request.headers.get('Authorization'),apikey:env.SUPABASE_KEY},signal:AbortSignal.timeout(5000)});if(r.ok){cloudTurns=[];const messages=(await r.json()).reverse();if(messages.at(-1)?.role==='user'&&messages.at(-1).text===body.question)messages.pop();for(const m of messages){if(m.role==='user')cloudTurns.push({user:String(m.text).slice(0,600),assistant:''});else if(cloudTurns.length&&!/免費.*(?:用完|無法)|暫時.*(?:忙碌|連線|回覆|無法)|等候較久/.test(m.text))cloudTurns.at(-1).assistant=String(m.text).slice(0,1600)}cloudTurns=cloudTurns.filter(t=>t.assistant).slice(-10)}}catch{}}
- const result=await env.GUIDE.getByName('aoi-free-guide').ask(uid,body.question,body.conversationId,cloudTurns,body.requestId,body.gameContext,body.clientSearchEnabled,body.clientRegistryEnabled,body.clientBiomeEnabled);return send(result.body,result.status);
+ const result=await env.GUIDE.getByName('aoi-free-guide').ask(uid,body.question,body.conversationId,cloudTurns,body.requestId,body.gameContext,body.clientSearchEnabled,body.clientRegistryEnabled,body.clientBiomeEnabled,body.clientContextEnabled);return send(result.body,result.status);
  }catch{return send({error:'問答暫時無法連線，解包搜尋仍可使用。'},503)}
 }};
