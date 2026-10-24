@@ -35,3 +35,27 @@ export async function quotaReport(storage,day,roster,availability){
  }
  return {updatedAt:Date.now(),day,resetZone:'Asia/Taipei',defaultLimit:PLAYER_DEFAULT,global:{limit:GLOBAL_LIMIT,used,remaining:Math.max(0,GLOBAL_LIMIT-used)},players,providers};
 }
+
+// Check and reserve in one transaction: concurrent requests and retries share the cap.
+export async function reserveProviderAttempt(storage,provider,estimate=0,now=Date.now()){
+ const date=providerDay(provider,now),key='usage:'+date+':'+provider;
+ return storage.transaction(async tx=>{
+  if((await tx.get('cooldown:'+provider)||0)>now)return null;
+  const row=await tx.get(key)||{attempts:0,successes:0,errors:0,inputTokens:0,outputTokens:0,startedAt:now};
+  if(provider==='gemini'){
+   const cap=await tx.get('config:geminiDailyLimit');
+   if(cap!=null&&row.attempts>=cap)return null;
+  }else{
+   const consumed=await tx.get('neurons:'+date)||0;
+   if(consumed+estimate>NEURON_BUDGET){await tx.put('failure:cloudflare',{code:'daily_budget',at:now});return null}
+   await tx.put('neurons:'+date,consumed+estimate);
+  }
+  row.attempts++;row.updatedAt=now;await tx.put(key,row);
+  return {provider,date,estimate};
+ });
+}
+export async function settleProviderAttempt(storage,reservation,actual){
+ if(reservation.provider!=='cloudflare'||actual===null)return;
+ const key='neurons:'+reservation.date;
+ await storage.transaction(async tx=>{await tx.put(key,Math.max(0,(await tx.get(key)||0)+actual-reservation.estimate))});
+}

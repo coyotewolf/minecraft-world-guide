@@ -1,7 +1,7 @@
 import {containsCredential,redactCredentials,CREDENTIAL_POLICY} from './credential-safety.js';
 import {normalizePlayerContext,CONTEXT_REQUEST_POLICY,CONTEXT_POLICY,CONTEXT_SCHEMA,contextReply,contextAnswer,contextKey,digest,contextContinuation} from './player-context.js';
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
-import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
+import {playerLimit,recordUsage,reserveProviderAttempt,settleProviderAttempt,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.js';
 import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {resolveSubjects} from '../subject-resolver.js';
@@ -52,10 +52,11 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
- if(geminiKey&&await canUse('gemini',0)){
+ const reserve=async(p,n)=>{if(options.reserveAttempt)return options.reserveAttempt(p,n);if(!await canUse(p,n))return null;if(n)await onSpend(p,0,n);await options.onUsage?.(p,'attempt');return {provider:p,estimate:n}};
+ if(geminiKey){
   let terminalFailure=null;
   for(let attempt=0;attempt<2;attempt++){
-   await options.onUsage?.('gemini','attempt');
+   if(!await reserve('gemini',0))break;
    const r=await fetcher('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-goog-api-key':geminiKey},
@@ -99,12 +100,10 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
   }
  }
 
- if(env.AI&&await canUse('cloudflare',estimate)){
-  // Reserve the first worst-case invocation before using the free binding.
-  await onSpend('cloudflare',0,estimate);
+ if(env.AI){
   let terminalFailure=null;
   for(let attempt=0;attempt<2;attempt++){
-   await options.onUsage?.('cloudflare','attempt');
+   const reservation=await reserve('cloudflare',estimate);if(!reservation)break;
    try{
     const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{
      messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),
@@ -112,7 +111,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
      temperature:options.temperature??0.45
     });
     const settled=qwenNeurons(value.usage);
-    if(settled!==null)await onSpend('cloudflare',0,settled-estimate);
+    if(settled!==null){if(options.settleAttempt)await options.settleAttempt(reservation,settled);else await onSpend('cloudflare',0,settled-estimate)}
     await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});
     const answer=value.response??value.choices?.[0]?.message?.content;
     if(acceptable(answer))return {value:answer,provider:'cloudflare'};
@@ -125,8 +124,6 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
     if(attempt===0){
      // Keep the budget conservative for the retry because a failed binding call
      // may still have consumed provider work even when usage metadata is absent.
-     if(!await canUse('cloudflare',estimate))break;
-     await onSpend('cloudflare',0,estimate);
      await wait(250);
      continue;
     }
@@ -184,7 +181,7 @@ export class GuideService{
   if(Array.isArray(copy.labels))copy.labels=copy.labels.map(x=>this.localize(x));
   return copy;
  }
- async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async(p,estimate)=>{const cooldown=await this.storage.get('cooldown:'+p)||0;if(cooldown>Date.now())return false;if(p==='cloudflare'){if((await this.storage.get('neurons:'+utcDay())||0)+estimate>8500){await this.storage.put('cooldown:cloudflare',Date.parse(utcDay()+'T00:00:00Z')+86400000);await this.storage.put('failure:cloudflare',{code:'daily_budget',at:Date.now()});return false}return true;}const cap=await this.storage.get('config:geminiDailyLimit');if(cap!==undefined&&(await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts>=cap)return false;return true},async(p,delay,spend)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay);if(spend)await this.storage.put('neurons:'+utcDay(),Math.max(0,(await this.storage.get('neurons:'+utcDay())||0)+spend))},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,{...options,onUsage:(p,event,details)=>recordUsage(this.storage,p,event,details)})}
+ async model(prompt,valid,options={}){return providerAnswer(this.env,prompt,async()=>true,async(p,delay)=>{if(delay)await this.storage.put('cooldown:'+p,Date.now()+delay)},fetch,async(p,reason)=>this.storage.put('failure:'+p,{...reason,at:Date.now()}),valid,{...options,reserveAttempt:(p,n)=>reserveProviderAttempt(this.storage,p,n),settleAttempt:(r,n)=>settleProviderAttempt(this.storage,r,n),onUsage:(p,event,details)=>recordUsage(this.storage,p,event,details)})}
  async availability(){
   const now=Date.now(),ready=[],failures=[];
   for(const name of ['gemini','cloudflare']){const cooldown=await this.storage.get('cooldown:'+name)||0;const failure=await this.storage.get('failure:'+name);const configured=name==='gemini'?!!(this.env.GEMINI_API_KEY||this.env.gemini_api):!!this.env.AI;const cap=await this.storage.get('config:geminiDailyLimit');const budget=name==='cloudflare'?(await this.storage.get('neurons:'+utcDay())||0)>=8480:cap!==undefined&&((await this.storage.get('usage:'+providerDay('gemini')+':gemini'))?.attempts||0)>=cap;
@@ -208,6 +205,7 @@ export class GuideService{
   if(pending.contextDigest&&pending.contextDigest!==signature)return {status:409,body:{error:'提問快照已變更，請重新提問。'}};
   if(pending.epoch&&(await this.storage.get(pending.epoch.key)||0)!==pending.epoch.value)return {status:409,body:{error:'對話已變更，請重新開啟聊天室。'}};
   if(pending.result)return pending.result;
+  if(await playerLimit(this.storage,uid)===0)return {status:403,body:{error:'管理員已暫停此帳號的 AI 使用權限。'}};
   if((pending.attempts||0)>=3)return {status:503,body:{error:'補充資訊分析已重試多次，請重新送出問題。'}};
   pending.attempts=(pending.attempts||0)+1;pending.contextDigest=signature;await this.storage.put(key,pending);this.historyEpoch=pending.epoch;
   const data={playerContext:context,scene:scene||{},facts:pending.compact};

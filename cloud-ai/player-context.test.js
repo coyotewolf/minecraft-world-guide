@@ -28,3 +28,14 @@ test('missing-information output cannot solicit credentials or server secrets',(
 test('failed continuation cannot be replayed into unlimited model work',async()=>{const {service}=fixture();const first=await service.ask('owner',request.question,cid,[],scene,false,false,false,true),token=first.body.clientAction.token;let n=0;service.model=async()=>{n++;return null};for(let i=0;i<5;i++)assert.equal((await service.completePlayerContext('owner',token,extra,request)).status,503);assert.equal(n,3);});
 
 test('weather is explicitly world-wide data, not a claim that rain is reaching the player',()=>{const r=normalizePlayerContext({version:1,observations:{raining:true,thundering:false}});assert.deepEqual(r.observations,{worldRaining:true,worldThundering:false});assert.deepEqual(normalizePlayerContext(r),r);});
+
+test('admin suspension blocks pending context work, resuming preserves the already charged last question',async()=>{
+ const {storage,service,calls}=fixture();await storage.put('limit:owner',1);
+ const first=await service.ask('owner',request.question,cid,[],scene,false,false,false,true),token=first.body.clientAction.token;
+ await storage.put('limit:owner',0);const n=calls.length;
+ assert.equal((await service.completePlayerContext('owner',token,extra,request)).status,403);assert.equal(calls.length,n);
+ await storage.put('limit:owner',1);assert.equal((await service.completePlayerContext('owner',token,extra,request)).status,200);
+ assert.equal(await storage.get('user:'+dayKey()+':owner'),1);
+ await storage.put('limit:owner',0);const done=calls.length;
+ assert.equal((await service.completePlayerContext('owner',token,extra,request)).status,200);assert.equal(calls.length,done,'cached response spends no AI');
+});
