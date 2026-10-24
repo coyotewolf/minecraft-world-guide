@@ -1,0 +1,89 @@
+name: One-time authorized audit fixture cleanup
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cloudflare-game-assistant-production
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: "22"
+      - name: Verify exact fixture-only migration
+        run: node --test tools/audit-cleanup.test.mjs
+      - name: Install deployment tools
+        working-directory: cloud-ai
+        run: npm ci --ignore-scripts
+      - name: Resolve deployment account and save unmodified Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" 'https://api.cloudflare.com/client/v4/accounts?per_page=50' > "$RUNNER_TEMP/accounts.json"
+          test "$(jq -r '.success' "$RUNNER_TEMP/accounts.json")" = true
+          test "$(jq '.result | length' "$RUNNER_TEMP/accounts.json")" = 1
+          echo "CLOUDFLARE_ACCOUNT_ID=$(jq -r '.result[0].id' "$RUNNER_TEMP/accounts.json")" >> "$GITHUB_ENV"
+          cp cloud-ai/worker.js "$RUNNER_TEMP/audit-original-worker.js"
+      - name: Prepare temporary deployment-time data migration
+        run: |
+          cp tools/audit-cleanup.mjs cloud-ai/audit-cleanup.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('cloud-ai/worker.js');s=p.read_text()
+          s="import {purgeAuditFixtures} from './audit-cleanup.mjs';\n"+s
+          old='this.providerQuotas=new ProviderQuotas(env)}'
+          new="this.providerQuotas=new ProviderQuotas(env);ctx.blockConcurrencyWhile(async()=>{try{this.auditCleanupResult=await purgeAuditFixtures(ctx.storage,this.inflight)}catch{this.auditCleanupResult={completed:false}}})}"
+          assert old in s;s=s.replace(old,new)
+          s=s.replace(' availability(){return this.service.availability()}',' auditCleanupReceipt(){return this.auditCleanupResult??{completed:false}}\n availability(){return this.service.availability()}')
+          old="return send({ready:env.FREE_ONLY_ACK==='true',primary:"
+          new="return send({auditCleanup:await env.GUIDE.getByName('aoi-free-guide').auditCleanupReceipt(),ready:env.FREE_ONLY_ACK==='true',primary:"
+          assert old in s;s=s.replace(old,new);p.write_text(s)
+          PY
+      - name: Deploy temporary migration
+        working-directory: cloud-ai
+        run: npm run deploy
+      - name: Verify fixture records removed
+        shell: bash
+        run: |
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          const response=await fetch('https://aoi-free-guide.aoi-free-cloud-guide.workers.dev/health',{headers:{Origin:'https://coyotewolf.github.io','User-Agent':'AOI-owner-authorized-security-audit'}});
+          const body=await response.json();
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/cleanup-receipt.json',JSON.stringify(body.auditCleanup??{},null,2));
+          console.log(JSON.stringify(body.auditCleanup));
+          if(!response.ok||body.auditCleanup?.remaining!==0||body.auditCleanup?.scope!=='three-authorized-audit-accounts')throw Error('Fixture cleanup was not confirmed');
+          JS
+      - name: ALWAYS restore original production Worker and remove migration module
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$RUNNER_TEMP/audit-original-worker.js"; then
+            cp "$RUNNER_TEMP/audit-original-worker.js" cloud-ai/worker.js
+            rm -f cloud-ai/audit-cleanup.mjs
+            npm --prefix cloud-ai run deploy
+          fi
+      - name: Verify temporary code is absent from production
+        if: always()
+        run: |
+          node --input-type=module - <<'JS'
+          const r=await fetch('https://aoi-free-guide.aoi-free-cloud-guide.workers.dev/health',{headers:{Origin:'https://coyotewolf.github.io','User-Agent':'AOI-owner-authorized-security-audit'}});const b=await r.json();
+          if(!r.ok||'auditCleanup' in b)throw Error('Original Worker restoration not verified');
+          console.log('Original production health restored; no cleanup field or deletion endpoint.');
+          JS
+      - name: Save non-sensitive cleanup receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: audit-cleanup-receipt
+          path: ${{ runner.temp }}/cleanup-receipt.json
+          retention-days: 1
