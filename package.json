@@ -8,7 +8,7 @@
     "check": "node --check app.js && node --check atlas-reader.js && node --check ai-guide.js && node --test cloud-ai/core.test.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.117.2"
+    "@supabase/supabase-js": "2.117.3"
   },
   "devDependencies": {
     "esbuild": "0.28.2"
