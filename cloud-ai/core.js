@@ -6,10 +6,10 @@ import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.
 import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {resolveSubjects} from '../subject-resolver.js';
 import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
-import {registryAction,intentCapabilities,INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
+import {registryAction,INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
 import {normalizeGameContext,sceneQuery,SCENE_POLICY} from './game-context.js';
 import {concreteMechanicsReply} from './specific-mechanics.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v37-explicit-client-capabilities';
+export const ANSWER_CACHE_VERSION='zh-tw-v36-credential-boundary';
 export const SCHEMA={type:'object',properties:{contextStatus:{type:'string',enum:['handled','needs_context','insufficient']},answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -247,8 +247,7 @@ export class GuideService{
    const rememberedIntent=await this.storage.get(intentKey);
    if(rememberedIntent?.expires>Date.now()&&validIntent(rememberedIntent.plan))plan=rememberedIntent.plan;
    else{
-   const capabilities=intentCapabilities({clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled});
-   const intent=await this.model(INTENT_POLICY+'\n'+SCENE_POLICY+'\n'+capabilities.policy+'\n'+JSON.stringify({priorTurns,priorIntent,question,subjectMatches,gameContext,clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled}),validIntent,{schema:capabilities.schema,maxTokens:600,temperature:0});
+   const intent=await this.model(INTENT_POLICY+'\n'+SCENE_POLICY+'\n'+JSON.stringify({priorTurns,priorIntent,question,subjectMatches,gameContext,clientSearchEnabled,clientRegistryEnabled,clientBiomeEnabled}),validIntent,{schema:INTENT_SCHEMA,maxTokens:500,temperature:0});
    if(intent){plan=parseModelValue(intent.value);await this.saveHistory(intentKey,{plan,expires:Date.now()+86400000});}
    // Planning improves relevance, but it must never be a single point of failure.
    // When a provider returns malformed planning JSON, continue with the original question.
