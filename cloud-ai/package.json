@@ -3,11 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --test core.test.js quota-admin.test.js provider-quotas.test.js chat-deletion.test.js ../ai-search.test.js client-access.test.js arborix.test.js game-context.test.js announcements.test.js specific-mechanics.test.js local-search.test.js registry-lookup.test.js biome.test.js player-context.test.js",
+    "check": "node --test core.test.js quota-admin.test.js provider-quotas.test.js chat-deletion.test.js ../ai-search.test.js client-access.test.js arborix.test.js game-context.test.js announcements.test.js specific-mechanics.test.js local-search.test.js registry-lookup.test.js biome.test.js player-context.test.js credential-safety.test.js",
     "preview-deploy": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "4.149.0"
+  },
+  "overrides": {
+    "undici": "7.30.1"
   }
 }

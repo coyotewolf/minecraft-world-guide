@@ -9,3 +9,6 @@ data/languages.json
 data/recipes.json
 
 _site/
+
+__pycache__/
+supabase/.temp/

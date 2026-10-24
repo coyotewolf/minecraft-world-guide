@@ -97,6 +97,9 @@ jobs:
           verify('translation-zh-tw-index.json');
           NODE
 
+      - name: Reject credentials in Worker and distributed files
+        run: python3 tools/scan_secrets.py
+
       - name: Install Worker dependencies
         working-directory: cloud-ai
         run: npm ci --ignore-scripts

@@ -18,10 +18,15 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: "22"
           cache: npm
+      - name: Reject credentials in source, Git history and downloadable archives
+        run: |
+          python3 -m unittest discover -s tools -p scan_secrets_test.py
+          python3 tools/scan_secrets.py --history
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: node tools/verify_assistant_release.mjs

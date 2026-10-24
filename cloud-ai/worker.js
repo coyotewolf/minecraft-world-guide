@@ -1,3 +1,4 @@
+import {containsCredential} from './credential-safety.js';
 import {contextKey,digest,normalizePlayerContext} from './player-context.js';
 import {clientAccess} from './client-access.js';
 import {announcementFeed} from './announcements.js';
@@ -57,7 +58,7 @@ export default {async fetch(request,env){
  if(new URL(request.url).pathname==='/announcements')return announcementFeed(request,env);
  const access=clientAccess(request,env),headers=access.headers;
  if(access.status)return new Response(JSON.stringify({error:access.error}),{status:access.status,headers});
- const send=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
+ const send=(body,status=200)=>{if(containsCredential(body,env)){body={error:'回覆未通過安全檢查，請換個方式詢問遊戲問題。',code:'unsafe_response'};status=503}return new Response(JSON.stringify(body),{status,headers})};
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
  if(new URL(request.url).pathname==='/health'&&request.method==='GET')return send({ready:env.FREE_ONLY_ACK==='true',primary:!!(env.GEMINI_API_KEY||env.gemini_api),fallback:!!env.AI,gameContextVersion:1,playerContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0});
  if(new URL(request.url).pathname==='/status'&&request.method==='GET'){const uid=await approvedUser(request,env);if(!uid)return send({error:'請登入玩家帳號。'},401);return send({...await env.GUIDE.getByName('aoi-free-guide').availability(),gameContextVersion:1,playerContextVersion:1,currentBiomeVersion:env.CONVERSATION_PLANNER==='true'?1:0,registryLookupVersion:env.CONVERSATION_PLANNER==='true'?1:0,localSearchVersion:env.CONVERSATION_PLANNER==='true'?1:0})}

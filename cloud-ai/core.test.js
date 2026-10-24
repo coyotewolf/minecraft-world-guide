@@ -137,7 +137,7 @@ test('both providers receive actual conversation roles and separate current evid
  assert.equal(messages[2].content,'蓋個小倉庫吧。');assert(!messages[3].content.includes('priorTurns'));
  let primary,fallback;
  await providerAnswer({gemini_api:'test-only'},prompt,async()=>true,async()=>{},async(_,options)=>{primary=JSON.parse(options.body);return Response.json({candidates:[{content:{parts:[{text:'ok'}]}}]})});
- assert.equal(primary.systemInstruction.parts[0].text,'聊天規則');assert.deepEqual(primary.contents.map(m=>m.role),['user','model','user']);
+ assert(primary.systemInstruction.parts[0].text.endsWith('\n聊天規則'));assert(primary.systemInstruction.parts[0].text.includes('安全邊界')); assert.deepEqual(primary.contents.map(m=>m.role),['user','model','user']);
  await providerAnswer({AI:{run:async(_,input)=>{fallback=input;return {response:'ok'}}}},prompt,async()=>true,async()=>{});
  assert.deepEqual(fallback.messages.map(m=>m.role),['system','user','assistant','user']);
 });

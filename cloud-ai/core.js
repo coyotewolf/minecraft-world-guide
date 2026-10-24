@@ -1,3 +1,4 @@
+import {containsCredential,redactCredentials,CREDENTIAL_POLICY} from './credential-safety.js';
 import {normalizePlayerContext,CONTEXT_REQUEST_POLICY,CONTEXT_POLICY,CONTEXT_SCHEMA,contextReply,contextAnswer,contextKey,digest,contextContinuation} from './player-context.js';
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
 import {playerLimit,recordUsage,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
@@ -8,7 +9,7 @@ import {CHAT_POLICY,MECHANICS_POLICY} from './chat-policy.js';
 import {registryAction,INTENT_SCHEMA,INTENT_POLICY,validIntent,relationEvidence} from './conversation-intent.js';
 import {normalizeGameContext,sceneQuery,SCENE_POLICY} from './game-context.js';
 import {concreteMechanicsReply} from './specific-mechanics.js';
-export const ANSWER_CACHE_VERSION='zh-tw-v35-deferred-player-context';
+export const ANSWER_CACHE_VERSION='zh-tw-v36-credential-boundary';
 export const SCHEMA={type:'object',properties:{contextStatus:{type:'string',enum:['handled','needs_context','insufficient']},answer:{type:'string',maxLength:1600},factIds:{type:'array',items:{type:'string'},maxItems:4}},required:['answer','factIds'],additionalProperties:false};
 export const dayKey=(now=Date.now())=>new Date(now+8*3600000).toISOString().slice(0,10);
 export const utcDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
@@ -42,7 +43,10 @@ export function providerMessages(prompt){
 }
 export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onFailure=async()=>{},valid=()=>true,options={}){
  const outputTokens=options.maxTokens||700;
- const messages=providerMessages(prompt),system=messages.find(m=>m.role==='system');
+ const messages=providerMessages(redactCredentials(prompt,env));
+ let security=messages.find(m=>m.role==='system');if(security)security.content=CREDENTIAL_POLICY+'\n'+security.content;else messages.unshift({role:'system',content:CREDENTIAL_POLICY});
+ const acceptable=value=>!containsCredential(value,env)&&valid(value);
+ const system=messages.find(m=>m.role==='system');
  if(options.schema)messages[0].content+='\n輸出 JSON 格式：'+JSON.stringify(options.schema);
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
  const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
@@ -67,7 +71,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
     const data=await r.json().catch(()=>({}));
     await options.onUsage?.('gemini','success',{inputTokens:data.usageMetadata?.promptTokenCount,outputTokens:data.usageMetadata?.candidatesTokenCount});
     const value=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
-    if(valid(value))return {value,provider:'gemini'};
+    if(acceptable(value))return {value,provider:'gemini'};
     // Bad JSON/schema output is a response-quality problem, not a provider outage.
     // Record it for diagnostics but do not globally cool down Gemini.
     await onFailure('gemini',{code:'invalid_answer',delay:0});
@@ -111,7 +115,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
     if(settled!==null)await onSpend('cloudflare',0,settled-estimate);
     await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});
     const answer=value.response??value.choices?.[0]?.message?.content;
-    if(valid(answer))return {value:answer,provider:'cloudflare'};
+    if(acceptable(answer))return {value:answer,provider:'cloudflare'};
     await onFailure('cloudflare',{code:'invalid_answer',delay:0});
     terminalFailure=null;
     break;
