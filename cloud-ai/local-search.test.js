@@ -11,3 +11,10 @@ test('radius comes from AI interpretation only when specified and action schema 
  assert(validIntent(plan));assert(validIntent({...plan,localSearch:{query:'虛顎龍',radius:200}}));for(const radius of [0,-1,1.5,'200',2147483648])assert(!validIntent({...plan,localSearch:{query:'虛顎龍',radius}}));assert(!validIntent({...plan,localSearch:{query:'虛顎龍',command:'/op player'}}));
  assert.equal(questionBody({question:'找牠',clientSearchVersion:1}).clientSearchEnabled,true);assert.equal(questionBody({question:'找牠'}).clientSearchEnabled,false);assert.throws(()=>questionBody({question:'找牠',clientSearchVersion:2}));
 });
+
+test('planner explicitly chooses an advertised capability; disabled actions are absent from schema',async()=>{
+ const {intentCapabilities}=await import('./conversation-intent.js');
+ const c=intentCapabilities({clientSearchEnabled:true});assert.deepEqual(c.schema.properties.clientActionType.enum,['none','nearby_entities']);assert(c.schema.required.includes('clientActionType'));assert(c.schema.properties.localSearch);assert(!c.schema.properties.registryLookup);assert(!c.schema.properties.currentBiome);
+ assert(validIntent({...plan,clientActionType:'nearby_entities'}));assert(!validIntent({...plan,clientActionType:'none'}));assert(!validIntent({...plan,clientActionType:'registry_id'}));
+ const r=intentCapabilities({clientRegistryEnabled:true,clientBiomeEnabled:true});assert.deepEqual(r.schema.properties.clientActionType.enum,['none','registry_id','current_biome']);assert(!r.schema.properties.localSearch);
+});
