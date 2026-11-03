@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+clientSideOnly=true
+[[mods]]
+modId="aoi_client_checks"
+version="0.1.0"
+displayName="AOI development UI checks"
+displayTest="IGNORE_ALL_VERSION"

@@ -12,3 +12,21 @@ _site/
 
 __pycache__/
 supabase/.temp/
+
+# Local credentials and deployment state must never enter the repository.
+.dev.vars*
+.wrangler/
+*.dpapi
+*.pkcs8
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
+# Published downloads live in downloads/. Keep local release archives and live reports private.
+minecraft-client/release/
+minecraft-client/*checks.json
+minecraft-client/DEPLOYMENT-RESULT.json
+minecraft-client/SCENE-*.json
