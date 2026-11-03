@@ -32,6 +32,10 @@
 
 ## 維護
 
+遊戲內 AI 助手的完整 Forge 原始碼、驗證程式、Gradle Wrapper 與發布工具位於 [minecraft-client](minecraft-client/README.md)，目前原始碼版本為 0.1.16。網站前端、攻略與圖像、AI 知識庫及 Worker、資料庫 SQL／Supabase 遷移和 CI 均保存在本 repo。正式下載檔沿用 `downloads/`；本機舊版發布目錄、快取、登入資料、簽章私鑰、管理員啟用碼及現場測試 JSON 不納入版本控制。客戶端文件引用的本機驗收紀錄屬於歷史結果，不代表在此次上傳時重新驗收。
+
+2026-11-04 的上傳範圍與資安查核見 [docs/repository-security-review-20261104.md](docs/repository-security-review-20261104.md)。部署用的秘密仍須另設於 GitHub Actions、Cloudflare 或 Supabase；clone repo 不會取得正式玩家資料或伺服器權限。
+
 前端是靜態網站，由 GitHub Pages 發布；玩家資料保存在 Supabase Free 專案。資料表有行級權限、欄位權限及有效登入检查，隊伍比較不返回筆記或条件。帳號登入／註冊／復原透過已部署的 `player-auth`，管理權限只在伺服器驗證。SQL 遷移按 `schema.sql`、`approval.sql`、`hardening.sql`、`policy-performance.sql`、`cancelled-requests.sql`、`team-management.sql`、`feedback-bounties.sql`、`avatars-item-rewards.sql` 順序套用；已建好的專案不需要重跑。
 
 本機建置：`npm ci`、`npm run check`、`npm run build`。網站入口載入 `assets/app.min.js`。更新攻略來源時可依序執行 `tools/scan_pack.py`、`tools/build_content.py`、`tools/localize_content.py`、`tools/finalize_content.py`、`tools/prepare_guides.py`、`tools/theme_guides.py`；Python 的 BeautifulSoup 與 OpenCC 需先準備。盤點程式的本機路徑可修改，原攻略由 Downloads 讀取。

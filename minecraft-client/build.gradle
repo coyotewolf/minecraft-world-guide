@@ -1,0 +1,121 @@
+plugins { id 'net.minecraftforge.gradle' version '6.0.54' }
+version='0.1.16'
+group='io.github.coyotewolf.aoi'
+base { archivesName='aoi-ai-assistant-1.20.1' }
+java.toolchain.languageVersion=JavaLanguageVersion.of(17)
+minecraft {
+ mappings channel:'official',version:'1.20.1'
+ runs { client { workingDirectory project.file('run'); mods { aoi_assistant { source sourceSets.main } } } }
+}
+repositories { mavenCentral() }
+dependencies { minecraft 'net.minecraftforge:forge:1.20.1-47.4.23' }
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+jar { finalizedBy 'reobfJar' }
+tasks.withType(org.gradle.api.tasks.bundling.AbstractArchiveTask).configureEach {
+ preserveFileTimestamps=false
+ reproducibleFileOrder=true
+}
+sourceSets { verification { compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath; runtimeClasspath += output + compileClasspath } }
+tasks.register('verifyClient', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.ClientChecks'
+}
+tasks.register('verifyLive', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.LiveChecks'
+}
+tasks.register('verifyCommands', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.CommandChecks'
+}
+tasks.register('verifyRememberedLogin', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.RememberedLoginChecks'
+}
+if (project.hasProperty('guiVerification')) {
+ minecraft.runs.client.mods { aoi_client_checks { source sourceSets.verification } }
+}
+
+tasks.register('verifyAnnouncements', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.AnnouncementChecks'
+}
+
+tasks.register('verifyUpdates', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.UpdateChecks'
+}
+
+tasks.register('verifyNearby', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.NearbyChecks'
+}
+tasks.named('verifyCommands') { dependsOn 'verifyNearby' }
+
+// The launcher JVM is independent of Forge so Windows does not lock the installed mod JAR.
+sourceSets {
+ prelaunch {
+  java.srcDirs=['tools/prelaunch/src','src/main/java']
+  java.include 'io/github/coyotewolf/aoi/update/PrelaunchUpdater.java', 'io/github/coyotewolf/aoi/update/PrelaunchChecks.java', 'io/github/coyotewolf/aoi/update/ReleaseManifest.java', 'io/github/coyotewolf/aoi/update/UpdateLease.java'
+  compileClasspath += sourceSets.main.compileClasspath
+  runtimeClasspath += output + compileClasspath
+ }
+}
+tasks.register('verifyPrelaunch', JavaExec) {
+ dependsOn prelaunchClasses
+ classpath=sourceSets.prelaunch.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoi.update.PrelaunchChecks'
+}
+tasks.register('prelaunchJar', Jar) {
+ dependsOn prelaunchClasses, verifyPrelaunch
+ archiveFileName='updater.jar'
+ destinationDirectory=layout.buildDirectory.dir('prelaunch')
+ manifest { attributes('Main-Class':'io.github.coyotewolf.aoi.update.PrelaunchUpdater') }
+ from(sourceSets.prelaunch.output) { exclude '**/PrelaunchChecks*' }
+ from({ zipTree(sourceSets.main.compileClasspath.files.find { it.name == 'gson-2.10.jar' }) }) {
+  exclude 'META-INF/MANIFEST.MF', 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.DSA'
+ }
+ duplicatesStrategy=DuplicatesStrategy.EXCLUDE
+}
+tasks.register('prelaunchResources', Copy) {
+ dependsOn prelaunchJar
+ into layout.buildDirectory.dir('generated/prelaunchResources/aoi-update/prelaunch')
+ from(tasks.named('prelaunchJar')) { into 'build' }
+ from('tools/prelaunch') { include 'install.ps1','prelaunch.ps1','finalize-settings.ps1','README.md' }
+}
+sourceSets.main.resources.srcDir layout.buildDirectory.dir('generated/prelaunchResources')
+tasks.named('processResources') { dependsOn prelaunchResources }
+tasks.register('verifyPrelaunchSetup', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.PrelaunchSetupChecks'
+}
+tasks.named('verifyClient') { dependsOn verifyPrelaunchSetup }
+
+tasks.register('verifyRegistry', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.RegistryChecks'
+}
+tasks.named('verifyCommands') { dependsOn verifyRegistry }
+
+tasks.register('verifyBiome', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.BiomeChecks'
+}
+tasks.named('verifyCommands') { dependsOn verifyBiome }
+
+tasks.register('verifyPlayerContext', JavaExec) {
+ dependsOn verificationClasses
+ classpath=sourceSets.verification.runtimeClasspath
+ mainClass='io.github.coyotewolf.aoichecks.PlayerContextChecks'
+}
+tasks.named('verifyClient') { dependsOn verifyPlayerContext }

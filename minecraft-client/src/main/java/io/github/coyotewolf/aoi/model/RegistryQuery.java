@@ -1,0 +1,7 @@
+package io.github.coyotewolf.aoi.model;
+import com.google.gson.*;import java.util.*;
+public record RegistryQuery(String query,String kind) {
+ public RegistryQuery {if(query==null||kind==null)throw new IllegalArgumentException("查詢格式無效。");query=query.strip();if(query.isEmpty()||query.length()>160||!Set.of("any","item","block","entity").contains(kind))throw new IllegalArgumentException("請指定物品、方塊或實體名稱。");}
+ public static RegistryQuery parse(String input){String text=input.strip();if(text.isEmpty())return new RegistryQuery("@target","any");for(var e:Map.of("物品","item","方塊","block","實體","entity","item","item","block","block","entity","entity").entrySet())if(text.startsWith(e.getKey()+" "))return new RegistryQuery(text.substring(e.getKey().length()).strip(),e.getValue());if(text.equals("手持"))text="@hand";else if(text.equals("目標"))text="@target";return new RegistryQuery(text,"any");}
+ public static RegistryQuery action(JsonObject o){if(!o.keySet().equals(Set.of("version","type","query","kind"))||!o.get("version").isJsonPrimitive()||!o.getAsJsonPrimitive("version").isNumber()||o.get("version").getAsDouble()!=1||!"registry_id".equals(Models.text(o,"type",""))||!o.get("query").isJsonPrimitive()||!o.getAsJsonPrimitive("query").isString()||!o.get("kind").isJsonPrimitive()||!o.getAsJsonPrimitive("kind").isString())throw new IllegalArgumentException("ID 查詢格式無效。");return new RegistryQuery(o.get("query").getAsString(),o.get("kind").getAsString());}
+}
