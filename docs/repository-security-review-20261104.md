@@ -9,6 +9,7 @@
 - 正式 JAR 與原始碼 ZIP 沿用既有 `downloads/`，不重複提交本機 82 個舊版發布檔案，也不提交 6 個現場測試／部署 JSON。
 - 管理員啟用碼、`.env*`、`.dev.vars*`、部署快取、DPAPI 登入檔與私鑰格式由 `.gitignore` 排除。這些檔案不應作為備份上傳 GitHub。
 - Gradle 8.8 發行 ZIP 增加官方 `distributionSha256Sum`，校驗值取自 [Gradle 官方發行校驗碼](https://downloads.gradle.org/distributions/gradle-8.8-bin.zip.sha256)。
+- 本機原附 Wrapper JAR 的雜湊為 `ed2c26eba7cfb93cc2b7785d05e534f07b5b48b5e7fc941921cd098628abca58`，無法對應宣告的 Gradle 8.8 官方 Wrapper 校驗碼，因此換成 [Gradle v8.8.0 官方原始庫的 JAR](https://github.com/gradle/gradle/blob/v8.8.0/gradle/wrapper/gradle-wrapper.jar)。寫入前與[官方 Wrapper SHA-256](https://services.gradle.org/distributions/gradle-8.8-wrapper.jar.sha256)核對一致：`cb0da6751c2b753a16ac168bb354870ebb1e162e9083f116729cec9c781156b8`。這個不一致本身不代表原檔已被惡意修改。
 
 ## 已完成檢查
 
