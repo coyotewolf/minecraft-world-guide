@@ -20,7 +20,7 @@ test('named collection instructions survive supplemental lookup without a specie
   if(name==='assistant-bootstrap.json')data.gameplay=data.gameplay.filter(f=>f.id!==nulljaw.id);
   return Response.json(data);
  }catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{
-  const body=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));
+  const body=JSON.parse(input.messages.at(-1).content);
   if(!Array.isArray(body.facts))return {response:{query:'虛顎龍 馴服 餵食',mode:'mechanism',facet:'companions',focus:['虛顎龍'],useHistory:false,progress:'unknown',exclude:[]}};
   const fact=body.facts.find(f=>f.title==='虛顎龍'&&f.text.includes('歌萊果')&&f.text.includes('20%'));assert(fact,'retain the concrete collection card rather than only generic dragon behavior');assert(body.retrievalCoverage.supplemental);
   return {response:{answer:'虛顎龍吃歌萊果。',factIds:[fact.id]}};
@@ -41,7 +41,7 @@ class Store{constructor(){this.values=new Map()}async get(k){return structuredCl
 test('real corpus retains exact Nulljaw taming evidence through supplement and review, including follow-ups and stale history',async()=>{
  const storage=new Store(),prompts=[];
  const env={FREE_ONLY_ACK:'true',CONVERSATION_PLANNER:'true',ANSWER_REVIEW:'true',ASSETS:{fetch:async r=>{try{return Response.json(JSON.parse(await fs.readFile(new URL('../data/ai/'+r.url.split('/').at(-1),import.meta.url),'utf8')))}catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{
-  const body=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));
+  const body=JSON.parse(input.messages.at(-1).content);
   if(!Array.isArray(body.facts))return {response:{query:'虛顎龍 馴服 餵食',mode:'mechanism',facet:'companions',focus:['虛顎龍'],useHistory:prompts.length>0,progress:'unknown',exclude:[]}};
   const fact=body.facts.find(f=>f.text.includes('食品標籤')&&f.text.includes('minecraft:chorus_fruit'));
   assert(fact,'complete food definition must reach writer and reviewer');assert(fact.text.includes('minecraft:end_barrens'));assert(fact.text.includes('20%'));assert(!fact.text.includes('建議準備生鮭魚'));

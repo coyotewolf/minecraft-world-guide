@@ -8,7 +8,7 @@ const trophyPlan={query:'首領 獎盃 掉落',mode:'list',facet:'bossDrops',foc
 test('raw typed question reaches the first writer even if the planner drops the book type',async()=>{
  const fs=await import('node:fs/promises'),storage=new Store(),counts=new Map();let calls=0;
  const env={FREE_ONLY_ACK:'true',CONVERSATION_PLANNER:'true',ASSETS:{fetch:async r=>{const file=r.url.split('/').at(-1);counts.set(file,(counts.get(file)||0)+1);try{return Response.json(JSON.parse(await fs.readFile(new URL('../data/ai/'+file,import.meta.url),'utf8')))}catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{
-  const context=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));
+  const context=JSON.parse(input.messages.at(-1).content);
   if(++calls===1)return {response:{...trophyPlan,query:'法術書 容量 用途',mode:'mechanism',facet:'none',focus:['容量']}};
   assert(context.facts[0].title.includes('擴充'));
   assert(context.facts[0].text.includes('正常最高 III'));
@@ -22,13 +22,13 @@ const trophyCatalog={references:2,scope:'測試資料的直接掉落表，不含
 
 test('an evidence gap still reaches chat AI with explicit bounded scope instead of a fixed fallback',async()=>{
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:[]);let calls=0;
- env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'找不到名字的機器 啟動',mode:'mechanism',facet:'none',focus:[]}};const context=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(context.facts.length,0);assert.equal(context.retrievalCoverage.bounded,true);return {response:{answer:'這台機器的名字還沒確認，你看到的介面標題是什麼？',factIds:[]}}};
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'找不到名字的機器 啟動',mode:'mechanism',facet:'none',focus:[]}};const context=JSON.parse(input.messages.at(-1).content);assert.equal(context.facts.length,0);assert.equal(context.retrievalCoverage.bounded,true);return {response:{answer:'這台機器的名字還沒確認，你看到的介面標題是什麼？',factIds:[]}}};
  const result=await service.ask('u','那個機器啟動不了');assert.equal(calls,2);assert.equal(result.body.answer,'這台機器的名字還沒確認，你看到的介面標題是什麼？');
 });
 
 test('recommendation review receives evidence and corrects a generic draft without charging a second question',async()=>{
  const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.ANSWER_REVIEW='true';let calls=0;
- env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,mode:'recommendation',facet:'none',query:'魔法之眼',focus:[]}};if(calls===2)return {response:{answer:'挑一種材料做產線。',factIds:['1']}};const p=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(p.draft.answer,'挑一種材料做產線。');assert(p.facts[0].text);return {response:{answer:'這次就去收藏魔法之眼，先查森林豪宅寶箱。',factIds:['1']}}};
+ env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,mode:'recommendation',facet:'none',query:'魔法之眼',focus:[]}};if(calls===2)return {response:{answer:'挑一種材料做產線。',factIds:['1']}};const p=JSON.parse(input.messages.at(-1).content);assert.equal(p.draft.answer,'挑一種材料做產線。');assert(p.facts[0].text);return {response:{answer:'這次就去收藏魔法之眼，先查森林豪宅寶箱。',factIds:['1']}}};
  const result=await service.ask('u','給我一個目標');assert.equal(calls,3);assert.equal(result.body.answer,'這次就去收藏魔法之眼，先查森林豪宅寶箱。');assert.equal(await storage.get('user:'+dayKey()+':u'),1);
 });
 
@@ -42,26 +42,26 @@ test('named acquisition retains runtime evidence even when the creature is missi
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
  const pages={'manifest.json':{version:'v1',shards:[{file:'runtime.json',terms:'試驗獸 馴服',kinds:['馴服與餵食']}]},'coverage-index.json':{subjects:{'試驗獸':[['runtime.json',['馴服與餵食']]]}},'runtime.json':[{id:'runtime',title:'馴服與餵食 · 試驗獸',search:'試驗獸 tame isFood',runtimeEvidence:true,text:'isFood = test_seed; mustSneak = true;'}],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[{file:'cards.json'}]},'cards.json':[{id:'generic',kind:'collection',category:'companions',title:'普通生物',search:'夥伴 馴服',playerSummary:'不能替代點名的生物'}]};
  env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
- env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'試驗獸 怎麼馴服',mode:'acquisition',facet:'companions',focus:['試驗獸']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert(x.facts.some(f=>f.text.includes('mustSneak')));assert(!x.facts.some(f=>f.title==='普通生物'));return {response:{answer:'拿指定種子蹲下互動。',factIds:['1']}}};
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'試驗獸 怎麼馴服',mode:'acquisition',facet:'companions',focus:['試驗獸']}};const x=JSON.parse(input.messages.at(-1).content);assert(x.facts.some(f=>f.text.includes('mustSneak')));assert(!x.facts.some(f=>f.title==='普通生物'));return {response:{answer:'拿指定種子蹲下互動。',factIds:['1']}}};
  assert.equal((await service.ask('u','試驗獸怎麼馴服')).body.answer,'拿指定種子蹲下互動。');
 });
 
 test('review can request one bounded evidence supplement and still consumes only one player question',async()=>{
  const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';env.ANSWER_REVIEW='true';let calls=0;
- env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'魔法之眼',mode:'mechanism',facet:'none',focus:[]}};if(calls===2)return {response:{answer:'還要核對條件。',factIds:['1']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));if(calls===3){assert.equal(x.searchBudgetRemaining,1);return {response:{answer:'先補查定義。',factIds:['1'],searchQueries:['魔法之眼 條件']}}}assert.equal(x.searchBudgetRemaining,0);assert(x.retrievalCoverage.supplemental);return {response:{answer:'已核對目前能確認的條件。',factIds:['1']}}};
+ env.AI.run=async(_,input)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'魔法之眼',mode:'mechanism',facet:'none',focus:[]}};if(calls===2)return {response:{answer:'還要核對條件。',factIds:['1']}};const x=JSON.parse(input.messages.at(-1).content);if(calls===3){assert.equal(x.searchBudgetRemaining,1);return {response:{answer:'先補查定義。',factIds:['1'],searchQueries:['魔法之眼 條件']}}}assert.equal(x.searchBudgetRemaining,0);assert(x.retrievalCoverage.supplemental);return {response:{answer:'已核對目前能確認的條件。',factIds:['1']}}};
  const result=await service.ask('u','魔法之眼的條件');assert.equal(calls,4);assert.equal(result.status,200);assert.equal(await storage.get('user:'+dayKey()+':u'),1);
 });
 
 test('cold-start installed knowledge and referenced defaults stay within the asset request budget',async()=>{
  const fs=await import('node:fs/promises'),storage=new Store(),counts=new Map();let calls=0;
- const env={FREE_ONLY_ACK:'true',CONVERSATION_PLANNER:'true',ANSWER_REVIEW:'true',ASSETS:{fetch:async r=>{const file=r.url.split('/').at(-1);counts.set(file,(counts.get(file)||0)+1);try{return Response.json(JSON.parse(await fs.readFile(new URL('../data/ai/'+file,import.meta.url),'utf8')))}catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'倉鼠 馴服 食物',mode:'acquisition',facet:'companions',focus:['倉鼠']}};if(calls===2){const initial=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert(initial.facts.some(f=>f.text.includes('sliced_cucumber')||f.text.includes('黃瓜')));assert(initial.facts.some(f=>f.text.includes('if (isSneaking && isTamingFood)')));return {response:{answer:'先核對食物。',factIds:['1']}}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(x.searchBudgetRemaining,0);assert(x.facts.some(f=>f.text.includes('sliced_cucumber')||f.text.includes('黃瓜')));assert(x.facts.some(f=>f.text.includes('if (isSneaking && isTamingFood)')));return {response:{answer:'已補查到具體食物。',factIds:['1'],searchQueries:[]}}}}};
+ const env={FREE_ONLY_ACK:'true',CONVERSATION_PLANNER:'true',ANSWER_REVIEW:'true',ASSETS:{fetch:async r=>{const file=r.url.split('/').at(-1);counts.set(file,(counts.get(file)||0)+1);try{return Response.json(JSON.parse(await fs.readFile(new URL('../data/ai/'+file,import.meta.url),'utf8')))}catch{return new Response('',{status:404})}}},AI:{run:async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'倉鼠 馴服 食物',mode:'acquisition',facet:'companions',focus:['倉鼠']}};if(calls===2){const initial=JSON.parse(input.messages.at(-1).content);assert(initial.facts.some(f=>f.text.includes('sliced_cucumber')||f.text.includes('黃瓜')));assert(initial.facts.some(f=>f.text.includes('if (isSneaking && isTamingFood)')));return {response:{answer:'先核對食物。',factIds:['1']}}};const x=JSON.parse(input.messages.at(-1).content);assert.equal(x.searchBudgetRemaining,0);assert(x.facts.some(f=>f.text.includes('sliced_cucumber')||f.text.includes('黃瓜')));assert(x.facts.some(f=>f.text.includes('if (isSneaking && isTamingFood)')));return {response:{answer:'已補查到具體食物。',factIds:['1'],searchQueries:[]}}}}};
  const service=new GuideService(storage,env),result=await service.ask('u','倉鼠要餵什麼才能馴服？');assert.equal(result.status,200);assert.equal(calls,3);assert(counts.size<=40);assert([...counts.values()].every(n=>n===1));assert.equal(service.requestReads,null);
 });
 
 test('semantic plan resolves the current list and does not reuse old dragon evidence',async()=>{
  const {service,env,storage}=setup();env.CONVERSATION_PLANNER='true';let calls=0,answerInput;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:r.url.endsWith('player-playbook.json')?[{id:'dragon',title:'安全的龍',search:'龍 安全 會飛 獎盃',category:'dragon-behavior',playerSummary:'不要混入清單'}]:[]);
- env.AI.run=async(_,input)=>{calls++;if(calls===1){assert(input.max_tokens<700);assert(input.messages.some(m=>m.content.includes('龍')));return {response:trophyPlan}}answerInput=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
+ env.AI.run=async(_,input)=>{calls++;if(calls===1){assert(input.max_completion_tokens<700);assert(input.messages.some(m=>m.content.includes('龍')));return {response:trophyPlan}}answerInput=JSON.parse(input.messages.at(-1).content);return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
  const result=await service.ask('u','欸我記得打王有獎盃？哪些王有獎盃？',undefined,[{user:'有哪些能飛的龍',assistant:'先看龍。'}]);
  assert.equal(result.status,200);assert.equal(calls,2);assert.equal(await storage.get('user:'+dayKey()+':u'),1);
  assert(answerInput.facts[0].text.includes('契瑟德'));assert(answerInput.facts[0].text.includes('蓋布拉'));assert(answerInput.facts[0].text.includes('馬爾庫特'));
@@ -95,7 +95,7 @@ test('malformed planner output degrades to direct retrieval instead of failing t
 test('capture request prioritizes companion acquisition conditions over passive ride instructions',async()=>{
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('gameplay-knowledge-index.json')?{shards:[{file:'companions.json'}]}:r.url.endsWith('companions.json')?[{id:'collection:dragon',category:'companions',kind:'collection',title:'特殊夥伴',search:'馴服 特殊 生物',playerSummary:'野生取得地點：雷暴期間；成年須戰鬥壓制後餵食生羊肉。'}]:r.url.endsWith('player-playbook.json')?[{id:'ride',category:'dragon-behavior',title:'上龍操作',search:'特殊 馴服 生物',playerSummary:'主手不拿食物可以上龍。'}]:[]);
- env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'特殊生物 馴服',facet:'companions',mode:'acquisition',focus:['馴服']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'雷暴期間找野生個體，壓制後餵食。',factIds:['1']}}};
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'特殊生物 馴服',facet:'companions',mode:'acquisition',focus:['馴服']}};input=JSON.parse(value.messages.at(-1).content);return {response:{answer:'雷暴期間找野生個體，壓制後餵食。',factIds:['1']}}};
  await service.ask('u','都不想，有什麼特殊的東西可以抓嗎');assert(input.facts[0].text.includes('戰鬥壓制後餵食'));assert(!input.facts.some(f=>f.title==='上龍操作'));
 });
 
@@ -105,7 +105,7 @@ test('named boss follow-up can bridge from a summon-item anchor to the boss game
  const summon={id:'summon',title:'召喚魔法：古達',search:'召喚魔法：古達 配方',playerSummary:'可製作召喚魔法：古達。'};
  const pages={'manifest.json':{version:'v1',shards:[{file:'summon.json',terms:'召喚魔法 古達'}]},'coverage-index.json':{subjects:{'召喚魔法：古達':[['summon.json',['配方']]]}},'summon.json':[summon],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[{file:'bosses.json'}]},'bosses.json':[boss],'relation-knowledge.json':{references:0,scope:'測試直接掉落表',rows:[]}};
  env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
- env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{query:'召喚魔法：古達 召喚 古達 掉落 裝備',queries:[],mode:'mechanism',facet:'bossDrops',relationSide:'source',focus:['古達'],useHistory:true,progress:'advanced',exclude:[]}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));const idx=input.facts.findIndex(f=>f.text.includes('傳說 古達的斧槍'));assert(idx>=0);return {response:{answer:'可以召喚古達；擊敗後主要掉古達的靈魂、傳說 古達的斧槍與法術石。',factIds:[String(idx+1)]}}};
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{query:'召喚魔法：古達 召喚 古達 掉落 裝備',queries:[],mode:'mechanism',facet:'bossDrops',relationSide:'source',focus:['古達'],useHistory:true,progress:'advanced',exclude:[]}};input=JSON.parse(value.messages.at(-1).content);const idx=input.facts.findIndex(f=>f.text.includes('傳說 古達的斧槍'));assert(idx>=0);return {response:{answer:'可以召喚古達；擊敗後主要掉古達的靈魂、傳說 古達的斧槍與法術石。',factIds:[String(idx+1)]}}};
  const result=await service.ask('u','合成「召喚魔法：古達」是可以召喚古達出來打得嗎?打他會掉裝備嗎?',undefined,[{user:'古達是什麼',assistant:'有召喚魔法：古達。'}]);
  assert.equal(result.status,200);assert.match(result.body.answer,/傳說 古達的斧槍/);assert(result.body.facts.some(f=>f.id===boss.id));
 });
@@ -113,7 +113,7 @@ test('named boss follow-up can bridge from a summon-item anchor to the boss game
 test('creature behavior question still retains checked building risk evidence',async()=>{
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0,input;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('player-playbook.json')?[{id:'safety',category:'dragon-behavior',title:'蓑鮋龍的建築安全',search:'蓑鮋龍 原木 建築安全',playerSummary:'拆相連原木，不區分玩家放置；木屋不能保證安全。'}]:[]);
- env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'蓑鮋龍 原木 建築安全',facet:'companions',mode:'mechanism',focus:['原木']}};input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'原木房屋不能保證安全。',factIds:['1']}}};
+ env.AI.run=async(_,value)=>{calls++;if(calls===1)return {response:{...trophyPlan,query:'蓑鮋龍 原木 建築安全',facet:'companions',mode:'mechanism',focus:['原木']}};input=JSON.parse(value.messages.at(-1).content);return {response:{answer:'原木房屋不能保證安全。',factIds:['1']}}};
  await service.ask('u','蓑鮋龍放原木房子旁邊安全嗎');assert(input.facts.some(f=>f.text.includes('不區分玩家放置')));
 });
 
@@ -121,7 +121,7 @@ test('compact conversation state preserves progress beyond recent transcript whi
  const {service,env,storage}=setup(),cid='00000000-0000-4000-8000-000000000008';env.CONVERSATION_PLANNER='true';let calls=0;
  await storage.put('conversation:u:'+cid,{expires:Date.now()+86400000,questions:['找會飛的龍'],answers:['比較坐騎。'],context:'龍',intent:{...trophyPlan,query:'會飛又能騎的龍',facet:'companions',mode:'recommendation'}});
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',shards:[]}:r.url.endsWith('relation-knowledge.json')?trophyCatalog:[]);
- env.AI.run=async(_,value)=>{calls++;if(calls===1){const input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));assert.equal(input.priorIntent.progress,'advanced');assert(input.priorIntent.query.includes('會飛'));return {response:trophyPlan}}return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
+ env.AI.run=async(_,value)=>{calls++;if(calls===1){const input=JSON.parse(value.messages.at(-1).content);assert.equal(input.priorIntent.progress,'advanced');assert(input.priorIntent.query.includes('會飛'));return {response:trophyPlan}}return {response:{answer:'契瑟德、蓋布拉、馬爾庫特。',factIds:['1']}}};
  const result=await service.ask('u','哪些王有獎盃',cid,Array.from({length:8},()=>({user:'其他內容',assistant:'接著聊。'})));
  assert.equal(result.intent,undefined);assert.equal(result.body.intent.useHistory,false);assert.equal((await storage.get('conversation:u:'+cid)).intent.facet,'bossDrops');
 });
@@ -196,7 +196,7 @@ test('conversational replies without citations still remain in the next turn mem
 test('unnamed conversation gets concrete activity evidence without matching recommendation keywords',async()=>{
  const {service,env}=setup();let input;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',activities:'activities.json',shards:[]}:r.url.endsWith('activities.json')?[{title:'製作揹包',article:'backpack',group:'起步',firstStep:'線 ×4、皮革 ×4、木箱 ×1'}]:[]);
- env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'做個揹包吧。',factIds:['1']}}};
+ env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content);return {response:{answer:'做個揹包吧。',factIds:['1']}}};
  const result=await service.ask('u','你替我拿主意好了');
  assert.equal(result.status,200);assert(input.facts.some(f=>f.text.includes('皮革 ×4')));
 });
@@ -204,7 +204,7 @@ test('unnamed conversation gets concrete activity evidence without matching reco
 test('activity titles are backed by full instructions rather than just the opening step',async()=>{
  const {service,env}=setup();let input;
  env.ASSETS.fetch=async r=>Response.json(r.url.endsWith('manifest.json')?{version:'v1',activities:'activities.json',shards:[]}:r.url.endsWith('activities.json')?[{title:'切菜板與烹飪鍋：做燉牛肉',article:'food',group:'生產',firstStep:'放下切菜板'}]:r.url.endsWith('gameplay-knowledge-index.json')?{shards:[{file:'gameplay.json'}]}:r.url.endsWith('gameplay.json')?[{id:'article:food',kind:'article',title:'燉牛肉',playerSummary:'烹飪鍋下方提供熱源，生牛肉 ×1、紅蘿蔔 ×1、馬鈴薯 ×1；成品需要碗。',source:'已查核教學'}]:[]);
- env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content.replace(/\n\/no_think$/,''));return {response:{answer:'使用烹飪鍋做燉牛肉。',factIds:['1']}}};
+ env.AI.run=async(_,value)=>{input=JSON.parse(value.messages.at(-1).content);return {response:{answer:'使用烹飪鍋做燉牛肉。',factIds:['1']}}};
  await service.ask('u','幫我決定一件事');
  const activity=input.facts.find(f=>f.title.includes('切菜板'));
  assert(activity.text.includes('烹飪鍋下方提供熱源'));assert(activity.text.includes('成品需要碗'));
@@ -288,6 +288,6 @@ test('completed named equipment does not restrict a new recommendation to that e
  const {service,env}=setup();env.CONVERSATION_PLANNER='true';let calls=0;
  const pages={'manifest.json':{version:'v1',activities:'activities.json',shards:[{file:'existing.json',terms:'既有機器'}]},'coverage-index.json':{subjects:{'既有機器':[['existing.json',['操作']]]}},'existing.json':[{...fact,title:'既有機器',search:'既有機器'}],'activities.json':[{title:'新成品挑戰',group:'機械',article:'artillery',firstStep:'先準備新成品材料。'}],'player-playbook.json':[],'gameplay-knowledge-index.json':{shards:[]}};
  env.ASSETS.fetch=async r=>Response.json(pages[r.url.split('/').at(-1)]||[]);
- env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'既有機器做好了 找新目標',mode:'recommendation',facet:'none',focus:['既有機器']}};const x=JSON.parse(input.messages.at(-1).content.replace(/\n\/no_think$/,''));assert(x.facts.some(f=>f.title==='新成品挑戰'));return {response:{answer:'今天做新成品挑戰。',factIds:['1']}}};
+ env.AI.run=async(_,input)=>{if(++calls===1)return {response:{...trophyPlan,query:'既有機器做好了 找新目標',mode:'recommendation',facet:'none',focus:['既有機器']}};const x=JSON.parse(input.messages.at(-1).content);assert(x.facts.some(f=>f.title==='新成品挑戰'));return {response:{answer:'今天做新成品挑戰。',factIds:['1']}}};
  assert.equal((await service.ask('u','既有機器做好了，幫我決定新目標')).status,200);
 });

@@ -1,11 +1,35 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {GuideService,approvedIdentity,dayKey,providerAnswer} from './core.js';
-import {quotaChange,changeQuota,quotaReport,recordUsage,providerDay,providerReset,qwenNeurons} from './quota-admin.js';
+import {quotaChange,changeQuota,quotaReport,recordUsage,providerDay,providerReset,cloudflareFallbackNeurons} from './quota-admin.js';
 class Store{constructor(){this.rows=new Map();this.queue=Promise.resolve()}async get(k){return structuredClone(this.rows.get(k))}async put(k,v){this.rows.set(k,structuredClone(v))}async delete(keys){for(const k of keys)this.rows.delete(k)}transaction(fn){const p=this.queue.then(()=>fn(this));this.queue=p.catch(()=>{});return p}}
 const uid='11111111-1111-4111-8111-111111111111';
-test('Workers AI usage settles the preflight reservation only when token counts are present',async()=>{
- let spent=0;await providerAnswer({AI:{run:async()=>({response:'ok',usage:{prompt_tokens:500,completion_tokens:50}})}},'test',async()=>true,async(p,d,n)=>{spent+=n});assert.equal(spent,4);assert.equal(qwenNeurons({prompt_tokens:500,completion_tokens:50}),4);assert.equal(qwenNeurons({prompt_tokens:500}),null);
- let unreported=0;await providerAnswer({AI:{run:async()=>({response:'ok'})}},'test',async()=>true,async(p,d,n)=>{unreported+=n});assert(unreported>4);
+test('Gemini failure uses Gemma and settles the reservation at current Workers AI rates',async()=>{
+ const prompt='遊戲攻略';
+ let spent=0,estimates=[];
+ const result=await providerAnswer({
+  GEMINI_API_KEY:'test-key',
+  AI:{run:async(model,input)=>{
+   assert.equal(model,'@cf/google/gemma-4-26b-a4b-it');
+   assert.equal(input.messages.at(-1).content,prompt);
+   assert.equal(input.max_completion_tokens,320);
+   assert.deepEqual(estimates,[Math.ceil((Buffer.byteLength(JSON.stringify(input.messages))*9091+320*27273)/1e6)]);
+   return {choices:[{message:{content:'ok'}}],usage:{prompt_tokens:500,completion_tokens:50}};
+  }}
+ },prompt,async(provider,n)=>{if(provider==='cloudflare')estimates.push(n);return true},
+ async(provider,delay,n)=>{if(provider==='cloudflare')spent+=n},async()=>new Response('{}',{status:429}),undefined,
+ value=>value==='ok',{maxTokens:320});
+ assert.deepEqual(result,{value:'ok',provider:'cloudflare'});
+ assert.equal(spent,6);
+ assert.equal(cloudflareFallbackNeurons({prompt_tokens:500,completion_tokens:50}),6);
+ assert.equal(cloudflareFallbackNeurons({prompt_tokens:500}),null);
+});
+test('Workers AI keeps the estimated debit when the response omits token counts',async()=>{
+ let estimate=0,spent=0;
+ const result=await providerAnswer({AI:{run:async()=>({response:'ok'})}},'test',
+ async(provider,n)=>{estimate=n;return true},async(provider,delay,n)=>{spent+=n});
+ assert.deepEqual(result,{value:'ok',provider:'cloudflare'});
+ assert.equal(spent,estimate);
+ assert(spent>6);
 });
 test('admin identity comes from fresh RPC, not mutable auth metadata',async()=>{
  const request=new Request('https://test',{headers:{Authorization:'Bearer test-token'}}),env={SUPABASE_URL:'https://test',SUPABASE_KEY:'public'};

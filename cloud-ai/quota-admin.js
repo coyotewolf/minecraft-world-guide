@@ -1,6 +1,9 @@
 // Quota configuration lives with the existing coordinator, not chat history.
 export const PLAYER_DEFAULT=50,GLOBAL_LIMIT=400,NEURON_BUDGET=8500;
-export function qwenNeurons(usage){const input=usage?.prompt_tokens,output=usage?.completion_tokens;return Number.isInteger(input)&&input>0&&Number.isInteger(output)&&output>=0&&input<=1000000&&output<=100000?Math.ceil(input*4625/1e6+output*30475/1e6):null}
+// https://developers.cloudflare.com/workers-ai/platform/pricing/#text-generation
+export const CLOUDFLARE_FALLBACK_MODEL='@cf/google/gemma-4-26b-a4b-it';
+export const cloudflareFallbackNeuronCost=(input,output)=>Math.ceil((input*9091+output*27273)/1e6);
+export function cloudflareFallbackNeurons(usage){const input=usage?.prompt_tokens,output=usage?.completion_tokens;return Number.isInteger(input)&&input>0&&Number.isInteger(output)&&output>=0&&input<=1000000&&output<=100000?cloudflareFallbackNeuronCost(input,output):null}
 export const providerDay=(provider,now=Date.now())=>provider==='gemini'?new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(now):new Date(now).toISOString().slice(0,10);
 export function providerReset(provider,now=Date.now()){const today=providerDay(provider,now);let low=now,high=now+36*3600000;while(high-low>1){const middle=Math.floor((low+high)/2);if(providerDay(provider,middle)===today)low=middle;else high=middle}return high}
 export function quotaChange(value){

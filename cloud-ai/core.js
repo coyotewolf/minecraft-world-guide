@@ -1,7 +1,7 @@
 import {containsCredential,redactCredentials,CREDENTIAL_POLICY} from './credential-safety.js';
 import {normalizePlayerContext,CONTEXT_REQUEST_POLICY,CONTEXT_POLICY,CONTEXT_SCHEMA,contextReply,contextAnswer,contextKey,digest,contextContinuation} from './player-context.js';
 import {REVIEW_POLICY,REVIEW_SCHEMA} from './answer-review.js';
-import {playerLimit,recordUsage,reserveProviderAttempt,settleProviderAttempt,qwenNeurons,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
+import {playerLimit,recordUsage,reserveProviderAttempt,settleProviderAttempt,cloudflareFallbackNeurons,cloudflareFallbackNeuronCost,CLOUDFLARE_FALLBACK_MODEL,providerDay,providerReset,NEURON_BUDGET} from './quota-admin.js';
 import {retrieve,activityPool,retrieveMany,referenceQueries} from '../ai-search.js';
 import {modelEvidence,localizeModelEvidence} from '../ai-evidence.js';
 import {resolveSubjects} from '../subject-resolver.js';
@@ -49,7 +49,7 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
  const system=messages.find(m=>m.role==='system');
  if(options.schema)messages[0].content+='\n輸出 JSON 格式：'+JSON.stringify(options.schema);
  const geminiKey=env.GEMINI_API_KEY||env.gemini_api;
- const estimate=Math.ceil(new TextEncoder().encode(JSON.stringify(messages)).length*4625/1e6+outputTokens*30475/1e6);
+ const estimate=cloudflareFallbackNeuronCost(new TextEncoder().encode(JSON.stringify(messages)).length,outputTokens);
  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
  const reserve=async(p,n)=>{if(options.reserveAttempt)return options.reserveAttempt(p,n);if(!await canUse(p,n))return null;if(n)await onSpend(p,0,n);await options.onUsage?.(p,'attempt');return {provider:p,estimate:n}};
@@ -105,12 +105,12 @@ export async function providerAnswer(env,prompt,canUse,onSpend,fetcher=fetch,onF
   for(let attempt=0;attempt<2;attempt++){
    const reservation=await reserve('cloudflare',estimate);if(!reservation)break;
    try{
-    const value=await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{
-     messages:messages.map((m,i)=>i===messages.length-1?{...m,content:m.content+'\n/no_think'}:m),
-     max_tokens:outputTokens,
+    const value=await env.AI.run(CLOUDFLARE_FALLBACK_MODEL,{
+     messages,
+     max_completion_tokens:outputTokens,
      temperature:options.temperature??0.45
     });
-    const settled=qwenNeurons(value.usage);
+    const settled=cloudflareFallbackNeurons(value.usage);
     if(settled!==null){if(options.settleAttempt)await options.settleAttempt(reservation,settled);else await onSpend('cloudflare',0,settled-estimate)}
     await options.onUsage?.('cloudflare','success',{inputTokens:value.usage?.prompt_tokens,outputTokens:value.usage?.completion_tokens});
     const answer=value.response??value.choices?.[0]?.message?.content;
